@@ -1,6 +1,6 @@
 # Main-Project
 
-<h1>The Next Chapter</h1>
+## The Next Chapter 
 <p>This is the Github Repository for FIT 5120, main project</p>
 <br>
 <h2>List of members of the team:</h2>
