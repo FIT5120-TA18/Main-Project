@@ -30,10 +30,10 @@
 
 <br>
 
-<h4>Iteration-Wise Planning</h4>
-<h5>Iteration 1</h5>
+<h3>Iteration-Wise Planning</h3>
+<h4>Iteration 1</h4>
 
-Delivery Targets
+<h5>Delivery Targets</h5>
 
 <li>A working landing page.</li>
 <li>A profile setup flow.</li>
