@@ -30,5 +30,14 @@
 
 <br>
 
-<h4>Iteration Wise Planning</h4>
+<h4>Iteration-Wise Planning</h4>
 <h5>Iteration 1</h5>
+
+Delivery Targets
+
+<li>A working landing page.</li>
+<li>A profile setup flow.</li>
+<li>A pathway builder with only 1-2 pathways.</li>
+<li>A results screen showing income, housing, and affordability outputs.</li>
+<li>An education page with simple guidance content.</li>
+<li>A hosted version on the team domain with infrastructure basics in place.</li>
