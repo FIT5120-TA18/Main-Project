@@ -2,7 +2,7 @@
 
 ## The Next Chapter
 
-<p>Young Australian women aged 16–40, particularly those from low-income and regional backgrounds, face significant challenges in managing finances during key life transitions such as starting work, pursuing education, and living independently. These challenges are intensified by lower earnings, higher relative living costs, and limited access to tailored financial guidance that reflects their real-world circumstances.</p>
+<p>Young Australian women aged 16-40, particularly those from low-income and regional backgrounds, face significant challenges in managing finances during key life transitions such as starting work, pursuing education, and living independently. These challenges are intensified by lower earnings, higher relative living costs, and limited access to tailored financial guidance that reflects their real-world circumstances.</p>
 
 <p>Existing financial tools are often generic, text-heavy, and designed for financially stable adults, failing to account for irregular income, regional cost differences, and evolving life paths. As a result, many young women feel overwhelmed, lack confidence in financial decision-making, and are at risk of housing stress and delayed independence.</p>
 
