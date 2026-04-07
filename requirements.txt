@@ -1,0 +1,4 @@
+pymysql
+os
+dotenv
+flask

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quick Profile</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<main class="page-shell">
+  <section class="form-card fade-in-up">
+    <div class="progress-header">
+      <p class="step-label">Step 1 of 2</p>
+      <div class="progress-bar">
+        <div class="progress-fill progress-50"></div>
+      </div>
+      <h1 class="form-title">Tell us about your current situation</h1>
+      <p class="form-subtitle">
+        This helps us generate financial estimates that are more relevant to you.
+      </p>
+    </div>
+
+    <form id="profileForm" novalidate>
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="form-label">Age band</label>
+          <div class="tile-group" data-name="age">
+            <button type="button" class="tile">18–20</button>
+            <button type="button" class="tile">21–22</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">State</label>
+          <div class="tile-group" data-name="state">
+            <button type="button" class="tile">NSW</button>
+            <button type="button" class="tile">VIC</button>
+            <button type="button" class="tile">QLD</button>
+            <button type="button" class="tile">WA</button>
+            <button type="button" class="tile">SA</button>
+            <button type="button" class="tile">TAS</button>
+            <button type="button" class="tile">ACT</button>
+            <button type="button" class="tile">NT</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Work status</label>
+          <div class="tile-group" data-name="work">
+            <button type="button" class="tile">Not working</button>
+            <button type="button" class="tile">Casual or part-time</button>
+            <button type="button" class="tile">Full-time</button>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label" for="income">$ per week (after tax)</label>
+          <input
+            type="text"
+            id="income"
+            class="form-input"
+            placeholder="e.g. 650"
+            inputmode="numeric"
+          />
+          <p id="incomeError" class="field-error"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Current living arrangement</label>
+          <div class="tile-group" data-name="living">
+            <button type="button" class="tile">At home with family</button>
+            <button type="button" class="tile">Shared rental</button>
+            <button type="button" class="tile">Living alone</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Study status</label>
+          <div class="tile-group" data-name="study">
+            <button type="button" class="tile">Not studying</button>
+            <button type="button" class="tile">Part-time study</button>
+            <button type="button" class="tile">Full-time study</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="formErrorBox" class="form-error-box hidden">
+        <span class="warning-icon">⚠</span>
+        <span id="formErrorText">Please complete all fields to continue.</span>
+      </div>
+
+      <div class="form-actions">
+        <a href="/" class="secondary-link">Back</a>
+        <button type="button" class="cta-button primary-button" onclick="validateForm()">
+          Next
+        </button>
+      </div>
+    </form>
+  </section>
+</main>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
