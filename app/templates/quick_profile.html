@@ -7,100 +7,129 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-
-<main class="page-shell">
-  <section class="form-card fade-in-up">
-    <div class="progress-header">
-      <p class="step-label">Step 1 of 2</p>
-      <div class="progress-bar">
-        <div class="progress-fill progress-50"></div>
-      </div>
-      <h1 class="form-title">Tell us about your current situation</h1>
-      <p class="form-subtitle">
-        This helps us generate financial estimates that are more relevant to you.
-      </p>
-    </div>
-
-    <form id="profileForm" novalidate>
-      <div class="form-grid">
-
-        <div class="form-group">
-          <label class="form-label">Age band</label>
-          <div class="tile-group" data-name="age">
-            <button type="button" class="tile">18–20</button>
-            <button type="button" class="tile">21–22</button>
-          </div>
+  <main class="page-shell">
+    <section class="wizard-card fade-in-up">
+      <div class="progress-header">
+        <p class="step-label">Step 1 of 2</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
         </div>
-
-        <div class="form-group">
-          <label class="form-label">State</label>
-          <div class="tile-group" data-name="state">
-            <button type="button" class="tile">NSW</button>
-            <button type="button" class="tile">VIC</button>
-            <button type="button" class="tile">QLD</button>
-            <button type="button" class="tile">WA</button>
-            <button type="button" class="tile">SA</button>
-            <button type="button" class="tile">TAS</button>
-            <button type="button" class="tile">ACT</button>
-            <button type="button" class="tile">NT</button>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Work status</label>
-          <div class="tile-group" data-name="work">
-            <button type="button" class="tile">Not working</button>
-            <button type="button" class="tile">Casual or part-time</button>
-            <button type="button" class="tile">Full-time</button>
-          </div>
-        </div>
-
-        <div class="form-group full-width">
-          <label class="form-label" for="income">$ per week (after tax)</label>
-          <input
-            type="text"
-            id="income"
-            class="form-input"
-            placeholder="e.g. 650"
-            inputmode="numeric"
-          />
-          <p id="incomeError" class="field-error"></p>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Current living arrangement</label>
-          <div class="tile-group" data-name="living">
-            <button type="button" class="tile">At home with family</button>
-            <button type="button" class="tile">Shared rental</button>
-            <button type="button" class="tile">Living alone</button>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Study status</label>
-          <div class="tile-group" data-name="study">
-            <button type="button" class="tile">Not studying</button>
-            <button type="button" class="tile">Part-time study</button>
-            <button type="button" class="tile">Full-time study</button>
-          </div>
-        </div>
+        <p class="question-counter" id="questionCounter">Question 1 of 6</p>
       </div>
 
-      <div id="formErrorBox" class="form-error-box hidden">
-        <span class="warning-icon">⚠</span>
-        <span id="formErrorText">Please complete all fields to continue.</span>
-      </div>
+      <div class="wizard-content">
+        <form id="profileForm" novalidate>
+          <div class="question-step active" data-step="1">
+            <h1 class="form-title">What’s your age band?</h1>
+            <p class="form-subtitle">Choose the option that best matches you.</p>
 
-      <div class="form-actions">
-        <a href="/" class="secondary-link">Back</a>
-        <button type="button" class="cta-button primary-button" onclick="validateForm()">
-          Next
-        </button>
-      </div>
-    </form>
-  </section>
-</main>
+            <div class="field-shell">
+              <div class="tile-group" data-name="age">
+                <button type="button" class="tile">18–20</button>
+                <button type="button" class="tile">21–22</button>
+              </div>
+              <span class="field-warning hidden">⚠</span>
+            </div>
+            <p class="field-error"></p>
+          </div>
 
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+          <div class="question-step" data-step="2">
+            <h1 class="form-title">Which state or territory are you in?</h1>
+            <p class="form-subtitle">This helps us reflect local living conditions and benchmarks.</p>
+
+            <div class="field-shell">
+              <div class="tile-group" data-name="state">
+                <button type="button" class="tile">NSW</button>
+                <button type="button" class="tile">VIC</button>
+                <button type="button" class="tile">QLD</button>
+                <button type="button" class="tile">WA</button>
+                <button type="button" class="tile">SA</button>
+                <button type="button" class="tile">TAS</button>
+                <button type="button" class="tile">ACT</button>
+                <button type="button" class="tile">NT</button>
+              </div>
+              <span class="field-warning hidden">⚠</span>
+            </div>
+            <p class="field-error"></p>
+          </div>
+
+          <div class="question-step" data-step="3">
+            <h1 class="form-title">What is your current work status?</h1>
+            <p class="form-subtitle">Pick the option that best describes your current work situation.</p>
+
+            <div class="field-shell">
+              <div class="tile-group" data-name="work">
+                <button type="button" class="tile">Not working</button>
+                <button type="button" class="tile">Casual or part-time</button>
+                <button type="button" class="tile">Full-time</button>
+              </div>
+              <span class="field-warning hidden">⚠</span>
+            </div>
+            <p class="field-error"></p>
+          </div>
+
+          <div class="question-step" data-step="4">
+            <h1 class="form-title">What is your weekly take-home income?</h1>
+            <p class="form-subtitle">Enter your weekly amount after tax.</p>
+
+            <div class="field-shell">
+              <input
+                type="text"
+                id="income"
+                class="form-input"
+                placeholder="e.g. 650"
+                inputmode="numeric"
+                autocomplete="off"
+              />
+              <span class="field-warning hidden" id="incomeWarning">⚠</span>
+            </div>
+            <p id="incomeError" class="field-error"></p>
+          </div>
+
+          <div class="question-step" data-step="5">
+            <h1 class="form-title">What is your current living arrangement?</h1>
+            <p class="form-subtitle">Choose the option that best fits where you live now.</p>
+
+            <div class="field-shell">
+              <div class="tile-group" data-name="living">
+                <button type="button" class="tile">At home with family</button>
+                <button type="button" class="tile">Shared rental</button>
+                <button type="button" class="tile">Living alone</button>
+              </div>
+              <span class="field-warning hidden">⚠</span>
+            </div>
+            <p class="field-error"></p>
+          </div>
+
+          <div class="question-step" data-step="6">
+            <h1 class="form-title">What is your study status?</h1>
+            <p class="form-subtitle">This helps us better estimate your current commitments.</p>
+
+            <div class="field-shell">
+              <div class="tile-group" data-name="study">
+                <button type="button" class="tile">Not studying</button>
+                <button type="button" class="tile">Part-time study</button>
+                <button type="button" class="tile">Full-time study</button>
+              </div>
+              <span class="field-warning hidden">⚠</span>
+            </div>
+            <p class="field-error"></p>
+          </div>
+
+          <div id="formErrorBox" class="form-error-box hidden">
+            <span class="warning-icon">⚠</span>
+            <span id="formErrorText">Please complete all fields to continue.</span>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="secondary-button" id="backBtn">Back</button>
+            <button type="button" class="cta-button primary-button" id="nextBtn">Next</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
