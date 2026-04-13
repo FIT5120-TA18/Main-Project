@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+
   <main class="page-shell">
     <section class="wizard-card fade-in-up">
       <div class="progress-header">
@@ -17,116 +18,128 @@
         <p class="question-counter" id="questionCounter">Question 1 of 6</p>
       </div>
 
-      <div class="wizard-content">
-        <form id="profileForm" novalidate>
-          <div class="question-step active" data-step="1">
-            <h1 class="form-title">What’s your age band?</h1>
-            <p class="form-subtitle">Choose the option that best matches you.</p>
+      <!-- Form creation. POST method to send data to backend (Flask) -->
+      <form id="profileForm" method="POST" novalidate>
+        <input type="hidden" name="age" id="ageInput">
+        <input type="hidden" name="state" id="stateInput">
+        <input type="hidden" name="work" id="workInput">
+        <input type="hidden" name="income" id="incomeHidden">
+        <input type="hidden" name="living" id="livingInput">
+        <input type="hidden" name="study" id="studyInput">
 
-            <div class="field-shell">
-              <div class="tile-group" data-name="age">
-                <button type="button" class="tile">18–20</button>
-                <button type="button" class="tile">21–22</button>
-              </div>
-              <span class="field-warning hidden">⚠</span>
+        <div class="question-step active" data-step="1">
+          <h1 class="form-title">What’s your age band?</h1>
+          <p class="form-subtitle">Choose the option that best matches you.</p>
+
+          <!-- Age Group Input -->
+          <div class="field-shell">
+            <div class="tile-group" data-name="age">
+              <button type="button" class="tile">18–20</button>
+              <button type="button" class="tile">21–22</button>
             </div>
-            <p class="field-error"></p>
+            <span class="field-warning hidden">⚠</span>
           </div>
+          <p class="field-error"></p>
+        </div>
 
-          <div class="question-step" data-step="2">
-            <h1 class="form-title">Which state or territory are you in?</h1>
-            <p class="form-subtitle">This helps us reflect local living conditions and benchmarks.</p>
+        <!-- State Selection -->
+        <div class="question-step" data-step="2">
+          <h1 class="form-title">Which state or territory are you in?</h1>
+          <p class="form-subtitle">Select your location.</p>
 
-            <div class="field-shell">
-              <div class="tile-group" data-name="state">
-                <button type="button" class="tile">NSW</button>
-                <button type="button" class="tile">VIC</button>
-                <button type="button" class="tile">QLD</button>
-                <button type="button" class="tile">WA</button>
-                <button type="button" class="tile">SA</button>
-                <button type="button" class="tile">TAS</button>
-                <button type="button" class="tile">ACT</button>
-                <button type="button" class="tile">NT</button>
-              </div>
-              <span class="field-warning hidden">⚠</span>
+          <div class="field-shell">
+            <div class="tile-group" data-name="state">
+              <button type="button" class="tile">NSW</button>
+              <button type="button" class="tile">VIC</button>
+              <button type="button" class="tile">QLD</button>
+              <button type="button" class="tile">WA</button>
+              <button type="button" class="tile">SA</button>
+              <button type="button" class="tile">TAS</button>
+              <button type="button" class="tile">ACT</button>
+              <button type="button" class="tile">NT</button>
             </div>
-            <p class="field-error"></p>
+            <span class="field-warning hidden">⚠</span>
           </div>
+          <p class="field-error"></p>
+        </div>
 
-          <div class="question-step" data-step="3">
-            <h1 class="form-title">What is your current work status?</h1>
-            <p class="form-subtitle">Pick the option that best describes your current work situation.</p>
+        <!-- Work Status -->
+        <div class="question-step" data-step="3">
+          <h1 class="form-title">What is your current work status?</h1>
+          <p class="form-subtitle">Select your work situation.</p>
 
-            <div class="field-shell">
-              <div class="tile-group" data-name="work">
-                <button type="button" class="tile">Not working</button>
-                <button type="button" class="tile">Casual or part-time</button>
-                <button type="button" class="tile">Full-time</button>
-              </div>
-              <span class="field-warning hidden">⚠</span>
+          <div class="field-shell">
+            <div class="tile-group" data-name="work">
+              <button type="button" class="tile">Not working</button>
+              <button type="button" class="tile">Casual or part-time</button>
+              <button type="button" class="tile">Full-time</button>
             </div>
-            <p class="field-error"></p>
+            <span class="field-warning hidden">⚠</span>
           </div>
+          <p class="field-error"></p>
+        </div>
 
-          <div class="question-step" data-step="4">
-            <h1 class="form-title">What is your weekly take-home income?</h1>
-            <p class="form-subtitle">Enter your weekly amount after tax.</p>
+        <!-- Income Number -->
+        <div class="question-step" data-step="4">
+          <h1 class="form-title">Weekly take-home income</h1>
+          <p class="form-subtitle">Enter amount after tax.</p>
 
-            <div class="field-shell">
-              <input
-                type="text"
-                id="income"
-                class="form-input"
-                placeholder="e.g. 650"
-                inputmode="numeric"
-                autocomplete="off"
-              />
-              <span class="field-warning hidden" id="incomeWarning">⚠</span>
+          <div class="field-shell">
+            <input
+              type="text"
+              id="income"
+              class="form-input"
+              placeholder="e.g. 650"
+              inputmode="numeric"
+              autocomplete="off"
+            />
+            <span class="field-warning hidden" id="incomeWarning">⚠</span>
+          </div>
+          <p id="incomeError" class="field-error"></p>
+        </div>
+
+        <!-- Living Situation -->
+        <div class="question-step" data-step="5">
+          <h1 class="form-title">Living arrangement</h1>
+          <p class="form-subtitle">Select your current situation.</p>
+
+          <div class="field-shell">
+            <div class="tile-group" data-name="living">
+              <button type="button" class="tile">At home with family</button>
+              <button type="button" class="tile">Shared rental</button>
+              <button type="button" class="tile">Living alone</button>
             </div>
-            <p id="incomeError" class="field-error"></p>
+            <span class="field-warning hidden">⚠</span>
           </div>
+          <p class="field-error"></p>
+        </div>
 
-          <div class="question-step" data-step="5">
-            <h1 class="form-title">What is your current living arrangement?</h1>
-            <p class="form-subtitle">Choose the option that best fits where you live now.</p>
+        <!-- Study Load Selection -->
+        <div class="question-step" data-step="6">
+          <h1 class="form-title">Study status</h1>
+          <p class="form-subtitle">Select your study load.</p>
 
-            <div class="field-shell">
-              <div class="tile-group" data-name="living">
-                <button type="button" class="tile">At home with family</button>
-                <button type="button" class="tile">Shared rental</button>
-                <button type="button" class="tile">Living alone</button>
-              </div>
-              <span class="field-warning hidden">⚠</span>
+          <div class="field-shell">
+            <div class="tile-group" data-name="study">
+              <button type="button" class="tile">Not studying</button>
+              <button type="button" class="tile">Part-time study</button>
+              <button type="button" class="tile">Full-time study</button>
             </div>
-            <p class="field-error"></p>
+            <span class="field-warning hidden">⚠</span>
           </div>
+          <p class="field-error"></p>
+        </div>
 
-          <div class="question-step" data-step="6">
-            <h1 class="form-title">What is your study status?</h1>
-            <p class="form-subtitle">This helps us better estimate your current commitments.</p>
+        <div id="formErrorBox" class="form-error-box hidden">
+          <span class="warning-icon">⚠</span>
+          <span id="formErrorText">Please complete all fields to continue.</span>
+        </div>
 
-            <div class="field-shell">
-              <div class="tile-group" data-name="study">
-                <button type="button" class="tile">Not studying</button>
-                <button type="button" class="tile">Part-time study</button>
-                <button type="button" class="tile">Full-time study</button>
-              </div>
-              <span class="field-warning hidden">⚠</span>
-            </div>
-            <p class="field-error"></p>
-          </div>
-
-          <div id="formErrorBox" class="form-error-box hidden">
-            <span class="warning-icon">⚠</span>
-            <span id="formErrorText">Please complete all fields to continue.</span>
-          </div>
-
-          <div class="form-actions">
-            <button type="button" class="secondary-button" id="backBtn">Back</button>
-            <button type="button" class="cta-button primary-button" id="nextBtn">Next</button>
-          </div>
-        </form>
-      </div>
+        <div class="form-actions">
+          <button type="button" class="secondary-button" id="backBtn">Back</button>
+          <button type="button" class="cta-button primary-button" id="nextBtn">Next</button>
+        </div>
+      </form>
     </section>
   </main>
 
