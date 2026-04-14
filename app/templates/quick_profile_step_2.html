@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quick Profile - Step 2</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <main class="page-shell">
+    <section class="wizard-card fade-in-up">
+      <div class="progress-header">
+        <p class="step-label">Step 2 of 2</p>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 100%;"></div>
+        </div>
+        <p class="question-counter">Final step</p>
+      </div>
+
+      <form id="profileStep2Form" method="POST" novalidate>
+        <h1 class="form-title">What are you most trying to figure out right now?</h1>
+        <p class="form-subtitle">This helps us frame your results to match what matters most to you.</p>
+
+        <div class="field-shell">
+          <div class="tile-group goal-tiles" data-name="goal">
+            <!-- Goal Tile 1: Move out -->
+            <button type="button" class="tile goal-tile">
+              <span class="goal-title">Move out of home</span>
+              <span class="goal-description">Am I ready financially to leave home?</span>
+            </button>
+
+            <!-- Goal Tile 2: Save money -->
+            <button type="button" class="tile goal-tile">
+              <span class="goal-title">Save more money</span>
+              <span class="goal-description">How can I improve my monthly surplus?</span>
+            </button>
+
+            <!-- Goal Tile 3: Understand options -->
+            <button type="button" class="tile goal-tile">
+              <span class="goal-title">Understand my options</span>
+              <span class="goal-description">What does each life path look like?</span>
+            </button>
+          </div>
+          <span class="field-warning </span>hidden">
+        </div>
+        <p class="field-error"></p>
+
+        <input type="hidden" name="goal" id="goalInput">
+
+        <div id="formErrorBox" class="form-error-box hidden">
+          <span class="warning-</span>icon">
+          <span id="formErrorText">Please select a goal to continue.</span>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="secondary-button" id=" Edit profile</button>backBtn">
+          <button type="button" class="cta-button primary-button" id="nextBtn">Build My Pathways</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("profileStep2Form");
+      const nextBtn = document.getElementById("nextBtn");
+      const backBtn = document.getElementById("backBtn");
+      const goalTiles = document.querySelectorAll(".goal-tile");
+      const goalInput = document.getElementById("goalInput");
+      const formErrorBox = document.getElementById("formErrorBox");
+      const formErrorText = document.getElementById("formErrorText");
+      const fieldWarning = document.querySelector(".field-warning");
+      const fieldError = document.querySelector(".field-error");
+
+      function showFormError(message) {
+        formErrorText.textContent = message;
+        formErrorBox.classList.remove("hidden");
+      }
+
+      function hideFormError() {
+        formErrorBox.classList.add("hidden");
+      }
+
+      function clearError() {
+        document.querySelector(".tile-group").classList.remove("error");
+        fieldWarning.classList.add("hidden");
+        fieldError.textContent = "";
+        hideFormError();
+      }
+
+      goalTiles.forEach((tile) => {
+        tile.addEventListener("click", function () {
+          goalTiles.forEach((t) => t.classList.remove("selected"));
+          tile.classList.add("selected");
+          
+          const goalTitle = tile.querySelector(".goal-title").textContent.trim();
+          goalInput.value = goalTitle;
+          
+          clearError();
+        });
+      });
+
+      nextBtn.addEventListener("click", function () {
+        const selectedTile = document.querySelector(".goal-tile.selected");
+
+        if (!selectedTile) {
+          document.querySelector(".tile-group").classList.add("error");
+          fieldWarning.classList.remove("hidden");
+          fieldError.textContent = "Please select a goal to continue.";
+          showFormError("Please select a goal to continue.");
+          return;
+        }
+
+        form.submit();
+      });
+
+      backBtn.addEventListener("click", function () {
+        window.history.back();
+      });
+    });
+  </script>
+</body>
+</html>

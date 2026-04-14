@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pathway Builder</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <main class="page-shell">
+    <section class="wizard-card fade-in-up">
+      <div style="margin-bottom: 32px;">
+        <h1 class="form-title">Build the pathways you want to compare</h1>
+        <p class="form-subtitle">Configure your living, work, and study arrangements for each scenario.</p>
+      </div>
+
+      <form id="pathwayBuilderForm" method="POST" novalidate>
+        <div class="pathway-container" id="pathwayContainer">
+          <!-- Pathway A (always present) -->
+          <div class="pathway-card active" data-pathway="A">
+            <div class="pathway-header">
+              <input type="text" class="pathway-name-field" name="pathwayA_name" value="Pathway A" placeholder="Pathway name">
+            </div>
+
+            <div>
+              <p class="pathway-section-title">Living arrangement</p>
+              <div class="tile-group" data-pathway="A" data-type="living">
+                <button type="button" class="tile">At home with family</button>
+                <button type="button" class="tile">Shared rental</button>
+                <button type="button" class="tile">Living alone</button>
+              </div>
+              <span class="field-warning </span>hidden">
+            </div>
+
+            <div>
+              <p class="pathway-section-title">Work hours per week</p>
+              <div class="tile-group" data-pathway="A" data-type="work">
+                <button type="button" class="tile">Not working</button>
+                <button type="button" class="tile">Under 20 hrs</button>
+                <button type="button" class="tile">35 hrs</button>20
+                <button type="button" class="tile">Full-time (38+ hrs)</button>
+              </div>
+              <span class="field-warning </span>hidden">
+            </div>
+
+            <div>
+              <p class="pathway-section-title">Study load</p>
+              <div class="tile-group" data-pathway="A" data-type="study">
+                <button type="button" class="tile">Not studying</button>
+                <button type="button" class="tile">Part-time study</button>
+                <button type="button" class="tile">Full-time study</button>
+              </div>
+              <span class="field-warning </span>hidden">
+            </div>
+
+            <input type="hidden" name="pathwayA_living">
+            <input type="hidden" name="pathwayA_work">
+            <input type="hidden" name="pathwayA_study">
+          </div>
+
+          <!-- Pathway B (optional, hidden initially) -->
+          <div class="pathway-card" data-pathway="B" id="pathwayB" style="display: none;">
+            <div class="pathway-header">
+              <input type="text" class="pathway-name-field" name="pathwayB_name" value="Pathway B" placeholder="Pathway name">
+              <button type="button" class="remove-pathway-btn" id="removePathwayB">Remove</button>
+            </div>
+
+            <div>
+              <p class="pathway-section-title">Living arrangement</p>
+              <div class="tile-group" data-pathway="B" data-type="living">
+                <button type="button" class="tile">At home with family</button>
+                <button type="button" class="tile">Shared rental</button>
+                <button type="button" class="tile">Living alone</button>
+              </div>
+              <span class="field-warning </span>hidden">
+            </div>
+
+            <div>
+              <p class="pathway-section-title">Work hours per week</p>
+              <div class="tile-group" data-pathway="B" data-type="work">
+                <button type="button" class="tile">Not working</button>
+                <button type="button" class="tile">Under 20 hrs</button>
+                <button type="button" class="tile">35 hrs</button>20
+                <button type="button" class="tile">Full-time (38+ hrs)</button>
+              </div>
+              <span class="field-warning </span>hidden">
+            </div>
+
+            <div>
+              <p class="pathway-section-title">Study load</p>
+              <div class="tile-group" data-pathway="B" data-type="study">
+                <button type="button" class="tile">Not studying</button>
+                <button type="button" class="tile">Part-time study</button>
+                <button type="button" class="tile">Full-time study</button>
+              </div>
+              <span class="field-warning </span>hidden">
+            </div>
+
+            <input type="hidden" name="pathwayB_living">
+            <input type="hidden" name="pathwayB_work">
+            <input type="hidden" name="pathwayB_study">
+          </div>
+        </div>
+
+        <div style="margin: 24px 0; text-align: center;">
+          <button type="button" class="secondary-button" id="addPathwayB" style="display: none;">+ Add Pathway B</button>
+        </div>
+
+        <div id="formErrorBox" class="form-error-box hidden">
+          <span class="warning-</span>icon">
+          <span id="formErrorText">Please complete all fields to continue.</span>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="secondary-button" id=" Edit profile</button>backBtn">
+          <button type="button" class="cta-button primary-button" id="nextBtn">See My Results</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("pathwayBuilderForm");
+      const nextBtn = document.getElementById("nextBtn");
+      const backBtn = document.getElementById("backBtn");
+      const addPathwayB = document.getElementById("addPathwayB");
+      const removePathwayB = document.getElementById("removePathwayB");
+      const pathwayB = document.getElementById("pathwayB");
+      const pathwayContainer = document.getElementById("pathwayContainer");
+      const formErrorBox = document.getElementById("formErrorBox");
+      const formErrorText = document.getElementById("formErrorText");
+
+      function showFormError(message) {
+        formErrorText.textContent = message;
+        formErrorBox.classList.remove("hidden");
+      }
+
+      function hideFormError() {
+        formErrorBox.classList.add("hidden");
+      }
+
+      // Handle tile selection for pathways
+      document.querySelectorAll(".tile-group").forEach((group) => {
+        const tiles = group.querySelectorAll(".tile");
+        const pathway = group.dataset.pathway;
+        const type = group.dataset.type;
+
+        tiles.forEach((tile) => {
+          tile.addEventListener("click", function () {
+            tiles.forEach((t) => t.classList.remove("selected"));
+            tile.classList.add("selected");
+
+            // Store value in hidden input
+            const hiddenInput = form.querySelector(`input[name="pathway${pathway}_${type}"]`);
+            if (hiddenInput) {
+              hiddenInput.value = tile.textContent.trim();
+            }
+
+            // Clear error
+            group.classList.remove("error");
+            group.closest(".pathway-card").querySelector(".field-warning").classList.add("hidden");
+            hideFormError();
+          });
+        });
+      });
+
+      // Show "Add Pathway B" button
+      addPathwayB.style.display = "inline-block";
+
+      // Add Pathway B
+      addPathwayB.addEventListener("click", function () {
+        pathwayB.style.display = "block";
+        addPathwayB.style.display = "none";
+        pathwayContainer.style.gridTemplateColumns = "1fr 1fr";
+      });
+
+      // Remove Pathway B
+      removePathwayB.addEventListener("click", function (e) {
+        e.preventDefault();
+        pathwayB.style.display = "none";
+        addPathwayB.style.display = "inline-block";
+        pathwayContainer.style.gridTemplateColumns = "1fr";
+        
+        // Clear Pathway B inputs
+        form.querySelector(`input[name="pathwayB_name"]`).value = "Pathway B";
+        form.querySelector(`input[name="pathwayB_living"]`).value = "";
+        form.querySelector(`input[name="pathwayB_work"]`).value = "";
+        form.querySelector(`input[name="pathwayB_study"]`).value = "";
+        
+        // Deselect tiles
+        pathwayB.querySelectorAll(".tile.selected").forEach(t => t.classList.remove("selected"));
+      });
+
+      // Validate before submission
+      nextBtn.addEventListener("click", function () {
+        let isValid = true;
+        const activePathways = [];
+
+        if (pathwayB.style.display !== "none") {
+          activePathways.push("A", "B");
+        } else {
+          activePathways.push("A");
+        }
+
+        activePathways.forEach((pathway) => {
+          const card = pathwayContainer.querySelector(`[data-pathway="${pathway}"]`);
+          const groups = card.querySelectorAll(".tile-group");
+          let pathwayComplete = true;
+
+          groups.forEach((group) => {
+            if (!group.querySelector(".tile.selected")) {
+              group.classList.add("error");
+              group.closest(".pathway-card").querySelector(".field-warning").classList.remove("hidden");
+              pathwayComplete = false;
+            }
+          });
+
+          if (!pathwayComplete) {
+            isValid = false;
+          }
+        });
+
+        if (!isValid) {
+          showFormError("Please complete all fields in each pathway to continue.");
+          return;
+        }
+
+        hideFormError();
+        form.submit();
+      });
+
+      backBtn.addEventListener("click", function () {
+        window.history.back();
+      });
+    });
+  </script>
+</body>
+</html>
