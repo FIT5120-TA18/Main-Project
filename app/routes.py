@@ -1,79 +1,67 @@
+# Importing dependencies
 from flask import Blueprint, render_template, request, session, redirect, url_for
 
 main = Blueprint("main", __name__)
 
-
+# Homepage routing
 @main.route("/")
 def landing():
-    return render_template("landing.html")
+    return render_template("landing_page.html")
 
-
-@main.route("/quick-profile", methods=["GET", "POST"])
+# Step 1 profile page
+@main.route("/profile_builder", methods=["GET", "POST"])
 def quick_profile():
+
+    # Add the form data to the session storage
     if request.method == "POST":
         data = request.form.to_dict()
         session["profile"] = data
+
+        # Debugging locally
+        # print("FORM DATA:", data)
+        # print("SESSION DATA:", dict(session))
+
+        # Move to next page
         return redirect(url_for("main.quick_profile_step_2"))
 
-    return render_template("quick_profile.html")
-
+    # Check for existing data in the session storage and add it
+    profile_data = session.get("profile", {})
+    return render_template("profile_build_1.html", profile_data=profile_data)
 
 @main.route("/quick-profile-step-2", methods=["GET", "POST"])
 def quick_profile_step_2():
+    profile_data = session.get("profile", {})
+
+    # If session is empty, user cannot access step 2 directly
+    if not profile_data:
+        return redirect(url_for("main.quick_profile"))
+
     if request.method == "POST":
-        goal = request.form.get("goal")
-        if session.get("profile"):
-            session["profile"]["goal"] = goal
-        return redirect(url_for("main.pathway_builder"))
+        selected_goal = request.form.get("goal", "").strip()
 
-    return render_template("quick_profile_step_2.html")
+        if selected_goal:
+            profile_data["goal"] = selected_goal
+            session["profile"] = profile_data
+            return redirect(url_for("main.pathways"))
 
+        return render_template(
+            "profile_build_2.html",
+            profile_data=profile_data,
+            goal_error="Please select one option to continue."
+        )
 
-@main.route("/pathway-builder", methods=["GET", "POST"])
-def pathway_builder():
-    if request.method == "POST":
-        pathways = {
-            "pathwayA": {
-                "name": request.form.get("pathwayA_name", "Pathway A"),
-                "living": request.form.get("pathwayA_living"),
-                "work": request.form.get("pathwayA_work"),
-                "study": request.form.get("pathwayA_study"),
-            }
-        }
-        
-        # Check if Pathway B exists
-        if request.form.get("pathwayB_living"):
-            pathways["pathwayB"] = {
-                "name": request.form.get("pathwayB_name", "Pathway B"),
-                "living": request.form.get("pathwayB_living"),
-                "work": request.form.get("pathwayB_work"),
-                "study": request.form.get("pathwayB_study"),
-            }
-        
-        session["pathways"] = pathways
-        return redirect(url_for("main.results"))
+    # Validation check
+    return render_template(
+        "profile_build_2.html",
+        profile_data=profile_data,
+        goal_error=""
+    )
 
-    return render_template("pathway_builder.html")
+@main.route("/pathways")
+def pathways():
+    profile_data = session.get("profile", {})
 
+    if not profile_data:
+        return redirect(url_for("main.quick_profile"))
 
-@main.route("/results")
-def results():
-    profile = session.get("profile", {})
-    pathways = session.get("pathways", {})
-    
-    return render_template("results.html", profile=profile, pathways=pathways)
-
-
-@main.route("/education/housing-stress")
-def education_housing_stress():
-    return render_template("education_housing_stress.html")
-
-
-@main.route("/education/payslip")
-def education_payslip():
-    return render_template("education_payslip.html")
-
-
-@main.route("/education/moving-costs")
-def education_moving_costs():
-    return render_template("education_moving_costs.html")
+    return render_template("pathways.html", profile_data=profile_data)

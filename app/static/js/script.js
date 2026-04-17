@@ -1,172 +1,266 @@
+// Run on load only
 document.addEventListener("DOMContentLoaded", function () {
+  initStep1();
+  initStep2();
+  initPathwaysCountdown();
+});
 
-  // Main form elements
+// Profile builder step 1 of 2
+function initStep1() {
+
+  // Element ID for Form in Step 1
   const form = document.getElementById("profileForm");
-  const steps = document.querySelectorAll(".question-step");
-  const nextBtn = document.getElementById("nextBtn");
-  const backBtn = document.getElementById("backBtn");
+  if (!form) return;
 
-  // Progress and error display elements
-  const progressFill = document.getElementById("progressFill");
-  const questionCounter = document.getElementById("questionCounter");
-  const formErrorBox = document.getElementById("formErrorBox");
-  const formErrorText = document.getElementById("formErrorText");
+  // Elements of step 1 page 
+  const steps = document.querySelectorAll(".question-step"); // 
+  const nextBtn = document.getElementById("nextBtn"); // Next button
+  const backBtn = document.getElementById("backBtn"); // Go back button
+  const progressFill = document.getElementById("progressFill"); // Bar at the top of the question
+  const questionCounter = document.getElementById("questionCounter"); // Question number
+  const formErrorBox = document.getElementById("formErrorBox"); // Error box
+  const formErrorText = document.getElementById("formErrorText"); // Text in the box
 
-  // Income field elements
-  const incomeInput = document.getElementById("income");
-  const incomeHidden = document.getElementById("incomeHidden");
+  const incomeInput = document.getElementById("income"); // Input by user
+  const incomeHidden = document.getElementById("incomeHidden"); // Hides after user submits
+  const incomeWarning = document.getElementById("incomeWarning"); // Warning for income
+  const incomeError = document.getElementById("incomeError"); // Error
 
-  // Track the currently visible step
-  let currentStep = 0;
+  let currentStep = 0; // Initialize counter for progress bar
 
-  // Updates which step is shown and refreshes progress indicators
   function updateStep() {
     steps.forEach((step, index) => {
       step.classList.toggle("active", index === currentStep);
     });
 
+    // Question counter updating
     questionCounter.textContent = `Question ${currentStep + 1} of ${steps.length}`;
+
+    // Filling progress bar to the corresponding number of questions done
     progressFill.style.width = `${((currentStep + 1) / steps.length) * 100}%`;
 
+    // Do not show back button on Q1
     backBtn.style.visibility = currentStep === 0 ? "hidden" : "visible";
+
+    // Change next to finish on last Q
     nextBtn.textContent = currentStep === steps.length - 1 ? "Finish" : "Next";
 
-    hideFormError();
+    hideGlobalError();
   }
 
-  // Shows the main validation error box
-  function showFormError(message) {
-    formErrorText.textContent = message;
-    formErrorBox.classList.remove("hidden");
-  }
-
-  // Hides the main validation error box
-  function hideFormError() {
+  // Error handling message; Global setting
+  function hideGlobalError() {
+    if (!formErrorBox || !formErrorText) return;
     formErrorBox.classList.add("hidden");
+    formErrorText.textContent = "Please complete all fields to continue.";
   }
 
-  // Clears step-level error styling before validating again
-  function clearStepError(step) {
-    const tileGroup = step.querySelector(".tile-group");
-    const warning = step.querySelector(".field-warning");
-    const error = step.querySelector(".field-error");
-    const input = step.querySelector(".form-input");
+  function showGlobalError(message) {
+    if (!formErrorBox || !formErrorText) return;
+    formErrorBox.classList.remove("hidden");
+    formErrorText.textContent = message;
+  }
 
-    if (tileGroup) tileGroup.classList.remove("error");
+  // After user fixes the error, they should go away, for different steps
+  function clearStepErrors(step) {
+    const errorText = step.querySelector(".field-error");
+    const warning = step.querySelector(".field-warning");
+    const tiles = step.querySelectorAll(".tile");
+
+    if (errorText) errorText.textContent = "";
     if (warning) warning.classList.add("hidden");
-    if (error) error.textContent = "";
-    if (input) input.classList.remove("error");
+
+    tiles.forEach(tile => tile.classList.remove("input-error"));
+
+    if (incomeInput) incomeInput.classList.remove("input-error");
+    if (incomeWarning) incomeWarning.classList.add("hidden");
+    if (incomeError) incomeError.textContent = "";
   }
 
-  // Validates the current step before allowing navigation to continue
-  function validateStep() {
-    const step = steps[currentStep];
+  // User Input validation
+  function validateStep(stepIndex) {
+    const step = steps[stepIndex];
+    clearStepErrors(step);
+
     const tileGroup = step.querySelector(".tile-group");
-    const input = step.querySelector(".form-input");
     const warning = step.querySelector(".field-warning");
-    const error = step.querySelector(".field-error");
+    const errorText = step.querySelector(".field-error");
 
-    clearStepError(step);
-
-    // Tile-based questions require one selected option
     if (tileGroup) {
-      const selected = tileGroup.querySelector(".tile.selected");
+      const fieldName = tileGroup.dataset.name;
+      const hiddenInput = document.getElementById(fieldName + "Input");
 
-      if (!selected) {
-        tileGroup.classList.add("error");
+      if (!hiddenInput || !hiddenInput.value.trim()) {
         if (warning) warning.classList.remove("hidden");
-        if (error) error.textContent = "Please complete all fields to continue.";
-        showFormError("Please complete all fields to continue.");
+        if (errorText) errorText.textContent = "Please complete this field to continue.";
+        tileGroup.querySelectorAll(".tile").forEach(tile => tile.classList.add("input-error"));
+        showGlobalError("Please complete the field to continue.");
         return false;
       }
-
-      return true;
     }
 
-    // Input-based question for weekly income only
-    if (input) {
-      const value = input.value.trim();
+    // User input (text box) validation
+    if (stepIndex === 3) {
+      const rawValue = incomeInput.value.trim();
 
-      if (!value) {
-        input.classList.add("error");
-        if (warning) warning.classList.remove("hidden");
-        if (error) error.textContent = "Please complete all fields to continue.";
-        showFormError("Please complete all fields to continue.");
+      // Empty input
+      if (!rawValue) {
+        if (incomeWarning) incomeWarning.classList.remove("hidden");
+        if (incomeError) incomeError.textContent = "Please enter your weekly income.";
+        incomeInput.classList.add("input-error");
+        showGlobalError("Please complete this field to continue.");
         return false;
       }
 
-      // Income must be numeric so backend receives a clean value
-      if (!/^\d+$/.test(value)) {
-        input.classList.add("error");
-        if (warning) warning.classList.remove("hidden");
-        if (error) error.textContent = "Please enter a valid weekly income amount.";
-        showFormError("Please enter a valid weekly income amount.");
+      // Anything other than number
+      if (!/^\d+$/.test(rawValue)) {
+        if (incomeWarning) incomeWarning.classList.remove("hidden");
+        if (incomeError) incomeError.textContent =
+          "Please enter a valid weekly income amount in dollars.";
+        incomeInput.classList.add("input-error");
+        showGlobalError("Please enter a valid weekly income amount in dollars.");
         return false;
       }
 
-      return true;
+      const numericValue = parseInt(rawValue, 10);
+
+      // Only positive values, because income
+      if (numericValue < 0) {
+        if (incomeWarning) incomeWarning.classList.remove("hidden");
+        if (incomeError) incomeError.textContent = "Income must be greater than $0";
+        incomeInput.classList.add("input-error");
+        showGlobalError("Income must be greater than $0");
+        return false;
+      }
+
+      // Pass case
+      incomeHidden.value = rawValue;
     }
-
     return true;
   }
 
-  // Handles tile selection and stores the chosen value in the matching hidden input
-  document.querySelectorAll(".tile-group").forEach((group) => {
+  document.querySelectorAll(".tile-group").forEach(group => {
+    const fieldName = group.dataset.name;
+    const hiddenInput = document.getElementById(fieldName + "Input");
     const tiles = group.querySelectorAll(".tile");
 
-    tiles.forEach((tile) => {
-      tile.addEventListener("click", function () {
-        tiles.forEach((t) => t.classList.remove("selected"));
+    // Data from session store
+    tiles.forEach(tile => {
+      if (hiddenInput && tile.textContent.trim() === hiddenInput.value.trim()) {
         tile.classList.add("selected");
+      }
 
-        const step = tile.closest(".question-step");
-        clearStepError(step);
-        hideFormError();
+    // Tile behavior - options 
+      tile.addEventListener("click", function () {
+        tiles.forEach(t => {
+          t.classList.remove("selected");
+          t.classList.remove("input-error");
+        });
 
-        const groupName = group.dataset.name;
-        const hiddenInput = document.getElementById(`${groupName}Input`);
+        tile.classList.add("selected");
 
         if (hiddenInput) {
           hiddenInput.value = tile.textContent.trim();
         }
+
+        const currentStepEl = tile.closest(".question-step");
+        if (currentStepEl) {
+          const warning = currentStepEl.querySelector(".field-warning");
+          const errorText = currentStepEl.querySelector(".field-error");
+          if (warning) warning.classList.add("hidden");
+          if (errorText) errorText.textContent = "";
+        }
+
+        hideGlobalError();
       });
     });
   });
 
-  // Keeps income input numeric and copies the value into the hidden field for submission
+  // Validation for numeric data
   if (incomeInput && incomeHidden) {
-    incomeInput.addEventListener("input", function () {
-      const cleaned = this.value.replace(/[^\d]/g, "");
-      this.value = cleaned;
-      incomeHidden.value = cleaned;
+    incomeInput.value = incomeHidden.value;
 
-      const step = this.closest(".question-step");
-      clearStepError(step);
-      hideFormError();
+    incomeInput.addEventListener("input", function () {
+      incomeInput.value = incomeInput.value.replace(/[^\d]/g, "");
+      incomeHidden.value = incomeInput.value;
+      incomeInput.classList.remove("input-error");
+      if (incomeWarning) incomeWarning.classList.add("hidden");
+      if (incomeError) incomeError.textContent = "";
+      hideGlobalError();
     });
   }
 
-  // Moves forward only when the current step is valid
+  // Proceed next button behaviour 
   nextBtn.addEventListener("click", function () {
-    if (!validateStep()) return;
+    if (!validateStep(currentStep)) return;
 
     if (currentStep < steps.length - 1) {
-      currentStep += 1;
+      currentStep++;
       updateStep();
     } else {
-      // Final step submits the completed profile form to Flask
       form.submit();
     }
   });
 
-  // Moves back to the previous step without losing the selected values
+  // Back button
   backBtn.addEventListener("click", function () {
     if (currentStep > 0) {
-      currentStep -= 1;
+      currentStep--;
       updateStep();
     }
   });
 
-  // Initializes the first visible step when the page loads
   updateStep();
-});
+}
+
+// Profile builder step 2 of 2
+function initStep2() {
+  const form = document.getElementById("step2Form");
+  const goalInput = document.getElementById("goalInput");
+
+  if (!form || !goalInput) return;
+
+  const goalTiles = document.querySelectorAll(".goal-tile");
+
+  function syncSelectedGoal() {
+    const currentValue = goalInput.value.trim();
+
+    goalTiles.forEach(tile => {
+      tile.classList.toggle("selected", tile.dataset.value === currentValue);
+    });
+  }
+
+  goalTiles.forEach(tile => {
+    tile.addEventListener("click", function () {
+      goalInput.value = tile.dataset.value;
+      syncSelectedGoal();
+
+      const existingError = form.querySelector(".form-error-box");
+      if (existingError) {
+        existingError.classList.add("hidden");
+      }
+    });
+  });
+
+  form.addEventListener("submit", function (e) {
+    if (!goalInput.value.trim()) {
+      e.preventDefault();
+
+      let errorBox = form.querySelector(".form-error-box");
+
+      if (!errorBox) {
+        errorBox = document.createElement("div");
+        errorBox.className = "form-error-box";
+        errorBox.innerHTML = `
+          <span class="warning-icon">⚠</span>
+          <span>Please select one option to continue.</span>
+        `;
+        form.insertBefore(errorBox, form.querySelector(".form-actions"));
+      } else {
+        errorBox.classList.remove("hidden");
+      }
+    }
+  });
+
+  syncSelectedGoal();
+}
