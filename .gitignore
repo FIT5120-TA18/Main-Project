@@ -18,3 +18,7 @@ venv/
 
 # Flask / Python misc
 *.sqlite3
+# Node / React
+node_modules/
+app/static/client/dist/
+app/static/client/.env.local

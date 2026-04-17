@@ -796,3 +796,391 @@ a {
     text-align: left;
   }
 }
+/* Goal Tiles - Step 2 */
+.goal-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  flex: 1;
+  min-width: 200px;
+  text-align: left;
+}
+
+.goal-title {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.goal-description {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 400;
+}
+
+.goal-tile.selected .goal-description {
+  color: #fff;
+}
+
+/* Pathway Builder Styles */
+.pathway-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.pathway-card {
+  padding: 24px;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  background: #fff;
+  transition: border-color 0.2s ease;
+}
+
+.pathway-card.active {
+  border-color: #1f3c88;
+  box-shadow: 0 8px 24px rgba(31, 60, 136, 0.12);
+}
+
+.pathway-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.pathway-name-field {
+  flex: 1;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #d5dbe7;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.pathway-name-field:focus {
+  outline: none;
+  border-color: #1f3c88;
+  box-shadow: 0 0 0 3px rgba(31, 60, 136, 0.1);
+}
+
+.pathway-section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1f2430;
+  margin: 18px 0 10px;
+}
+
+.remove-pathway-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 10px;
+  background: #fff5f4;
+  color: #d92d20;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.remove-pathway-btn:hover {
+  background: #ffe6e3;
+}
+
+/* Results Screen Styles */
+.results-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.results-card {
+  padding: 28px;
+  border: 1px solid #e0e0e0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.results-pathway-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #1f2430;
+}
+
+.result-item {
+  margin-bottom: 16px;
+}
+
+.result-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.result-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1f2430;
+}
+
+.monthly-surplus {
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+  margin: 16px 0;
+  background: #f8f9fa;
+}
+
+.monthly-surplus.positive {
+  background: #e8f5e9;
+  border: 1px solid #4caf50;
+}
+
+.monthly-surplus.negative {
+  background: #ffebee;
+  border: 1px solid #e74c3c;
+}
+
+.monthly-surplus-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.monthly-surplus-amount {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.monthly-surplus.positive .monthly-surplus-amount {
+  color: #2e7d32;
+}
+
+.monthly-surplus.negative .monthly-surplus-amount {
+  color: #c62828;
+}
+
+/* Housing Stress Badge */
+.affordability-badge {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 12px 0;
+}
+
+.affordability-badge.stress-risk {
+  background: #ffe0d9;
+  color: #d92d20;
+  border: 1px solid #ffa89e;
+}
+
+.affordability-badge.affordable {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.affordability-note {
+  font-size: 0.9rem;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.affordability-note.stress {
+  color: #b42318;
+}
+
+.affordability-note.safe {
+  color: #155724;
+}
+
+/* Benchmark Section */
+.benchmark-section {
+  padding: 16px;
+  background: #f8fafb;
+  border-radius: 12px;
+  margin-top: 16px;
+}
+
+.benchmark-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1f2430;
+  margin-bottom: 10px;
+}
+
+.benchmark-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  font-size: 0.9rem;
+}
+
+.benchmark-label {
+  color: #666;
+}
+
+.benchmark-value {
+  font-weight: 600;
+  color: #1f2430;
+}
+
+.benchmark-indicator {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1f3c88;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .pathway-container,
+  .results-container {
+    grid-template-columns: 1fr;
+  }
+
+  .goal-tile {
+    min-width: unset;
+  }
+}
+
+/* Mobile Responsive Updates */
+@media (max-width: 768px) {
+  .pathway-container,
+  .results-container {
+    grid-template-columns: 1fr;
+  }
+
+  .goal-tile {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .tile-group {
+    flex-direction: column;
+  }
+
+  .tile {
+    width: 100%;
+  }
+
+  .pathway-name-field {
+    width: 100%;
+  }
+
+  .results-card {
+    padding: 20px;
+  }
+
+  table {
+    font-size: 0.9rem;
+  }
+
+  table td {
+    padding: 10px !important;
+  }
+}
+
+/* Education page improvements */
+.education-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.education-list li {
+  margin-bottom: 12px;
+  padding-left: 24px;
+  position: relative;
+}
+
+.education-list li:before {
+  ";content: "
+  position: absolute;
+  left: 0;
+  color: #1f3c88;
+  font-weight: bold;
+}
+
+/* Link styling */
+a {
+  color: #1f3c88;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #193270;
+  text-decoration: underline;
+}
+
+/* Button improvements for mobile */
+@media (max-width: 480px) {
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .form-actions button,
+  .form-actions a {
+    width: 100%;
+  }
+
+  .pathway-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .remove-pathway-btn {
+    width: 100%;
+  }
+
+  .goal-description {
+    font-size: 0.8rem;
+  }
+}
+
+/* Smooth transitions */
+button,
+input,
+.tile,
+.tile-group,
+.pathway-card {
+  transition: all 0.18s ease;
+}
+
+/* Improved form input styling */
+.form-input::placeholder {
+  color: #aaa;
+}
+
+/* Better focus states for accessibility */
+button:focus,
+input:focus,
+.tile:focus {
+  outline: 2px solid #1f3c88;
+  outline-offset: 2px;
+}
+
+/* Smooth page transitions */
+.fade-in-up {
+  animation: fadeUp 0.6s ease both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
