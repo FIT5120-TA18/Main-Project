@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Pathways</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <main class="page-shell">
+    <section class="pathways-card fade-in-up">
+      <div class="card-top-bar">
+        <a href="{{ url_for('main.quick_profile_step_2') }}" class="back-home-btn">← Back</a>
+      </div>
+
+      <p class="step-label">Your Pathways</p>
+
+      <h1 class="pathways-title">Based on your details,</h1>
+      <p class="pathways-subtitle">
+        Here is the information you have entered so far.
+      </p>
+
+      <div class="selection-list">
+        <div class="selection-item">
+          <span class="selection-label">Age band</span>
+          <span class="selection-value">{{ profile_data.get('age', ' - ') }}</span>
+        </div>
+
+        <div class="selection-item">
+          <span class="selection-label">State</span>
+          <span class="selection-value">{{ profile_data.get('state', '-') }}</span>
+        </div>
+
+        <div class="selection-item">
+          <span class="selection-label">Work status</span>
+          <span class="selection-value">{{ profile_data.get('work', '-') }}</span>
+        </div>
+
+        <div class="selection-item">
+          <span class="selection-label">Weekly income</span>
+          <span class="selection-value">${{ profile_data.get('income', '-') }}</span>
+        </div>
+
+        <div class="selection-item">
+          <span class="selection-label">Living arrangement</span>
+          <span class="selection-value">{{ profile_data.get('living', '-') }}</span>
+        </div>
+
+        <div class="selection-item">
+          <span class="selection-label">Study status</span>
+          <span class="selection-value">{{ profile_data.get('study', '-') }}</span>
+        </div>
+
+        <div class="selection-item">
+          <span class="selection-label">Current goal</span>
+          <span class="selection-value">{{ profile_data.get('goal', '-') }}</span>
+        </div>
+      </div>
+
+<div class="coming-soon-panel">
+  <h2 class="coming-soon-title">Feature coming soon</h2>
+  <p class="coming-soon-text">
+    During our next update, we would be able to help you choose the best pathway in life.
+  </p>
+
+  <div class="spinner-wrap">
+    <div class="coming-spinner"></div>
+    <p class="spinner-label">Work in Progress</p>
+  </div>
+</div>
+
+      <div class="pathways-actions">
+        <a href="{{ url_for('main.landing') }}" class="primary-button step-link-btn">
+          Return to Homepage
+        </a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
