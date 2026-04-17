@@ -1,10 +1,5 @@
+# Flask backend, routing the pages
 from flask import Flask
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-
-sec_key = os.getenv('sec_key')
 
 def create_app():
     app = Flask(__name__)

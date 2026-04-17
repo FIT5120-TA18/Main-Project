@@ -13,7 +13,6 @@
 </head>
 
 <body>
-
   <main class="page-shell">
     <section class="wizard-card fade-in-up">
       <div class="card-top-bar">
@@ -77,16 +76,16 @@
           <h1 class="form-title">What is your current work status?</h1>
           <p class="form-subtitle">Select your work situation.</p>
 
-          <div class="field-shell">
-            <div class="tile-group" data-name="work">
-              <button type="button" class="tile">Not working</button>
-              <button type="button" class="tile">Casual or part-time</button>
-              <button type="button" class="tile">Full-time</button>
+            <div class="field-shell">
+              <div class="tile-group" data-name="work">
+                <button type="button" class="tile">Not working</button>
+                <button type="button" class="tile">Casual or part-time</button>
+                <button type="button" class="tile">Full-time</button>
+              </div>
+              <span class="field-warning hidden">⚠</span>
             </div>
-            <span class="field-warning hidden">⚠</span>
+            <p class="field-error"></p>
           </div>
-          <p class="field-error"></p>
-        </div>
 
         <!-- Income Input -->
         <div class="question-step" data-step="4">
@@ -113,16 +112,16 @@
           <h1 class="form-title">Living arrangement</h1>
           <p class="form-subtitle">Select your current situation.</p>
 
-          <div class="field-shell">
-            <div class="tile-group" data-name="living">
-              <button type="button" class="tile">At home with family</button>
-              <button type="button" class="tile">Shared rental</button>
-              <button type="button" class="tile">Living alone</button>
+            <div class="field-shell">
+              <div class="tile-group" data-name="living">
+                <button type="button" class="tile">At home with family</button>
+                <button type="button" class="tile">Shared rental</button>
+                <button type="button" class="tile">Living alone</button>
+              </div>
+              <span class="field-warning hidden">⚠</span>
             </div>
-            <span class="field-warning hidden">⚠</span>
+            <p class="field-error"></p>
           </div>
-          <p class="field-error"></p>
-        </div>
 
         <!-- Study Situation Input -->
         <div class="question-step" data-step="6">
@@ -140,16 +139,17 @@
           <p class="field-error"></p>
         </div>
 
-        <div id="formErrorBox" class="form-error-box hidden">
-          <span class="warning-icon">⚠</span>
-          <span id="formErrorText">Please complete all fields to continue.</span>
-        </div>
+          <div id="formErrorBox" class="form-error-box hidden">
+            <span class="warning-icon">⚠</span>
+            <span id="formErrorText">Please complete all fields to continue.</span>
+          </div>
 
-        <div class="form-actions">
-          <button type="button" class="secondary-button" id="backBtn">Back</button>
-          <button type="button" class="cta-button primary-button" id="nextBtn">Next</button>
-        </div>
-      </form>
+          <div class="form-actions">
+            <button type="button" class="secondary-button" id="backBtn">Back</button>
+            <button type="button" class="cta-button primary-button" id="nextBtn">Next</button>
+          </div>
+        </form>
+      </div>
     </section>
   </main>
 
