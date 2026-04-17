@@ -9,8 +9,7 @@ sec_key = os.getenv('sec_key')
 def create_app():
     app = Flask(__name__)
 
-    # REQUIRED for session to work
-    app.config["SECRET_KEY"] = "dev-secret-key-change-this"
+    app.config["SECRET_KEY"] = sec_key
 
     from app.routes import main
     app.register_blueprint(main)
