@@ -36,16 +36,20 @@
         <input type="hidden" name="study" id="studyInput" value="{{ profile_data.get('study', '') }}">
 
         <div class="question-step active" data-step="1">
-          <h1 class="form-title">What’s your age band?</h1>
-          <p class="form-subtitle">Choose the option that best matches you.</p>
+          <h1 class="form-title">First, let's start with <span class="gradient-text">your <br>age</span>.</h1>
 
           <!-- Age Input -->
           <div class="field-shell">
-            <div class="tile-group" data-name="age">
-              <button type="button" class="tile">18–20</button>
-              <button type="button" class="tile">21–22</button>
-            </div>
-            <span class="field-warning hidden">⚠</span>
+            <input
+              type="text"
+              id="age"
+              class="form-input"
+              placeholder="Enter your age here"
+              inputmode="numeric"
+              autocomplete="off"
+              value="{{ profile_data.get('age', '') }}"
+            />
+            <span class="field-warning hidden" id="ageWarning">⚠</span>
           </div>
           <p class="field-error"></p>
         </div>
