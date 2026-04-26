@@ -1,4 +1,3 @@
 pymysql
 dotenv
-os
 flask
