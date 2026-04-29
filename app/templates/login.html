@@ -1,0 +1,24 @@
+<form method="POST">
+  <div class="field-shell">
+    <input
+      type="password"
+      name="password"
+      class="form-input"
+      placeholder="Enter password"
+      required
+    />
+  </div>
+
+  {% if error %}
+  <div class="form-error-box">
+    <span class="warning-icon">⚠</span>
+    <span>{{ error }}</span>
+  </div>
+  {% endif %}
+
+  <div class="form-actions">
+    <button type="submit" class="cta-button primary-button">
+      Enter
+    </button>
+  </div>
+</form>
