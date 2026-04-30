@@ -2,6 +2,8 @@
 from flask import Flask
 import os
 from dotenv import load_dotenv
+from app.routes import main
+from app.api.locations import api
 
 load_dotenv()
 
@@ -10,7 +12,7 @@ def create_app():
 
     app.config["SECRET_KEY"] = os.getenv('sec_key')
 
-    from app.routes import main
     app.register_blueprint(main)
+    app.register_blueprint(api)
 
     return app

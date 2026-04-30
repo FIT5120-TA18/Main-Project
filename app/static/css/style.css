@@ -801,3 +801,50 @@ a {
     text-align: left;
   }
 }
+
+.location-search-box {
+  margin-top: 22px;
+  animation: fadeInUp 0.35s ease;
+}
+
+.location-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.location-suggestions {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.location-suggestion-item {
+  width: 100%;
+  border: none;
+  background: white;
+  padding: 12px 16px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 15px;
+  color: var(--text-main);
+}
+
+.location-suggestion-item:hover {
+  background: var(--surface-2);
+}
+
+.location-suggestion-item.no-result {
+  cursor: default;
+  color: var(--text-muted);
+}
+
+.rent-box {
+  margin-top: 22px;
+  animation: fadeInUp 0.35s ease;
+}

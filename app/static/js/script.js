@@ -26,6 +26,34 @@ function initStep1() {
   const incomeWarning = document.getElementById("incomeWarning"); // Warning for income
   const incomeError = document.getElementById("incomeError"); // Error
 
+  const rentBox = document.getElementById("rentBox");
+  const rentInput = document.getElementById("rentInput");
+  const rentHidden = document.getElementById("rentHidden");
+  const rentError = document.getElementById("rentError");
+
+  const locationSearchBox = document.getElementById("locationSearchBox");
+  const locationInput = document.getElementById("locationInput");
+  const localityInput = document.getElementById("localityInput");
+  const postcodeInput = document.getElementById("postcodeInput");
+  const locationSuggestions = document.getElementById("locationSuggestions");
+
+  if (
+    locationSearchBox &&
+    document.getElementById("stateInput").value.trim()
+  ) {
+    locationSearchBox.classList.remove("hidden");
+  }
+
+  if (
+    locationInput &&
+    localityInput &&
+    postcodeInput &&
+    localityInput.value &&
+    postcodeInput.value
+  ) {
+    locationInput.value = `${localityInput.value} (${postcodeInput.value})`;
+  }
+
   let currentStep = 0; // Initialize counter for progress bar
 
   function updateStep() {
@@ -99,6 +127,47 @@ function initStep1() {
       }
     }
 
+    // Age input validation
+    if (stepIndex === 0) {
+      const ageInput = document.getElementById("age");
+      const ageHidden = document.getElementById("ageInput");
+      const ageWarning = document.getElementById("ageWarning");
+
+      const rawAge = ageInput.value.trim();
+
+      // Empty Field
+      if (!rawAge) {
+        ageInput.classList.add("input-error");
+        showGlobalError("Please complete this field to continue.");
+        return false;
+      }
+
+      // If anything other than numbers
+      if (!/^\d+$/.test(rawAge)) {
+        ageInput.classList.add("input-error");
+        showGlobalError("Please enter numbers only.");
+        return false;
+      }
+
+      // Decimal Base 10 for consistency
+      const ageNumber = parseInt(rawAge, 10);
+      if (ageNumber < 18 || ageNumber > 22) {
+        showGlobalError("Sorry! currently we only cater to audience from the age 18-22");
+        return false;
+      }
+      ageHidden.value = ageNumber;
+    }
+
+    if (stepIndex === 1) {
+      if (!localityInput.value.trim() || !postcodeInput.value.trim()) {
+        showGlobalError("Please select a locality or postcode from the suggestions.");
+        locationInput.classList.add("input-error");
+        return false;
+      }
+
+      locationInput.classList.remove("input-error");
+    }
+
     // User input (text box) validation
     if (stepIndex === 3) {
       const rawValue = incomeInput.value.trim();
@@ -136,6 +205,31 @@ function initStep1() {
       // Pass case
       incomeHidden.value = rawValue;
     }
+
+        // Rent validation only for Shared rental or Living alone
+    if (stepIndex === 4) {
+      const livingValue = document.getElementById("livingInput").value.trim();
+
+      if (livingValue === "Shared rental" || livingValue === "Living alone") {
+        const rawRent = rentInput.value.trim();
+
+        if (!rawRent) {
+          if (rentError) rentError.textContent = "Please enter your weekly rent.";
+          rentInput.classList.add("input-error");
+          showGlobalError("Please enter your weekly rent.");
+          return false;
+        }
+
+        if (!/^\d+$/.test(rawRent)) {
+          if (rentError) rentError.textContent = "Please enter a valid weekly rent amount.";
+          rentInput.classList.add("input-error");
+          showGlobalError("Please enter a valid weekly rent amount.");
+          return false;
+        }
+
+        rentHidden.value = rawRent;
+      }
+    }
     return true;
   }
 
@@ -163,6 +257,34 @@ function initStep1() {
           hiddenInput.value = tile.textContent.trim();
         }
 
+        if (fieldName === "living") {
+          const selectedLiving = tile.textContent.trim();
+
+          if (selectedLiving === "Shared rental" || selectedLiving === "Living alone") {
+            if (rentBox) rentBox.classList.remove("hidden");
+          } else {
+            if (rentBox) rentBox.classList.add("hidden");
+            if (rentInput) rentInput.value = "";
+            if (rentHidden) rentHidden.value = "";
+            if (rentError) rentError.textContent = "";
+          }
+        }
+
+        if (fieldName === "state") {
+          if (locationSearchBox) {
+            locationSearchBox.classList.remove("hidden");
+          }
+
+          if (locationInput) {
+            locationInput.value = "";
+            locationInput.focus();
+          }
+
+          if (localityInput) localityInput.value = "";
+          if (postcodeInput) postcodeInput.value = "";
+          if (locationSuggestions) locationSuggestions.innerHTML = "";
+        }
+
         const currentStepEl = tile.closest(".question-step");
         if (currentStepEl) {
           const warning = currentStepEl.querySelector(".field-warning");
@@ -175,6 +297,19 @@ function initStep1() {
       });
     });
   });
+
+    if (rentInput && rentHidden) {
+    rentInput.value = rentHidden.value;
+
+    rentInput.addEventListener("input", function () {
+      rentInput.value = rentInput.value.replace(/[^\d]/g, "");
+      rentHidden.value = rentInput.value;
+
+      rentInput.classList.remove("input-error");
+      if (rentError) rentError.textContent = "";
+      hideGlobalError();
+    });
+  }
 
   // Validation for numeric data
   if (incomeInput && incomeHidden) {
@@ -209,6 +344,75 @@ function initStep1() {
       updateStep();
     }
   });
+
+  if (locationInput && locationSuggestions) {
+  locationInput.addEventListener("input", async function () {
+    const query = locationInput.value.trim();
+    const selectedState = document.getElementById("stateInput").value.trim();
+
+    if (localityInput) localityInput.value = "";
+    if (postcodeInput) postcodeInput.value = "";
+
+    if (!selectedState || query.length < 2) {
+      locationSuggestions.innerHTML = "";
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `/api/locations?state=${encodeURIComponent(selectedState)}&q=${encodeURIComponent(query)}`
+      );
+
+      const data = await response.json();
+
+      if (!data.length) {
+        locationSuggestions.innerHTML = `
+          <div class="location-suggestion-item no-result">
+            No matching locality found
+          </div>
+        `;
+        return;
+      }
+
+      locationSuggestions.innerHTML = data.map(item => `
+        <button
+          type="button"
+          class="location-suggestion-item"
+          data-locality="${item.locality}"
+          data-postcode="${item.postcode}"
+        >
+          ${item.locality} (${item.postcode})
+        </button>
+      `).join("");
+
+    } catch (error) {
+      locationSuggestions.innerHTML = "";
+      console.error("Location fetch error:", error);
+    }
+  });
+
+  locationSuggestions.addEventListener("click", function (e) {
+    const item = e.target.closest(".location-suggestion-item");
+    if (!item || item.classList.contains("no-result")) return;
+
+    const locality = item.dataset.locality;
+    const postcode = item.dataset.postcode;
+
+    locationInput.value = `${locality} (${postcode})`;
+    localityInput.value = locality;
+    postcodeInput.value = postcode;
+
+    locationSuggestions.innerHTML = "";
+  });
+  }
+
+  const existingLiving = document.getElementById("livingInput").value.trim();
+
+  if (existingLiving === "Shared rental" || existingLiving === "Living alone") {
+    if (rentBox) rentBox.classList.remove("hidden");
+  } else {
+    if (rentBox) rentBox.classList.add("hidden");
+  }
 
   updateStep();
 }
