@@ -2,6 +2,7 @@
 import os
 from functools import wraps
 from flask import Blueprint, render_template, request, session, redirect, url_for
+from google import genai
 
 main = Blueprint("main", __name__)
 
@@ -68,12 +69,57 @@ def review():
 
     return render_template("review.html", profile_data=profile_data)
 
-@main.route("/pathways")
+
+def generate_financial_fact(profile_data):
+    api_key = os.getenv("GEMINI_API_KEY")
+
+    if not api_key:
+        age = profile_data.get("age", "not provided")
+        return f"At {age}, your weekly choices matter more than you think. Even small savings or budgeting habits can significantly improve your financial flexibility over time."
+
+    prompt = f"""
+    You are writing for a young Australian woman aged 18-22 using a financial literacy web app.
+
+    User details:
+    Age: {profile_data.get("age", "not provided")}
+    State: {profile_data.get("state", "not provided")}
+    Work status: {profile_data.get("work", "not provided")}
+    Weekly income: {profile_data.get("income", "not provided")}
+    Living arrangement: {profile_data.get("living", "not provided")}
+    Study status: {profile_data.get("study", "not provided")}
+
+    Write a personalised 2-3 line financial literacy insight.
+    Make it warm, practical, and easy to understand.
+    Do not use markdown.
+    Do not mention AI.
+    """
+
+    try:
+        client = genai.Client(api_key=api_key)
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+
+        return response.text.strip()
+
+    except Exception as error:
+        age = profile_data.get("age", "not provided")
+        return f"At {age}, your weekly choices matter more than you think. Even small savings or budgeting habits can significantly improve your financial flexibility over time."
+
+@main.route("/dashboard")
 @access_required
-def pathways():
+def dashboard():
     profile_data = session.get("profile", {})
 
     if not profile_data:
         return redirect(url_for("main.quick_profile"))
 
-    return render_template("pathways.html", profile_data=profile_data)
+    financial_fact = generate_financial_fact(profile_data)
+
+    return render_template(
+        "dashboard.html",
+        profile_data=profile_data,
+        financial_fact=financial_fact
+    )

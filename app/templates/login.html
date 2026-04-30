@@ -1,24 +1,52 @@
-<form method="POST">
-  <div class="field-shell">
-    <input
-      type="password"
-      name="password"
-      class="form-input"
-      placeholder="Enter password"
-      required
-    />
-  </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  {% if error %}
-  <div class="form-error-box">
-    <span class="warning-icon">⚠</span>
-    <span>{{ error }}</span>
-  </div>
-  {% endif %}
+  <title>Login</title>
 
-  <div class="form-actions">
-    <button type="submit" class="cta-button primary-button">
-      Enter
-    </button>
-  </div>
-</form>
+  <!-- Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700&family=DM+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <main class="page-shell">
+    <section class="wizard-card fade-in-up">
+
+      <!-- Login Form -->
+      <form method="POST">
+        <div class="field-shell">
+          <input
+            type="password"
+            name="password"
+            class="form-input"
+            placeholder="Enter password"
+            required
+          />
+        </div>
+
+        {% if error %}
+        <div class="form-error-box">
+          <span class="warning-icon">⚠</span>
+          <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <div class="form-actions">
+          <button type="submit" class="cta-button primary-button">
+            Enter
+          </button>
+        </div>
+      </form>
+
+    </section>
+  </main>
+</body>
+</html>
