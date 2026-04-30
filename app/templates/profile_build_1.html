@@ -55,7 +55,6 @@
               autocomplete="off"
               value="{{ profile_data.get('age', '') }}"
             />
-            <span class="field-warning hidden" id="ageWarning">⚠</span>
           </div>
           <p class="field-error"></p>
         </div>
@@ -175,8 +174,6 @@
                   >ⓘ</span>
                   <a href="https://www.omnicalculator.com/finance/weekly-pay" class="calc-source-link" target="_blank">Source</a>
                 </p>
-
-                <p id="allowanceError" class="field-error"></p>
               </div>
 
                               <div id="industryBox" class="industry-box hidden">
@@ -247,7 +244,6 @@
         </div>
 
           <div id="formErrorBox" class="form-error-box hidden">
-            <span class="warning-icon">⚠</span>
             <span id="formErrorText">Please complete all fields to continue.</span>
           </div>
 

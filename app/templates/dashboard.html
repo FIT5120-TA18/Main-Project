@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Dashboard</title>
+
+  <!-- Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap"
+    rel="stylesheet"
+  />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+
+<body>
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <div class="nav-brand">
+        <a href="{{ url_for('main.landing') }}" class="logo-link">
+          <img
+            src="{{ url_for('static', filename='img/hermap-logo.png') }}"
+            alt="Hermap Logo"
+            class="logo"
+          />
+        </a>
+      </div>
+
+      <div class="nav-links">
+        <a href="{{ url_for('main.landing') }}" class="nav-link">Home</a>
+        <a href="{{ url_for('main.landing') }}#how-it-works" class="nav-link">How it works</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Gemini-generated financial insight -->
+    <section class="insight-card">
+      <h2 class="insight-title">Your Financial Snapshot</h2>
+      <p class="insight-label">Based on your details</p>
+
+      <p
+        id="typewriter-text"
+        data-text="{{ financial_fact | e }}"
+      ></p>
+    </section>
+
+    <!-- Dashboard insights section -->
+    <section class="dashboard-insights-section">
+      <div class="insights-header">
+        <h2>Insights</h2>
+        <p>Click on the graph to learn more</p>
+      </div>
+
+      <div class="insights-grid">
+        <div class="insight-graph-card">
+          <canvas id="industryInsightChart"></canvas>
+        </div>
+
+        <div class="insight-graph-card feature-card">
+          <div class="feature-content">
+            <div class="feature-spinner"></div>
+            <p>New feature coming soon</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a href="{{ url_for('main.landing') }}" class="logo-link">
+          <img
+            src="{{ url_for('static', filename='img/hermap-logo.png') }}"
+            alt="Hermap Logo"
+            class="logo"
+          />
+        </a>
+      </div>
+
+      <div class="nav-links">
+        <a href="#" class="nav-link">Privacy Policy</a>
+        <a href="#" class="nav-link">ABS Data Sources</a>
+        <a href="#" class="nav-link">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
