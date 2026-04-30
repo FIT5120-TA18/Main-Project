@@ -26,6 +26,17 @@ function initStep1() {
   const incomeWarning = document.getElementById("incomeWarning"); // Warning for income
   const incomeError = document.getElementById("incomeError"); // Error
 
+  const allowanceBox = document.getElementById("allowanceBox");
+  const allowanceInput = document.getElementById("allowanceInput");
+  const allowanceFrequency = document.getElementById("allowanceFrequency");
+  const allowanceError = document.getElementById("allowanceError");
+  const weeklyEstimate = document.getElementById("weeklyEstimate");
+  const weeklyEstimateValue = document.getElementById("weeklyEstimateValue");
+
+  const industryBox = document.getElementById("industryBox");
+  const industrySelect = document.getElementById("industrySelect");
+  const industryInput = document.getElementById("industryInput");
+
   const rentBox = document.getElementById("rentBox");
   const rentInput = document.getElementById("rentInput");
   const rentHidden = document.getElementById("rentHidden");
@@ -36,6 +47,25 @@ function initStep1() {
   const localityInput = document.getElementById("localityInput");
   const postcodeInput = document.getElementById("postcodeInput");
   const locationSuggestions = document.getElementById("locationSuggestions");
+
+  const studyFieldBox = document.getElementById("studyFieldBox");
+  const studyFieldList = document.getElementById("studyFieldList");
+  const studyFieldInput = document.getElementById("studyFieldInput");
+  const studyFieldLabel = document.getElementById("studyFieldLabel");
+
+  if (industrySelect && industryInput) {
+  industrySelect.addEventListener("change", function () {
+    industryInput.value = industrySelect.value;
+    hideGlobalError();
+
+    const currentStepEl = industrySelect.closest(".question-step");
+    const errorText = currentStepEl.querySelector(".field-error");
+    const warning = currentStepEl.querySelector(".field-warning");
+
+    if (errorText) errorText.textContent = "";
+    if (warning) warning.classList.add("hidden");
+  });
+}
 
   if (
     locationSearchBox &&
@@ -169,7 +199,7 @@ function initStep1() {
     }
 
     // User input (text box) validation
-    if (stepIndex === 3) {
+    if (stepIndex === 4) {
       const rawValue = incomeInput.value.trim();
 
       // Empty input
@@ -257,6 +287,50 @@ function initStep1() {
           hiddenInput.value = tile.textContent.trim();
         }
 
+        if (fieldName === "work") {
+          const selectedWork = tile.textContent.trim();
+
+          if (selectedWork === "Not working") {
+            if (allowanceBox) allowanceBox.classList.remove("hidden");
+            if (industryBox) industryBox.classList.add("hidden");
+          } else {
+            if (allowanceBox) allowanceBox.classList.add("hidden");
+
+            if (industryBox) {
+              industryBox.classList.remove("hidden");
+              loadIndustries();
+            }
+          }
+        }
+
+        if (fieldName === "study") {
+          const selectedStudy = tile.textContent.trim();
+
+          if (studyFieldBox) {
+            studyFieldBox.classList.remove("hidden");
+          }
+
+          if (studyFieldLabel) {
+            if (selectedStudy === "No") {
+              studyFieldLabel.textContent =
+                "What field are you interested in pursuing a qualification in?";
+            } else {
+              studyFieldLabel.textContent =
+                "What field are you pursuing your studies in?";
+            }
+          }
+
+          if (studyFieldInput) {
+            studyFieldInput.value = "";
+          }
+
+          if (studyFieldList) {
+            studyFieldList.innerHTML = "";
+          }
+
+          loadStudyFields();
+        }
+
         if (fieldName === "living") {
           const selectedLiving = tile.textContent.trim();
 
@@ -311,6 +385,148 @@ function initStep1() {
     });
   }
 
+    function updateAllowanceIncome() {
+    if (!allowanceInput || !allowanceFrequency || !incomeHidden) return;
+
+    allowanceInput.value = allowanceInput.value.replace(/[^\d]/g, "");
+
+    const rawAmount = allowanceInput.value.trim();
+
+    if (!rawAmount) {
+      incomeHidden.value = "";
+      if (weeklyEstimate) weeklyEstimate.classList.add("hidden");
+      return;
+    }
+
+    const amount = parseFloat(rawAmount);
+
+    if (allowanceFrequency.value === "weekly") {
+      incomeHidden.value = Math.round(amount);
+      if (weeklyEstimate) weeklyEstimate.classList.add("hidden");
+    }
+
+    if (allowanceFrequency.value === "monthly") {
+      const weeklyAmount = (amount * 12) / 52;
+      const roundedWeekly = Math.round(weeklyAmount);
+
+      incomeHidden.value = roundedWeekly;
+
+      if (weeklyEstimateValue) weeklyEstimateValue.textContent = roundedWeekly;
+      if (weeklyEstimate) weeklyEstimate.classList.remove("hidden");
+    }
+  }
+
+    async function loadIndustries() {
+      if (!industrySelect) return;
+
+      try {
+        const response = await fetch("/api/industries");
+        const data = await response.json();
+
+        let industries = [];
+
+        if (Array.isArray(data)) {
+          industries = data;
+        } else if (Array.isArray(data.industries)) {
+          industries = data.industries;
+        }
+
+        industrySelect.innerHTML = `<option value="">Select an industry</option>`;
+
+        industries.forEach((item) => {
+          const industry = typeof item === "string" ? item : item.industry;
+          if (!industry) return;
+
+          const option = document.createElement("option");
+          option.value = industry;
+          option.textContent = industry;
+
+          if (industryInput && industryInput.value === industry) {
+            option.selected = true;
+          }
+
+          industrySelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error("Error loading industries:", error);
+      }
+    }
+
+    async function loadStudyFields() {
+    if (!studyFieldList) return;
+
+    try {
+      const response = await fetch("/api/industries");
+      const data = await response.json();
+
+      let fields = [];
+
+      if (Array.isArray(data)) {
+        fields = data;
+      } else if (Array.isArray(data.industries)) {
+        fields = data.industries;
+      }
+
+      studyFieldList.innerHTML = "";
+
+      fields.forEach((item) => {
+        const field = typeof item === "string" ? item : item.industry;
+        if (!field) return;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "industry-option";
+        btn.textContent = field;
+
+        btn.addEventListener("click", function () {
+          const allButtons = studyFieldList.querySelectorAll(".industry-option");
+          allButtons.forEach((b) => b.classList.remove("selected"));
+
+          btn.classList.add("selected");
+
+          if (studyFieldInput) {
+            studyFieldInput.value = field;
+          }
+
+          hideGlobalError();
+
+          const currentStepEl = btn.closest(".question-step");
+          const errorText = currentStepEl.querySelector(".field-error");
+          const warning = currentStepEl.querySelector(".field-warning");
+
+          if (errorText) errorText.textContent = "";
+          if (warning) warning.classList.add("hidden");
+        });
+
+        studyFieldList.appendChild(btn);
+      });
+    } catch (error) {
+      console.error("Error loading study fields:", error);
+    }
+  }
+
+    if (industrySelect && industryInput) {
+      industrySelect.addEventListener("change", function () {
+        industryInput.value = industrySelect.value;
+      });
+    }
+
+    if (allowanceInput) {
+    allowanceInput.addEventListener("input", function () {
+      allowanceInput.classList.remove("input-error");
+      if (allowanceError) allowanceError.textContent = "";
+
+      updateAllowanceIncome();
+      hideGlobalError();
+    });
+  }
+
+  if (allowanceFrequency) {
+    allowanceFrequency.addEventListener("change", function () {
+      updateAllowanceIncome();
+    });
+  }
+
   // Validation for numeric data
   if (incomeInput && incomeHidden) {
     incomeInput.value = incomeHidden.value;
@@ -330,7 +546,15 @@ function initStep1() {
     if (!validateStep(currentStep)) return;
 
     if (currentStep < steps.length - 1) {
-      currentStep++;
+      const workValue = document.getElementById("workInput").value.trim();
+
+      // If user is not working, skip income question and go to study status
+      if (currentStep === 3 && workValue === "Not working") {
+        currentStep = 5;
+      } else {
+        currentStep++;
+      }
+
       updateStep();
     } else {
       form.submit();
@@ -340,7 +564,15 @@ function initStep1() {
   // Back button
   backBtn.addEventListener("click", function () {
     if (currentStep > 0) {
-      currentStep--;
+      const workValue = document.getElementById("workInput").value.trim();
+
+      // If coming back from Study and user is Not working, skip Income
+      if (currentStep === 5 && workValue === "Not working") {
+        currentStep = 3;
+      } else {
+        currentStep--;
+      }
+
       updateStep();
     }
   });
@@ -412,6 +644,16 @@ function initStep1() {
     if (rentBox) rentBox.classList.remove("hidden");
   } else {
     if (rentBox) rentBox.classList.add("hidden");
+  }
+
+  const hash = window.location.hash;
+
+  if (hash && hash.startsWith("#step-")) {
+    const stepNumber = parseInt(hash.replace("#step-", ""), 10);
+
+    if (!Number.isNaN(stepNumber)) {
+      currentStep = stepNumber - 1;
+    }
   }
 
   updateStep();

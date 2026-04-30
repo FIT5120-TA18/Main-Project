@@ -52,41 +52,21 @@ def quick_profile():
         # print("SESSION DATA:", dict(session))
 
         # Move to next page
-        return redirect(url_for("main.quick_profile_step_2"))
+        return redirect(url_for("main.review"))
 
     # Check for existing data in the session storage and add it
     profile_data = session.get("profile", {})
     return render_template("profile_build_1.html", profile_data=profile_data)
 
-@main.route("/quick-profile-step-2", methods=["GET", "POST"])
+@main.route("/review")
 @access_required
-def quick_profile_step_2():
+def review():
     profile_data = session.get("profile", {})
 
-    # If session is empty, user cannot access step 2 directly
     if not profile_data:
         return redirect(url_for("main.quick_profile"))
 
-    if request.method == "POST":
-        selected_goal = request.form.get("goal", "").strip()
-
-        if selected_goal:
-            profile_data["goal"] = selected_goal
-            session["profile"] = profile_data
-            return redirect(url_for("main.pathways"))
-
-        return render_template(
-            "profile_build_2.html",
-            profile_data=profile_data,
-            goal_error="Please select one option to continue."
-        )
-
-    # Validation check
-    return render_template(
-        "profile_build_2.html",
-        profile_data=profile_data,
-        goal_error=""
-    )
+    return render_template("review.html", profile_data=profile_data)
 
 @main.route("/pathways")
 @access_required

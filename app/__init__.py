@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from app.routes import main
 from app.api.locations import api
+from app.api.industries import industries_api
 
 load_dotenv()
 
@@ -14,5 +15,6 @@ def create_app():
 
     app.register_blueprint(main)
     app.register_blueprint(api)
+    app.register_blueprint(industries_api)
 
     return app
