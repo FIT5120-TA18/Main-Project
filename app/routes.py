@@ -51,9 +51,14 @@ def quick_profile():
         # Debugging locally
         # print("FORM DATA:", data)
         # print("SESSION DATA:", dict(session))
+        print(session)
+        print(session.get("profile"))
 
+        # # Move to next page
+        # return redirect(url_for("main.review"))
+    
         # Move to next page
-        return redirect(url_for("main.review"))
+        return redirect(url_for("main.dashboard"))
 
     # Check for existing data in the session storage and add it
     profile_data = session.get("profile", {})

@@ -22,7 +22,7 @@ function initProfileBuilder() {
   const ageHidden = document.getElementById("ageInput");
   const ageWarning = document.getElementById("ageWarning");
 
-  const stateInput = document.getElementById("stateInput");
+  // const stateInput = document.getElementById("stateInput");
   const locationSearchBox = document.getElementById("locationSearchBox");
   const locationInput = document.getElementById("locationInput");
   const localityInput = document.getElementById("localityInput");
@@ -391,9 +391,10 @@ function initProfileBuilder() {
   }
 
   function initialiseSavedValues() {
-    if (stateInput.value.trim()) {
-      locationSearchBox.classList.remove("hidden");
-    }
+    // if (stateInput.value.trim()) {
+    //   locationSearchBox.classList.remove("hidden");
+    // }
+    locationSearchBox.classList.remove("hidden");
 
     if (localityInput.value && postcodeInput.value) {
       locationInput.value = `${localityInput.value} (${postcodeInput.value})`;
@@ -457,14 +458,14 @@ function initProfileBuilder() {
   });
 
   function handleTileSideEffects(fieldName, selectedValue) {
-    if (fieldName === "state") {
-      locationSearchBox.classList.remove("hidden");
-      locationInput.value = "";
-      locationInput.focus();
-      localityInput.value = "";
-      postcodeInput.value = "";
-      locationSuggestions.innerHTML = "";
-    }
+    // if (fieldName === "state") {
+    //   locationSearchBox.classList.remove("hidden");
+    //   locationInput.value = "";
+    //   locationInput.focus();
+    //   localityInput.value = "";
+    //   postcodeInput.value = "";
+    //   locationSuggestions.innerHTML = "";
+    // }
 
     if (fieldName === "living") {
       if (selectedValue === "Shared rental" || selectedValue === "Living alone") {
@@ -552,19 +553,20 @@ function initProfileBuilder() {
   if (locationInput && locationSuggestions) {
     locationInput.addEventListener("input", async function () {
       const query = locationInput.value.trim();
-      const selectedState = stateInput.value.trim();
+      // const selectedState = stateInput.value.trim();
 
       localityInput.value = "";
       postcodeInput.value = "";
 
-      if (!selectedState || query.length < 2) {
+      if (query.length < 2) {
         locationSuggestions.innerHTML = "";
         return;
       }
 
       try {
         const response = await fetch(
-          `/api/locations?state=${encodeURIComponent(selectedState)}&q=${encodeURIComponent(query)}`
+          // `/api/locations?state=${encodeURIComponent(selectedState)}&q=${encodeURIComponent(query)}`
+          `/api/locations?q=${encodeURIComponent(query)}`
         );
 
         const locations = await response.json();

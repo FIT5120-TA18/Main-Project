@@ -29,7 +29,7 @@
       <!-- Form init, POST method to store data in session state -->
       <form id="profileForm" method="POST" novalidate>
         <input type="hidden" name="age" id="ageInput" value="{{ profile_data.get('age', '') }}">
-        <input type="hidden" name="state" id="stateInput" value="{{ profile_data.get('state', '') }}">
+        <!-- <input type="hidden" name="state" id="stateInput" value="{{ profile_data.get('state', '') }}"> -->
         <input type="hidden" name="locality" id="localityInput" value="{{ profile_data.get('locality', '') }}">
         <input type="hidden" name="postcode" id="postcodeInput" value="{{ profile_data.get('postcode', '') }}">
         <input type="hidden" name="living" id="livingInput" value="{{ profile_data.get('living', '') }}">
@@ -59,7 +59,7 @@
           <p class="field-error"></p>
         </div>
 
-        <!-- State Input -->
+        <!-- State Input
         <div class="question-step" data-step="2">
           <h1 class="form-title">Which state do you currently reside in?</h1>
           <p class="form-subtitle">Select your location.</p>
@@ -95,7 +95,34 @@
             </div>
           </div>
           <p class="field-error"></p>
-        </div>
+        </div> -->
+
+
+        <!-- Location Input -->
+<div class="question-step" data-step="2">
+  <h1 class="form-title">Where do you currently live?</h1>
+  <p class="form-subtitle">Enter your suburb or postcode.</p>
+
+  <div class="field-shell">
+    <div id="locationSearchBox" class="location-search-box">
+      <label class="location-label" for="locationInput">
+        Suburb or Postcode
+      </label>
+
+      <input
+        type="text"
+        id="locationInput"
+        class="form-input"
+        placeholder="Start typing locality or postcode"
+        autocomplete="off"
+        value="{% if profile_data.get('locality') and profile_data.get('postcode') %}{{ profile_data.get('locality') }} ({{ profile_data.get('postcode') }}){% endif %}"
+      />
+
+      <div id="locationSuggestions" class="location-suggestions"></div>
+    </div>
+  </div>
+  <p class="field-error"></p>
+</div>
 
         <!-- Living Situation Input -->
         <div class="question-step" data-step="3">
