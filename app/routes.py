@@ -123,3 +123,23 @@ def dashboard():
         profile_data=profile_data,
         financial_fact=financial_fact
     )
+
+@main.route("/rent_comparison")
+@access_required
+def rent_comparison():
+    profile_data = session.get("profile", {})
+
+    if not profile_data:
+        return redirect(url_for("main.quick_profile"))
+
+    return render_template("rent_comparison.html", profile_data=profile_data)
+
+@main.route("/income_comparison")
+@access_required
+def income_comparison():
+    profile_data = session.get("profile", {})
+
+    if not profile_data:
+        return redirect(url_for("main.quick_profile"))
+
+    return render_template("income_comparison.html", profile_data=profile_data)
