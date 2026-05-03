@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Income Comparison - Hermap</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- Chart.js for income visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    .income-comparison-container {
+      min-height: 100vh;
+      background: var(--background);
+      padding: 40px 20px;
+    }
+
+    .income-comparison-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .income-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      gap: 20px;
+    }
+
+    .income-header-left h1 {
+      margin: 0 0 8px 0;
+      font-family: var(--font-heading);
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .income-header-left p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .income-header-right {
+      display: flex;
+      gap: 12px;
+    }
+
+    .income-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+      margin-bottom: 40px;
+    }
+
+    /* User Profile Summary */
+    .profile-summary {
+      background: var(--surface);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .profile-summary-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      color: var(--text-main);
+    }
+
+    .profile-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .profile-item {
+      padding: 16px;
+      background: var(--surface-2);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    .profile-item-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .profile-item-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin: 0;
+    }
+
+    /* Chart Card */
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chart-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+      color: var(--text-main);
+    }
+
+    .chart-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin: 0 0 24px 0;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 400px;
+      margin-bottom: 24px;
+    }
+
+    .chart-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .chart-button {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      color: var(--text-main);
+    }
+
+    .chart-button:hover {
+      background: var(--surface-offset);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .chart-button.active {
+      background: linear-gradient(135deg, #e8546a 0%, #c45fa8 50%, #9b72cf 100%);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Statistics Grid */
+    .statistics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid var(--divider);
+    }
+
+    .stat-card {
+      padding: 20px;
+      background: var(--surface-2);
+      border-radius: var(--radius-md);
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0;
+    }
+
+    .stat-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    /* Insight Card */
+    .insight-card {
+      background: linear-gradient(135deg, rgba(232, 84, 106, 0.05) 0%, rgba(155, 114, 207, 0.05) 100%);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-top: 32px;
+    }
+
+    .insight-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+      color: var(--text-main);
+    }
+
+    .insight-content {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .insight-highlight {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Area Selection */
+    .area-selector {
+      margin-bottom: 16px;
+    }
+
+    .area-tiles {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .area-tile {
+      background: var(--surface-2);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      min-height: 90px;
+    }
+
+    .area-tile:hover {
+      border-color: var(--primary);
+      background: rgba(232, 84, 106, 0.05);
+    }
+
+    .area-tile.selected {
+      background: linear-gradient(135deg, #e8546a 0%, #c45fa8 50%, #9b72cf 100%);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .area-tile.selected .tile-income {
+      color: white;
+      font-weight: 700;
+    }
+
+    .tile-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tile-income {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .area-tile.selected .tile-income {
+      color: white;
+    }
+
+    .area-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .badge-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+      margin: 0;
+      transition: color 0.25s ease;
+    }
+
+    .badge-remove:hover {
+      color: var(--primary);
+    }
+
+    /* Legend */
+    .chart-legend {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--divider);
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+    }
+
+    .your-income {
+      background: linear-gradient(135deg, #e8546a 0%, #c45fa8 50%, #9b72cf 100%);
+    }
+
+    .average-income {
+      background: #9b9b9b;
+    }
+
+    .comparison-info {
+      background: rgba(25, 118, 210, 0.1);
+      border-left: 4px solid #1976d2;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 24px;
+      color: var(--text-main);
+      font-size: 14px;
+    }
+
+    @media (max-width: 1024px) {
+      .profile-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .chart-container {
+        height: 350px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .income-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .profile-summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-container {
+        height: 300px;
+      }
+
+      .statistics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-legend {
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <div class="nav-brand">
+        <a href="{{ url_for('main.landing') }}" class="logo-link">
+          <img src="{{ url_for('static', filename='img/hermap-logo.png') }}" alt="Hermap Logo" class="logo" />
+        </a>
+      </div>
+      <div class="nav-links">
+        <a href="{{ url_for('main.landing') }}" class="nav-link">Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="income-comparison-container">
+    <div class="income-comparison-content">
+      <!-- Header -->
+      <div class="income-header">
+        <div class="income-header-left">
+          <h1>See How Your <span class="gradient-text">Peers are Doing</span></h1>
+          <p>Compare your income with people in your situation</p>
+        </div>
+        <a href="{{ url_for('main.dashboard') }}" class="back-home-btn">Back to Dashboard</a>
+      </div>
+
+      <!-- Profile Summary -->
+      <div class="income-grid">
+        <div class="profile-summary">
+          <p class="profile-summary-title">Your Profile</p>
+          <div class="profile-summary-grid">
+            <div class="profile-item">
+              <div class="profile-item-label">Age</div>
+              <p class="profile-item-value" id="profileAge">--</p>
+            </div>
+            <div class="profile-item">
+              <div class="profile-item-label">Location</div>
+              <p class="profile-item-value" id="profileLocation">--</p>
+            </div>
+            <div class="profile-item">
+              <div class="profile-item-label">Work Status</div>
+              <p class="profile-item-value" id="profileWorkStatus">--</p>
+            </div>
+            <div class="profile-item">
+              <div class="profile-item-label">Industry</div>
+              <p class="profile-item-value" id="profileIndustry">--</p>
+            </div>
+            <div class="profile-item">
+              <div class="profile-item-label">Your Weekly Income</div>
+              <p class="profile-item-value" id="profileIncome">--</p>
+            </div>
+            <div class="profile-item">
+              <div class="profile-item-label">Living Arrangement</div>
+              <p class="profile-item-value" id="profileLiving">--</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Area Comparison Section -->
+      <div class="income-grid">
+        <div class="profile-summary">
+          <p class="profile-summary-title">Compare Income Across Different Areas</p>
+          <p style="margin: 0 0 16px 0; font-size: 13px; color: var(--text-muted);">Select states to compare average income for your demographic across Australia</p>
+
+          <div class="area-selector">
+            <div class="area-tiles">
+              <button class="area-tile active" data-state="Your Area" data-income="0">
+                <span class="tile-label">Your Area</span>
+                <span class="tile-income" id="yourAreaIncome">$--</span>
+              </button>
+              <button class="area-tile" data-state="NSW">
+                <span class="tile-label">NSW</span>
+                <span class="tile-income" id="nswIncome">$--</span>
+              </button>
+              <button class="area-tile" data-state="VIC">
+                <span class="tile-label">VIC</span>
+                <span class="tile-income" id="vicIncome">$--</span>
+              </button>
+              <button class="area-tile" data-state="QLD">
+                <span class="tile-label">QLD</span>
+                <span class="tile-income" id="qldIncome">$--</span>
+              </button>
+              <button class="area-tile" data-state="WA">
+                <span class="tile-label">WA</span>
+                <span class="tile-income" id="waIncome">$--</span>
+              </button>
+              <button class="area-tile" data-state="SA">
+                <span class="tile-label">SA</span>
+                <span class="tile-income" id="saIncome">$--</span>
+              </button>
+              <button class="area-tile" data-state="TAS">
+                <span class="tile-label">TAS</span>
+                <span class="tile-income" id="tasIncome">$--</span>
+              </button>
+              <button class="area-tile" data-state="ACT">
+                <span class="tile-label">ACT</span>
+                <span class="tile-income" id="actIncome">$--</span>
+              </button>
+              <button class="area-tile" data-state="NT">
+                <span class="tile-label">NT</span>
+                <span class="tile-income" id="ntIncome">$--</span>
+              </button>
+            </div>
+          </div>
+
+          <p style="margin: 16px 0 0 0; font-size: 12px; color: var(--text-muted); font-weight: 600;">Selected for Comparison:</p>
+          <div id="selectedAreasDisplay" style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px;">
+            <span class="area-badge" data-area="Your Area">Your Area <button class="badge-remove" data-area="Your Area">×</button></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Income Comparison Chart -->
+      <div class="income-grid">
+        <div class="chart-card">
+          <h2 class="chart-title">Income Comparison</h2>
+          <p class="chart-subtitle">Compare your weekly income vs. peers across selected areas</p>
+
+          <div class="comparison-info">
+            📊 Showing average weekly income for your demographic (age, work status, industry) across selected areas.
+          </div>
+
+          <!-- Chart Controls -->
+          <div class="chart-controls">
+            <button class="chart-button active" id="barChartBtn" data-chart="bar">Bar Chart</button>
+            <button class="chart-button" id="lineChartBtn" data-chart="line">Trend Line</button>
+          </div>
+
+          <!-- Chart Container -->
+          <div class="chart-container">
+            <canvas id="incomeChart"></canvas>
+          </div>
+
+          <!-- Legend -->
+          <div class="chart-legend">
+            <div class="legend-item">
+              <div class="legend-color your-income"></div>
+              <span>Your Income</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color average-income"></div>
+              <span>Average (Your Peers)</span>
+            </div>
+          </div>
+
+          <!-- Statistics -->
+          <div class="statistics-grid">
+            <div class="stat-card">
+              <div class="stat-label">Average Income</div>
+              <p class="stat-value" id="averageIncome">--</p>
+              <p class="stat-note">per week</p>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">Median Income</div>
+              <p class="stat-value" id="medianIncome">--</p>
+              <p class="stat-note">per week</p>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">Your Position</div>
+              <p class="stat-value" id="percentilePosition">--</p>
+              <p class="stat-note">percentile</p>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">Income Range</div>
+              <p class="stat-value" id="incomeRange">--</p>
+              <p class="stat-note">min to max</p>
+            </div>
+          </div>
+
+          <!-- Insight -->
+          <div class="insight-card">
+            <p class="insight-title">💡 Key Insight</p>
+            <p class="insight-content" id="insightText">
+              Loading your comparison data...
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a href="{{ url_for('main.landing') }}" class="logo-link">
+          <img src="{{ url_for('static', filename='img/hermap-logo.png') }}" alt="Hermap Logo" class="logo" />
+        </a>
+      </div>
+      <div class="nav-links">
+        <a href="#" class="nav-link">Privacy Policy</a>
+        <a href="#" class="nav-link">ABS Data Sources</a>
+        <a href="#" class="nav-link">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='js/income_comparison.js') }}"></script>
+  <script>
+    // Pass real user profile data from Flask to JavaScript
+    window.userProfileData = {
+      age: "{{ profile_data.get('age', '24') }}",
+      state: "{{ profile_data.get('state', 'VIC') }}",
+      location: "{{ profile_data.get('locality', 'Melbourne') }}",
+      workStatus: "{{ profile_data.get('work', 'Full-time') }}",
+      industry: "{{ profile_data.get('industry', 'IT Services') }}",
+      income: parseInt("{{ profile_data.get('income', '650') }}") || 650,
+      living: "{{ profile_data.get('living', 'Shared rental') }}"
+    };
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rent Comparison - Hermap</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- Map Library -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Chart.js for trend visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    .rent-comparison-container {
+      min-height: 100vh;
+      background: var(--background);
+      padding: 40px 20px;
+    }
+
+    .rent-comparison-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .rent-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      gap: 20px;
+    }
+
+    .rent-header-left h1 {
+      margin: 0 0 8px 0;
+      font-family: var(--font-heading);
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .rent-header-left p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .rent-header-right {
+      display: flex;
+      gap: 12px;
+    }
+
+    .rent-comparison-grid {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 32px;
+      margin-bottom: 40px;
+    }
+
+    .rent-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .rent-filter-card {
+      background: var(--surface);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filter-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      color: var(--text-main);
+    }
+
+    .state-tiles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .state-tile {
+      background: var(--surface-2);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.25s ease;
+    }
+
+    .state-tile:hover {
+      border-color: var(--primary);
+      background: rgba(232, 84, 106, 0.05);
+    }
+
+    .state-tile.active {
+      background: linear-gradient(135deg, #e8546a 0%, #c45fa8 50%, #9b72cf 100%);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .budget-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .budget-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-family: var(--font-body);
+    }
+
+    .budget-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(232, 84, 106, 0.1);
+    }
+
+    .budget-button {
+      padding: 10px 16px;
+      background: linear-gradient(135deg, #e8546a 0%, #c45fa8 50%, #9b72cf 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-pill);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .budget-button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-brand);
+    }
+
+    .budget-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .current-budget {
+      background: var(--surface-offset);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .current-budget strong {
+      color: var(--text-main);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .rent-main {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .map-card {
+      background: var(--surface);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      min-height: 500px;
+    }
+
+    .map-placeholder {
+      width: 100%;
+      height: 450px;
+      background: linear-gradient(135deg, rgba(232, 84, 106, 0.05) 0%, rgba(155, 114, 207, 0.05) 100%);
+      border: 2px dashed var(--divider);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 16px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #mapContainer {
+      width: 100%;
+      height: 450px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .lga-detail-panel {
+      background: var(--surface);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lga-detail-panel.hidden {
+      display: none;
+    }
+
+    .lga-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .lga-detail-title {
+      margin: 0;
+      font-family: var(--font-heading);
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .close-detail-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.25s ease;
+    }
+
+    .close-detail-btn:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .lga-detail-content {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .detail-stat {
+      padding: 20px;
+      background: var(--surface-2);
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+
+    .detail-stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .detail-stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0;
+    }
+
+    .detail-stat-sublabel {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin: 8px 0 0 0;
+    }
+
+    .affordability-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .affordability-affordable {
+      background: rgba(76, 175, 80, 0.1);
+      color: #2e7d32;
+    }
+
+    .affordability-stretched {
+      background: rgba(255, 193, 7, 0.1);
+      color: #f57f17;
+    }
+
+    .affordability-unaffordable {
+      background: rgba(244, 67, 54, 0.1);
+      color: #c62828;
+    }
+
+    .trend-section {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--divider);
+    }
+
+    .trend-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      color: var(--text-main);
+    }
+
+    .trend-placeholder {
+      width: 100%;
+      height: 250px;
+      background: linear-gradient(135deg, rgba(232, 84, 106, 0.05) 0%, rgba(155, 114, 207, 0.05) 100%);
+      border: 2px dashed var(--divider);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .info-message {
+      background: rgba(25, 118, 210, 0.1);
+      border-left: 4px solid #1976d2;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 16px;
+      color: var(--text-main);
+      font-size: 14px;
+    }
+
+    @media (max-width: 1024px) {
+      .rent-comparison-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .lga-detail-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .rent-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .state-tiles {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .map-placeholder,
+      #mapContainer {
+        height: 350px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <div class="nav-brand">
+        <a href="{{ url_for('main.landing') }}" class="logo-link">
+          <img src="{{ url_for('static', filename='img/hermap-logo.png') }}" alt="Hermap Logo" class="logo" />
+        </a>
+      </div>
+      <div class="nav-links">
+        <a href="{{ url_for('main.landing') }}" class="nav-link">Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="rent-comparison-container">
+    <div class="rent-comparison-content">
+      <!-- Header -->
+      <div class="rent-header">
+        <div class="rent-header-left">
+          <h1>Explore Affordable <span class="gradient-text">Living Options</span></h1>
+          <p>Compare rental prices across Local Government Areas</p>
+        </div>
+        <a href="{{ url_for('main.dashboard') }}" class="back-home-btn">Back to Dashboard</a>
+      </div>
+
+      <!-- Main Layout -->
+      <div class="rent-comparison-grid">
+        <!-- Sidebar Filters -->
+        <aside class="rent-sidebar">
+          <!-- State Selection -->
+          <div class="rent-filter-card">
+            <p class="filter-title">Select State</p>
+            <div class="state-tiles">
+              <button class="state-tile" data-state="NSW">NSW</button>
+              <button class="state-tile" data-state="VIC">VIC</button>
+              <button class="state-tile" data-state="QLD">QLD</button>
+              <button class="state-tile" data-state="WA">WA</button>
+              <button class="state-tile" data-state="SA">SA</button>
+              <button class="state-tile" data-state="TAS">TAS</button>
+              <button class="state-tile" data-state="ACT">ACT</button>
+              <button class="state-tile" data-state="NT">NT</button>
+            </div>
+          </div>
+
+          <!-- Budget Filter -->
+          <div class="rent-filter-card">
+            <p class="filter-title">Filter by Budget</p>
+            <div class="info-message">
+              Enter your weekly rent budget to highlight affordable areas.
+            </div>
+            <div class="budget-input-group">
+              <label for="budgetInput" style="font-size: 12px; color: var(--text-muted); font-weight: 600;">
+                Weekly Budget ($)
+              </label>
+              <input type="number" id="budgetInput" class="budget-input" placeholder="e.g., 300" min="0" step="10">
+              <button class="budget-button" id="filterButton">See Areas Within Budget</button>
+            </div>
+
+            <!-- Current Budget Display -->
+            <div id="currentBudgetDisplay" class="current-budget hidden">
+              <strong id="budgetDisplayValue">--</strong>
+              <span>per week</span>
+            </div>
+          </div>
+
+          <!-- Info Card -->
+          <div class="rent-filter-card">
+            <p class="filter-title">ℹ️ How to Use</p>
+            <p style="margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+              1. Select your state<br>
+              2. Enter your rent budget<br>
+              3. Click a Local Government Area (LGA) to see details<br>
+              4. Compare affordability based on your income
+            </p>
+          </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="rent-main">
+          <!-- Map Section -->
+          <div class="map-card">
+            <h2 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">Local Government Areas - Rental Prices</h2>
+            <div id="mapContainer" class="map-placeholder">
+              <span>Select a state to view the map</span>
+            </div>
+          </div>
+
+          <!-- LGA Detail Panel -->
+          <div id="lgaDetailPanel" class="lga-detail-panel hidden">
+            <div class="lga-detail-header">
+              <h2 class="lga-detail-title" id="lgaDetailName">--</h2>
+              <button class="close-detail-btn" id="closeDetailBtn">Close</button>
+            </div>
+
+            <div class="lga-detail-content">
+              <div class="detail-stat">
+                <div class="detail-stat-label">1-Bedroom Rent</div>
+                <p class="detail-stat-value" id="detailRentPrice">--</p>
+                <p class="detail-stat-sublabel">per week</p>
+              </div>
+
+              <div class="detail-stat">
+                <div class="detail-stat-label">% of Your Income</div>
+                <p class="detail-stat-value" id="detailAffordability">--</p>
+                <p class="detail-stat-sublabel" id="detailAffordabilityLabel">--</p>
+              </div>
+
+              <div class="detail-stat">
+                <div class="detail-stat-label">Affordability</div>
+                <p style="margin: 0; padding: 8px 0;">
+                  <span class="affordability-badge" id="affordabilityBadge">Calculating...</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Trend Section -->
+            <div class="trend-section">
+              <p class="trend-title">📈 Rental Trends</p>
+              <p style="font-size: 13px; color: var(--text-muted); margin: 0 0 16px 0;">
+                How 1-bedroom rent has changed over the past decade
+              </p>
+
+              <div style="margin-bottom: 16px;">
+                <div class="detail-stat-label" style="text-align: left; margin-bottom: 8px;">Trend Status</div>
+                <span class="affordability-badge" id="trendStatusBadge">--</span>
+              </div>
+
+              <div class="chart-container" style="height: 300px; margin-bottom: 16px;">
+                <canvas id="trendChart"></canvas>
+              </div>
+
+              <div style="background: var(--surface-offset); border-radius: var(--radius-md); padding: 16px; margin-top: 16px;">
+                <p style="margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6;" id="trendInsight">
+                  Loading trend analysis...
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a href="{{ url_for('main.landing') }}" class="logo-link">
+          <img src="{{ url_for('static', filename='img/hermap-logo.png') }}" alt="Hermap Logo" class="logo" />
+        </a>
+      </div>
+      <div class="nav-links">
+        <a href="#" class="nav-link">Privacy Policy</a>
+        <a href="#" class="nav-link">ABS Data Sources</a>
+        <a href="#" class="nav-link">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Leaflet Map Library -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Main Script -->
+  <script src="{{ url_for('static', filename='js/rent_comparison.js') }}"></script>
+  <script>
+    // Pass real user profile data from Flask to JavaScript
+    window.userProfileData = {
+      age: "{{ profile_data.get('age', '24') }}",
+      state: "{{ profile_data.get('state', 'VIC') }}",
+      location: "{{ profile_data.get('locality', 'Melbourne') }}",
+      workStatus: "{{ profile_data.get('work', 'Full-time') }}",
+      industry: "{{ profile_data.get('industry', 'IT Services') }}",
+      income: parseInt("{{ profile_data.get('income', '650') }}") || 650,
+      living: "{{ profile_data.get('living', 'Shared rental') }}"
+    };
+  </script>
+</body>
+
+</html>
