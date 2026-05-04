@@ -16,6 +16,10 @@ let currentBudget = null;
 let userIncome = null;
 let trendChart = null;
 
+const BASE_PATH = window.location.pathname.includes("/underdevelopment")
+  ? "/underdevelopment"
+  : "";
+
 // Initialize page
 document.addEventListener('DOMContentLoaded', async function () {
   initializeEventListeners();
@@ -25,7 +29,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 async function loadLgaRentLayer() {
   try {
-    const response = await fetch("/api/lga-rent-map");
+
+    const response = await fetch(`${BASE_PATH}/api/lga-rent-map`);
     currentLgaRentGeoJson = await response.json();
     console.log("Loaded all LGA rent layer:", currentLgaRentGeoJson);
   } catch (error) {
@@ -63,7 +68,7 @@ function initializeEventListeners() {
 
       try {
         // Call backend API to fetch matching LGA names
-        const response = await fetch(`/api/lgas?q=${encodeURIComponent(query)}`);
+        const response = await fetch(`${BASE_PATH}/api/lgas?q=${encodeURIComponent(query)}`)
 
         // Convert response into JSON
         const lgas = await response.json();
@@ -101,7 +106,7 @@ function initializeEventListeners() {
 if (lgaDropdownBtn) {
   lgaDropdownBtn.addEventListener('click', async function () {
     try {
-      const response = await fetch('/api/all-lgas');
+      const response = await fetch(`${BASE_PATH}/api/all-lgas`);
       const lgas = await response.json();
 
       lgaSuggestions.innerHTML = lgas.map(item => `
@@ -209,7 +214,7 @@ if (defaultBudget && budgetInput) {
   if (locality || postcode) {
     try {
       const response = await fetch(
-        `/api/lga-from-location?locality=${encodeURIComponent(locality)}&postcode=${encodeURIComponent(postcode)}`
+        `${BASE_PATH}/api/lga-from-location?locality=${encodeURIComponent(locality)}&postcode=${encodeURIComponent(postcode)}`
       );
 
       const data = await response.json();
@@ -253,8 +258,8 @@ async function handleLGASelect(lgaName, lgacode) {
 
   try {
     const [suburbResponse, lgaResponse] = await Promise.all([
-      fetch(`/api/suburb-rent-map?lgacode=${encodeURIComponent(lgacode)}`),
-      fetch(`/api/lga-boundary?lgacode=${encodeURIComponent(lgacode)}`)
+      fetch(`${BASE_PATH}/api/suburb-rent-map?lgacode=${encodeURIComponent(lgacode)}`),
+      fetch(`${BASE_PATH}/api/lga-boundary?lgacode=${encodeURIComponent(lgacode)}`)
     ]);
 
     const suburbGeojson = await suburbResponse.json();
