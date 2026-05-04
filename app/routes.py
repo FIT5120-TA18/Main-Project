@@ -33,13 +33,13 @@ def login():
 
 # Homepage routing
 @main.route("/")
-@access_required
+# @access_required
 def landing():
     return render_template("landing_page.html")
 
 # Step 1 profile page
 @main.route("/profile_builder", methods=["GET", "POST"])
-@access_required
+# @access_required
 def quick_profile():
 
     # Add the form data to the session storage
@@ -59,7 +59,7 @@ def quick_profile():
     return render_template("profile_build_1.html", profile_data=profile_data)
 
 @main.route("/quick-profile-step-2", methods=["GET", "POST"])
-@access_required
+# @access_required
 def quick_profile_step_2():
     profile_data = session.get("profile", {})
 
@@ -89,7 +89,7 @@ def quick_profile_step_2():
     )
 
 @main.route("/pathways")
-@access_required
+# @access_required
 def pathways():
     profile_data = session.get("profile", {})
 
