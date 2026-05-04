@@ -362,3 +362,108 @@ def get_lga_rent_map():
 
     finally:
         conn.close()
+@api.route("/sa3-income-map", methods=["GET"])
+def get_sa3_income_map():
+    conn = connection()
+
+    try:
+        with conn.cursor() as cursor:
+            sql = """
+                SELECT
+                    b.sa3_code,
+                    b.sa3_name,
+                    i.`2018-19`,
+                    i.`2019-20`,
+                    i.`2020-21`,
+                    i.`2021-22`,
+                    i.`2022-23`,
+                    ST_AsGeoJSON(b.boundary) AS geometry
+                FROM hermap.sa3_boundaries_vic b
+                LEFT JOIN hermap.sa3_income_vic i
+                    ON TRIM(CAST(i.SA3 AS CHAR)) = TRIM(CAST(b.sa3_code AS CHAR))
+               
+            """
+
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+
+            features = []
+
+            for row in rows:
+                if not row[7]:
+                    continue
+
+                history = [
+                    float(row[2]) if row[2] is not None else None,
+                    float(row[3]) if row[3] is not None else None,
+                    float(row[4]) if row[4] is not None else None,
+                    float(row[5]) if row[5] is not None else None,
+                    float(row[6]) if row[6] is not None else None
+                ]
+
+                features.append({
+                    "type": "Feature",
+                    "properties": {
+                        "sa3_code": str(row[0]),
+                        "sa3_name": row[1],
+                        "income_2022_23": history[-1],
+                        "history_labels": [
+                            "2018-19",
+                            "2019-20",
+                            "2020-21",
+                            "2021-22",
+                            "2022-23"
+                        ],
+                        "history": history
+                    },
+                    "geometry": json.loads(row[7])
+                })
+
+            return jsonify({
+                "type": "FeatureCollection",
+                "features": features
+            })
+
+    finally:
+        conn.close()
+
+
+@api.route("/sa3-from-location", methods=["GET"])
+def get_sa3_from_location():
+    postcode = request.args.get("postcode", "").strip()
+    locality = request.args.get("locality", "").strip()
+
+    if not postcode and not locality:
+        return jsonify({})
+
+    conn = connection()
+
+    try:
+        with conn.cursor() as cursor:
+            sql = """
+                SELECT DISTINCT
+                    sa3_code,
+                    sa3_name
+                FROM hermap.postcode_lgacode_vic
+                WHERE (
+                    CAST(postcode AS CHAR) = %s
+                    OR LOWER(TRIM(locality)) = LOWER(TRIM(%s))
+                )
+                AND sa3_code IS NOT NULL
+                AND sa3_name IS NOT NULL
+                LIMIT 1
+            """
+
+            cursor.execute(sql, (postcode, locality))
+            row = cursor.fetchone()
+
+            if not row:
+                return jsonify({})
+
+            return jsonify({
+                "sa3_code": str(row[0]),
+                "sa3_name": row[1]
+            })
+
+    finally:
+        conn.close()
