@@ -331,11 +331,12 @@ function initProfileBuilder() {
     if (!industrySelect) return;
 
     try {
-      const basePath = window.location.pathname.startsWith("/underdevelopment")
-        ? "/underdevelopment"
-        : "";
+      // const basePath = window.location.pathname.startsWith("/underdevelopment")
+      //   ? "/underdevelopment"
+      //   : "";
       
-      const response = await fetch(`${basePath}/api/industries`);
+      // const response = await fetch(`${basePath}/api/industries`);
+      const response = await fetch(`/api/industries`);
       const industries = await response.json();
 
       industrySelect.innerHTML = `<option value="">Select an industry</option>`;
@@ -361,11 +362,11 @@ function initProfileBuilder() {
     if (!studyFieldList) return;
 
     try {
-      const basePath = window.location.pathname.startsWith("/underdevelopment")
-        ? "/underdevelopment"
-        : "";
+    //   const basePath = window.location.pathname.startsWith("/underdevelopment")
+    //     ? "/underdevelopment"
+    //     : "";
       
-      const response = await fetch(`${basePath}/api/industries`);
+      const response = await fetch(`/api/industries`);
       const fields = await response.json();
 
       studyFieldList.innerHTML = "";
@@ -574,8 +575,8 @@ function initProfileBuilder() {
       try {
         const response = await fetch(
           // `/api/locations?state=${encodeURIComponent(selectedState)}&q=${encodeURIComponent(query)}`
-          // `/api/locations?q=${encodeURIComponent(query)}`
-          `${window.location.pathname.startsWith("/underdevelopment") ? "/underdevelopment" : ""}/api/locations?q=${encodeURIComponent(query)}`
+          `/api/locations?q=${encodeURIComponent(query)}`
+          // `${window.location.pathname.startsWith("/underdevelopment") ? "/underdevelopment" : ""}/api/locations?q=${encodeURIComponent(query)}`
         );
 
         const locations = await response.json();
@@ -687,11 +688,12 @@ function initIndustryInsightChart() {
 
   if (!canvas || typeof Chart === "undefined") return;
 
-  const BASE_PATH = window.location.pathname.startsWith("/underdevelopment")
-    ? "/underdevelopment"
-    : "";
+  // const BASE_PATH = window.location.pathname.startsWith("/underdevelopment")
+  //   ? "/underdevelopment"
+  //   : "";
 
-  fetch(`${BASE_PATH}/api/industry-chart`)
+  // fetch(`${BASE_PATH}/api/industry-chart`) for dev only
+  fetch(`/api/industry-chart`)
   .then(response => response.json())
     .then(response => response.json())
     .then(data => {
