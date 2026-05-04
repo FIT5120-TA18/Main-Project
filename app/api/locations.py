@@ -46,6 +46,7 @@ def get_locations():
 
     finally:
         conn.close()
+        
 @api.route("/lga-from-location", methods=["GET"])
 def get_lga_from_location():
     postcode = request.args.get("postcode", "").strip()
