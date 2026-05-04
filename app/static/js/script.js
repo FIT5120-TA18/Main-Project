@@ -22,7 +22,7 @@ function initProfileBuilder() {
   const ageHidden = document.getElementById("ageInput");
   const ageWarning = document.getElementById("ageWarning");
 
-  const stateInput = document.getElementById("stateInput");
+  // const stateInput = document.getElementById("stateInput");
   const locationSearchBox = document.getElementById("locationSearchBox");
   const locationInput = document.getElementById("locationInput");
   const localityInput = document.getElementById("localityInput");
@@ -331,7 +331,12 @@ function initProfileBuilder() {
     if (!industrySelect) return;
 
     try {
-      const response = await fetch("/api/industries");
+      // const basePath = window.location.pathname.startsWith("/underdevelopment")
+      //   ? "/underdevelopment"
+      //   : "";
+      
+      // const response = await fetch(`${basePath}/api/industries`);
+      const response = await fetch(`/api/industries`);
       const industries = await response.json();
 
       industrySelect.innerHTML = `<option value="">Select an industry</option>`;
@@ -357,7 +362,11 @@ function initProfileBuilder() {
     if (!studyFieldList) return;
 
     try {
-      const response = await fetch("/api/industries");
+    //   const basePath = window.location.pathname.startsWith("/underdevelopment")
+    //     ? "/underdevelopment"
+    //     : "";
+      
+      const response = await fetch(`/api/industries`);
       const fields = await response.json();
 
       studyFieldList.innerHTML = "";
@@ -391,9 +400,10 @@ function initProfileBuilder() {
   }
 
   function initialiseSavedValues() {
-    if (stateInput.value.trim()) {
-      locationSearchBox.classList.remove("hidden");
-    }
+    // if (stateInput.value.trim()) {
+    //   locationSearchBox.classList.remove("hidden");
+    // }
+    locationSearchBox.classList.remove("hidden");
 
     if (localityInput.value && postcodeInput.value) {
       locationInput.value = `${localityInput.value} (${postcodeInput.value})`;
@@ -457,14 +467,14 @@ function initProfileBuilder() {
   });
 
   function handleTileSideEffects(fieldName, selectedValue) {
-    if (fieldName === "state") {
-      locationSearchBox.classList.remove("hidden");
-      locationInput.value = "";
-      locationInput.focus();
-      localityInput.value = "";
-      postcodeInput.value = "";
-      locationSuggestions.innerHTML = "";
-    }
+    // if (fieldName === "state") {
+    //   locationSearchBox.classList.remove("hidden");
+    //   locationInput.value = "";
+    //   locationInput.focus();
+    //   localityInput.value = "";
+    //   postcodeInput.value = "";
+    //   locationSuggestions.innerHTML = "";
+    // }
 
     if (fieldName === "living") {
       if (selectedValue === "Shared rental" || selectedValue === "Living alone") {
@@ -552,19 +562,21 @@ function initProfileBuilder() {
   if (locationInput && locationSuggestions) {
     locationInput.addEventListener("input", async function () {
       const query = locationInput.value.trim();
-      const selectedState = stateInput.value.trim();
+      // const selectedState = stateInput.value.trim();
 
       localityInput.value = "";
       postcodeInput.value = "";
 
-      if (!selectedState || query.length < 2) {
+      if (query.length < 2) {
         locationSuggestions.innerHTML = "";
         return;
       }
 
       try {
         const response = await fetch(
-          `/api/locations?state=${encodeURIComponent(selectedState)}&q=${encodeURIComponent(query)}`
+          // `/api/locations?state=${encodeURIComponent(selectedState)}&q=${encodeURIComponent(query)}`
+          `/api/locations?q=${encodeURIComponent(query)}`
+          // `${window.location.pathname.startsWith("/underdevelopment") ? "/underdevelopment" : ""}/api/locations?q=${encodeURIComponent(query)}`
         );
 
         const locations = await response.json();
@@ -676,7 +688,13 @@ function initIndustryInsightChart() {
 
   if (!canvas || typeof Chart === "undefined") return;
 
-  fetch("/api/industry-chart")
+  // const BASE_PATH = window.location.pathname.startsWith("/underdevelopment")
+  //   ? "/underdevelopment"
+  //   : "";
+
+  // fetch(`${BASE_PATH}/api/industry-chart`) for dev only
+  fetch(`/api/industry-chart`)
+  .then(response => response.json())
     .then(response => response.json())
     .then(data => {
       const labels = data.map(item => item.industry);
