@@ -566,7 +566,8 @@ function initProfileBuilder() {
       try {
         const response = await fetch(
           // `/api/locations?state=${encodeURIComponent(selectedState)}&q=${encodeURIComponent(query)}`
-          `/api/locations?q=${encodeURIComponent(query)}`
+          // `/api/locations?q=${encodeURIComponent(query)}`
+          `${window.location.pathname.startsWith("/underdevelopment") ? "/underdevelopment" : ""}/api/locations?q=${encodeURIComponent(query)}`
         );
 
         const locations = await response.json();
