@@ -331,7 +331,11 @@ function initProfileBuilder() {
     if (!industrySelect) return;
 
     try {
-      const response = await fetch("/api/industries");
+      const basePath = window.location.pathname.startsWith("/underdevelopment")
+        ? "/underdevelopment"
+        : "";
+      
+      const response = await fetch(`${basePath}/api/industries`);
       const industries = await response.json();
 
       industrySelect.innerHTML = `<option value="">Select an industry</option>`;
@@ -357,7 +361,11 @@ function initProfileBuilder() {
     if (!studyFieldList) return;
 
     try {
-      const response = await fetch("/api/industries");
+      const basePath = window.location.pathname.startsWith("/underdevelopment")
+        ? "/underdevelopment"
+        : "";
+      
+      const response = await fetch(`${basePath}/api/industries`);
       const fields = await response.json();
 
       studyFieldList.innerHTML = "";
@@ -679,7 +687,12 @@ function initIndustryInsightChart() {
 
   if (!canvas || typeof Chart === "undefined") return;
 
-  fetch("/api/industry-chart")
+  const BASE_PATH = window.location.pathname.startsWith("/underdevelopment")
+    ? "/underdevelopment"
+    : "";
+
+  fetch(`${BASE_PATH}/api/industry-chart`)
+  .then(response => response.json())
     .then(response => response.json())
     .then(data => {
       const labels = data.map(item => item.industry);
