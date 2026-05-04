@@ -277,7 +277,7 @@ function onEachSa3Feature(feature, layer) {
   // Tooltip appears on hover
   layer.bindTooltip(
     `<strong>${props.sa3_name}</strong><br>
-     Young female annual income: ${formatAnnualMoney(props.income_2022_23)}`,
+     Young female average annual income: ${formatAnnualMoney(props.income_2022_23)}`,
     { sticky: true }
   );
 
