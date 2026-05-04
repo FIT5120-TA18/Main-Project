@@ -1489,6 +1489,12 @@ a {
       font-weight: 600;
       text-transform: uppercase;
     }
+    .affordability-badge {
+      font-size: 14px;   /* increase to 15px or 16px if needed */
+      font-weight: 700;
+      padding: 8px 12px;
+      line-height: 1.4;
+    }
 
     .affordability-affordable {
       background: rgba(76, 175, 80, 0.1);
@@ -1567,4 +1573,507 @@ a {
       }
     }
 
+  
+    .income-comparison-container {
+      min-height: 100vh;
+      background: var(--background);
+      padding: 40px 20px;
+    }
+
+    .income-comparison-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .income-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      gap: 20px;
+    }
+
+    .income-header-left h1 {
+      margin: 0 0 8px 0;
+      font-family: var(--font-heading);
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .income-header-left p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .income-header-right {
+      display: flex;
+      gap: 12px;
+    }
+
+    .income-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+      margin-bottom: 40px;
+    }
+
+    /* User Profile Summary */
+    .profile-summary {
+      background: var(--surface);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .profile-summary-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      color: var(--text-main);
+    }
+
+    .profile-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .profile-item {
+      padding: 16px;
+      background: var(--surface-2);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    .profile-item-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .profile-item-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin: 0;
+    }
+
+    /* Chart Card */
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chart-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+      color: var(--text-main);
+    }
+
+    .chart-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin: 0 0 24px 0;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 400px;
+      margin-bottom: 24px;
+    }
+
+    .chart-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .chart-button {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      color: var(--text-main);
+    }
+
+    .chart-button:hover {
+      background: var(--surface-offset);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .chart-button.active {
+      background: linear-gradient(135deg, #e8546a 0%, #c45fa8 50%, #9b72cf 100%);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Statistics Grid */
+    .statistics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid var(--divider);
+    }
+
+    .stat-card {
+      padding: 20px;
+      background: var(--surface-2);
+      border-radius: var(--radius-md);
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0;
+    }
+
+    .stat-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    /* Insight Card */
+    .insight-card {
+      background: linear-gradient(135deg, rgba(232, 84, 106, 0.05) 0%, rgba(155, 114, 207, 0.05) 100%);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-top: 32px;
+    }
+
+    .insight-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+      color: var(--text-main);
+    }
+
+    .insight-content {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .insight-highlight {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Area Selection */
+    .area-selector {
+      margin-bottom: 16px;
+    }
+
+    .area-tiles {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .area-tile {
+      background: var(--surface-2);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      min-height: 90px;
+    }
+
+    .area-tile:hover {
+      border-color: var(--primary);
+      background: rgba(232, 84, 106, 0.05);
+    }
+
+    .area-tile.selected {
+      background: linear-gradient(135deg, #e8546a 0%, #c45fa8 50%, #9b72cf 100%);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .area-tile.selected .tile-income {
+      color: white;
+      font-weight: 700;
+    }
+
+    .tile-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tile-income {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .area-tile.selected .tile-income {
+      color: white;
+    }
+
+    .area-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .badge-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+      margin: 0;
+      transition: color 0.25s ease;
+    }
+
+    .badge-remove:hover {
+      color: var(--primary);
+    }
+
+    /* Legend */
+    .chart-legend {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--divider);
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+    }
+
+    .your-income {
+      background: linear-gradient(135deg, #e8546a 0%, #c45fa8 50%, #9b72cf 100%);
+    }
+
+    .average-income {
+      background: #9b9b9b;
+    }
+
+    .comparison-info {
+      background: rgba(25, 118, 210, 0.1);
+      border-left: 4px solid #1976d2;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 24px;
+      color: var(--text-main);
+      font-size: 14px;
+    }
+
+    @media (max-width: 1024px) {
+      .profile-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .chart-container {
+        height: 350px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .income-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .profile-summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-container {
+        height: 300px;
+      }
+
+      .statistics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-legend {
+        gap: 16px;
+      }
+    }
+  
+/* SA3 labels shown on top of the map */
+.sa3-map-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #111111;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.sa3-map-label span {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(2px);
+}
+
+/* Map explanation / legend box */
+.map-mode-box {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--surface-offset);
+  border: 1px solid var(--border-color);
+}
+
+.map-mode-box strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.map-mode-box p {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Legend items */
+.map-mode-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.map-mode-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Legend colour dots */
+.map-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.map-dot.green {
+  background: #2e7d32;
+}
+
+.map-dot.yellow {
+  background: #f9a825;
+}
+
+.map-dot.red {
+  background: #c62828;
+}
+
+.map-dot.grey {
+  background: #d9d9d9;
+  border: 1px solid #c7c7c7;
+}
+
+/* Trend chart wrapper */
+.chart-container {
+  position: relative;
+  width: 100%;
+  min-height: 280px;
+}
+
+/* Make Chart.js canvas stable */
+.chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Income detail panel spacing */
+#sa3DetailPanel .trend-section + .trend-section {
+  margin-top: 24px;
+}
+
+/* Improve detail panel readability */
+#sa3DetailPanel .detail-stat {
+  min-width: 0;
+}
+
+/* Prevent long SA3 names from overflowing */
+#sa3DetailName {
+  word-break: break-word;
+}
+
+/* Better spacing for insight boxes */
+#incomeInsight,
+#incomeTrendInsight {
+  word-break: break-word;
+}
+
+/* Responsive map labels: hide on smaller screens */
+@media (max-width: 1024px) {
+  .sa3-map-label {
+    display: none;
+  }
+}
   
