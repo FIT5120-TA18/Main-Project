@@ -256,51 +256,6 @@ def get_lga_boundary():
     finally:
         conn.close()
 
-# @api.route("/lga-rent-map", methods=["GET"])
-# def get_lga_rent_map():
-#     conn = connection()
-
-#     try:
-#         with conn.cursor() as cursor:
-#             sql = """
-#                 SELECT
-#                     l.lgacode,
-#                     l.lga_name,
-#                     AVG(m.`09-25`) AS avg_lga_rent,
-#                     ST_AsGeoJSON(l.boundary) AS geometry
-#                 FROM hermap.lga_boundaries_vic l
-#                 LEFT JOIN hermap.median_rent_vic m
-#                     ON l.lgacode = m.lgacode
-#                 GROUP BY l.lgacode, l.lga_name, l.boundary
-#             """
-
-#             cursor.execute(sql)
-#             rows = cursor.fetchall()
-
-#             features = []
-
-#             for row in rows:
-#                 if not row[3]:
-#                     continue
-
-#                 features.append({
-#                     "type": "Feature",
-#                     "properties": {
-#                         "lgacode": row[0],
-#                         "lga_name": row[1],
-#                         "rent": float(row[2]) if row[2] is not None else None
-#                     },
-#                     "geometry": json.loads(row[3])
-#                 })
-
-#             return jsonify({
-#                 "type": "FeatureCollection",
-#                 "features": features
-#             })
-
-#     finally:
-#         conn.close()
-
 @api.route("/all-lgas", methods=["GET"])
 def get_all_lgas():
     conn = connection()
