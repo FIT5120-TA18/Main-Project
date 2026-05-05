@@ -1,6 +1,6 @@
-# Main-Project
+# Hermap
 
-## Hermap
+## Problem Statement
 
 <p>Young Australian women aged 18–22, residing in Victoria, face a critical financial literacy gap as they navigate key life transitions, particularly moving out for the first time and/or starting their first job (not necessarily full-time).<p>
 <p>They receive little tailored guidance on realistic budgeting and understanding where their money actually goes. Existing tools like generic calculators, text-heavy education modules, or adult-oriented apps fail them: they don't target this age group or reflect real-life scenarios like living at home, using buy now pay later (BNPL) services, or carrying credit card debt.<p>
@@ -8,14 +8,16 @@
 <p>How we might help: Support Australian women aged 18–22 to navigate first-time financial decisions such as moving out and starting work so they can understand what is actually affordable, recognise hidden costs like compounding credit card debt and missed BNPL instalments, and build the confidence to make informed financial choices before they commit.<p>
 
 <br>
-<h2>List of members of the team:</h2>
+
+## Team working on Development
+
 <li>Akshat Dawange - Masters of Data Science</li>
 <li>Chao Zhang - Masters of Information Technology</li>
 <li>Diya Sheth - Masters of Data Science</li>
 <li>Jiayan Ou - Masters of Business Information Systems</li>
 <li>Zafri Tuan - Masters of Artificial Intelligence</li>
 
-<h3>Tech Stack Used</h3>
+## Tech Stack
 
 <table>
   <tr>
