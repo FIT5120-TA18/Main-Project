@@ -42,15 +42,25 @@ function loadUserProfile() {
       ? `${userProfile.locality} (${userProfile.postcode})`
       : userProfile.locality || "Not provided";
 
-  document.getElementById("profileAge").textContent = userProfile.age || "--";
-  document.getElementById("profileLocation").textContent = locationText;
-  document.getElementById("profileWorkStatus").textContent = userProfile.workStatus || "--";
-  document.getElementById("profileIndustry").textContent = userProfile.industry || "--";
+  setTextIfExists("profileAge", userProfile.age || "--");
+  setTextIfExists("profileLocation", locationText);
+  setTextIfExists("profileWorkStatus", userProfile.workStatus || "--");
+  setTextIfExists("profileIndustry", userProfile.industry || "--");
 
-  document.getElementById("profileIncome").textContent =
-    userProfile.income ? `$${Number(userProfile.income).toLocaleString()}/week` : "--";
+  setTextIfExists(
+    "profileIncome",
+    userProfile.income ? `$${Number(userProfile.income).toLocaleString()}/week` : "--"
+  );
 
-  document.getElementById("profileLiving").textContent = userProfile.living || "--";
+  setTextIfExists("profileLiving", userProfile.living || "--");
+}
+
+function setTextIfExists(id, value) {
+  const element = document.getElementById(id);
+
+  if (element) {
+    element.textContent = value;
+  }
 }
 
 // -----------------------------

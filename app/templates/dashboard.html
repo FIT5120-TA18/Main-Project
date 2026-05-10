@@ -61,35 +61,73 @@
         <p>Click on the graph to learn more</p>
       </div> -->
 
-      <div class="insights-grid">
-        <!-- <div class="insight-graph-card"> -->
-          <!-- <canvas id="industryInsightChart"></canvas> -->
-        <!-- </div> -->
-
-        <div class="insight-graph-card feature-card">
-          <a href="{{ url_for('main.income_comparison') }}" style="text-decoration: none; color: inherit; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
-            <div style="font-size: 32px; background: linear-gradient(135deg, #e8546a 0%, #c45fa8 50%, #9b72cf 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-              📊
-            </div>
-            <div style="text-align: center;">
-              <p style="margin: 0 0 8px 0; font-weight: 600; font-size: 16px;">See How Your Peers are Doing</p>
-              <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Compare your income across Victoria</p>
-            </div>
-          </a>
-        </div>
-
-        <div class="insight-graph-card feature-card">
-          <a href="{{ url_for('main.rent_comparison') }}" style="text-decoration: none; color: inherit; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
-            <div style="font-size: 32px; background: linear-gradient(135deg, #e8546a 0%, #c45fa8 50%, #9b72cf 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-              🗺️
-            </div>
-            <div style="text-align: center;">
-              <p style="margin: 0 0 8px 0; font-weight: 600; font-size: 16px;">Explore Affordable Living</p>
-              <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Compare rent across locations</p>
-            </div>
-          </a>
-        </div>
+<div class="insights-grid">
+  <div class="insight-graph-card feature-card dashboard-feature-tile">
+    <a href="{{ url_for('main.income_comparison') }}" class="dashboard-feature-link">
+      <div class="dashboard-feature-icon">
+        <span class="material-symbols-outlined">monitoring</span>
       </div>
+
+      <div class="dashboard-feature-copy">
+        <p class="dashboard-feature-title">See How Your Peers are Doing</p>
+        <p class="dashboard-feature-text">Compare your income across Victoria</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="insight-graph-card feature-card dashboard-feature-tile">
+    <a href="{{ url_for('main.rent_comparison') }}" class="dashboard-feature-link">
+      <div class="dashboard-feature-icon">
+        <span class="material-symbols-outlined">home_work</span>
+      </div>
+
+      <div class="dashboard-feature-copy">
+        <p class="dashboard-feature-title">Explore Affordable Living</p>
+        <p class="dashboard-feature-text">Compare rent across locations</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="insight-graph-card feature-card dashboard-feature-tile placeholder-tile">
+    <div class="dashboard-feature-link">
+      <div class="dashboard-feature-icon">
+        <span class="material-symbols-outlined">savings</span>
+      </div>
+
+      <div class="dashboard-feature-copy">
+        <p class="dashboard-feature-title">Coming Soon</p>
+        <!-- <p class="dashboard-feature-text">Savings insights placeholder</p> -->
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-graph-card feature-card dashboard-feature-tile placeholder-tile">
+    <div class="dashboard-feature-link">
+      <div class="dashboard-feature-icon">
+        <span class="material-symbols-outlined">school</span>
+      </div>
+
+      <div class="dashboard-feature-copy">
+        <p class="dashboard-feature-title">Coming Soon</p>
+        <!-- <p class="dashboard-feature-text">Study pathway placeholder</p> -->
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-graph-card feature-card dashboard-feature-tile placeholder-tile">
+    <div class="dashboard-feature-link">
+      <div class="dashboard-feature-icon">
+        <span class="material-symbols-outlined">work</span>
+      </div>
+
+      <div class="dashboard-feature-copy">
+        <p class="dashboard-feature-title">Coming Soon</p>
+        <!-- <p class="dashboard-feature-text">Work readiness placeholder</p> -->
+      </div>
+    </div>
+  </div>
+</div>
+
     </section>
   </main>
 
@@ -108,11 +146,45 @@
 
       <div class="nav-links">
         <a href="#" class="nav-link">Privacy Policy</a>
-        <a href="#" class="nav-link">ABS Data Sources</a>
+        <button type="button" class="nav-link footer-modal-link" id="absDataBtn">
+          ABS Data Sources
+        </button>
         <a href="#" class="nav-link">Terms of Service</a>
       </div>
     </div>
   </footer>
+
+   <!-- ABS Data Sources Popup -->
+<div class="modal-overlay hidden" id="absModal">
+  <div class="modal-box">
+    <button type="button" class="modal-close" id="absModalClose" aria-label="Close popup">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+
+    <div class="modal-icon gradient-bg">
+      <span class="material-symbols-outlined">database</span>
+    </div>
+
+    <h2>ABS Data Sources</h2>
+
+    <p>
+      The numbers and benchmarks used across this website are based on datasets from the
+      Australian Bureau of Statistics, commonly known as the ABS.
+    </p>
+
+    <p>
+      The ABS is Australia’s national statistical agency. It collects and publishes official
+      data about population, housing, work, income, cost of living, and other areas that help
+      explain how people live across Australia.
+    </p>
+
+    <p>
+      In Hermap, ABS data is used in context to support comparisons around living costs,
+      income, location, and financial readiness. These figures are intended to help users
+      better understand possible trade-offs, not to provide personal financial advice.
+    </p>
+  </div>
+</div>
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

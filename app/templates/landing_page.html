@@ -106,6 +106,31 @@
         </div>
       </div>
     </section>
+
+    <!-- Things You Should Know Section -->
+<section class="things-section">
+  <div class="container">
+    <div class="things-card">
+      <div class="things-left">
+        <h2>Things you should know</h2>
+      </div>
+
+      <div class="things-right">
+        <div class="things-info-box">
+          <span class="material-symbols-outlined">info</span>
+          <div>
+            <p>
+              The information provided on this website is for general educational and informational purposes only. It is not intended
+              to consitute financial, legal, or professional advice.
+              All financial decisions should be made based on your individual circumstances.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
   </main>
 
   <!-- Footer -->
@@ -123,11 +148,47 @@
 
       <div class="nav-links">
         <a href="#" class="nav-link">Privacy Policy</a>
-        <a href="#" class="nav-link">ABS Data Sources</a>
+
+        <button type="button" class="nav-link footer-modal-link" id="absDataBtn">
+          ABS Data Sources
+        </button>
+        
         <a href="#" class="nav-link">Terms of Service</a>
       </div>
     </div>
   </footer>
+
+  <!-- ABS Data Sources Popup -->
+<div class="modal-overlay hidden" id="absModal">
+  <div class="modal-box">
+    <button type="button" class="modal-close" id="absModalClose" aria-label="Close popup">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+
+    <div class="modal-icon gradient-bg">
+      <span class="material-symbols-outlined">database</span>
+    </div>
+
+    <h2>ABS Data Sources</h2>
+
+    <p>
+      The numbers and benchmarks used across this website are based on datasets from the
+      Australian Bureau of Statistics, commonly known as the ABS.
+    </p>
+
+    <p>
+      The ABS is Australia’s national statistical agency. It collects and publishes official
+      data about population, housing, work, income, cost of living, and other areas that help
+      explain how people live across Australia.
+    </p>
+
+    <p>
+      In Hermap, ABS data is used in context to support comparisons around living costs,
+      income, location, and financial readiness. These figures are intended to help users
+      better understand possible trade-offs, not to provide personal financial advice.
+    </p>
+  </div>
+</div>
 
   <!-- Scripts -->
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>

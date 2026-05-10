@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initProfileBuilder();
   initTypewriter();
   initIndustryInsightChart();
+  initAbsDataModal();
 });
 
 
@@ -771,4 +772,39 @@ function initIndustryInsightChart() {
     .catch(error => {
       console.error("Chart fetch error:", error);
     });
+}
+
+/* ABS Data Sources Popup */
+function initAbsDataModal() {
+  const absDataBtn = document.getElementById("absDataBtn");
+  const absModal = document.getElementById("absModal");
+  const absModalClose = document.getElementById("absModalClose");
+
+  if (!absDataBtn || !absModal || !absModalClose) return;
+
+  function openModal() {
+    absModal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    absModal.classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+
+  absDataBtn.addEventListener("click", openModal);
+
+  absModalClose.addEventListener("click", closeModal);
+
+  absModal.addEventListener("click", function (event) {
+    if (event.target === absModal) {
+      closeModal();
+    }
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && !absModal.classList.contains("hidden")) {
+      closeModal();
+    }
+  });
 }
