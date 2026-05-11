@@ -16,6 +16,10 @@ let currentBudget = null;
 let userIncome = null;
 let trendChart = null;
 
+// const BASE_PATH = window.location.pathname.includes("/underdevelopment")
+//   ? "/underdevelopment"
+//   : "";
+
 // Initialize page
 document.addEventListener('DOMContentLoaded', async function () {
   initializeEventListeners();
@@ -25,7 +29,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 async function loadLgaRentLayer() {
   try {
-    const response = await fetch("/api/lga-rent-map");
+
+    // const response = await fetch(`${BASE_PATH}/api/lga-rent-map`);
+    const response = await fetch(`/api/lga-rent-map`);
     currentLgaRentGeoJson = await response.json();
     console.log("Loaded all LGA rent layer:", currentLgaRentGeoJson);
   } catch (error) {
@@ -35,80 +41,131 @@ async function loadLgaRentLayer() {
 
 // Initialize all event listeners
 function initializeEventListeners() {
-  const locationSearchInput      = document.getElementById('locationSearchInput');
-  const locationSearchSuggestions = document.getElementById('locationSearchSuggestions');
-  const selectedLgaInput         = document.getElementById('selectedLgaInput');
-  const selectedLgacodeInput     = document.getElementById('selectedLgacodeInput');
+  // Get the LGA search input (visible text field)
+  const lgaInput = document.getElementById('lgaInput');
 
-  if (locationSearchInput && locationSearchSuggestions) {
-    locationSearchInput.addEventListener('input', async function () {
-      const query = locationSearchInput.value.trim();
+  // Get the dropdown container where LGA suggestions will appear
+  const lgaSuggestions = document.getElementById('lgaSuggestions');
 
-      // Reset LGA state on new typing
+  // Hidden input to store the selected LGA value
+  const selectedLgaInput = document.getElementById('selectedLgaInput');
+
+  // Only continue if both the input and suggestion box exist
+  if (lgaInput && lgaSuggestions) {
+
+    // Listen for user typing in the LGA search box
+    lgaInput.addEventListener('input', async function () {
+      const query = lgaInput.value.trim(); // Get what user typed
+
+      // Clear previous selected LGA whenever user types again
       if (selectedLgaInput) selectedLgaInput.value = "";
-      if (selectedLgacodeInput) selectedLgacodeInput.value = "";
       selectedLGAName = null;
 
+      // Do not search until at least 2 characters are typed
       if (query.length < 2) {
-        locationSearchSuggestions.innerHTML = "";
+        lgaSuggestions.innerHTML = "";
         return;
       }
 
       try {
-        const response  = await fetch(`/api/locations?q=${encodeURIComponent(query)}`);
-        const locations = await response.json();
+        // Call backend API to fetch matching LGA names
+        // const response = await fetch(`${BASE_PATH}/api/lgas?q=${encodeURIComponent(query)}`)
+        const response = await fetch(`/api/lgas?q=${encodeURIComponent(query)}`)
 
-        if (!locations.length) {
-          locationSearchSuggestions.innerHTML = `
-            <div class="location-suggestion-item no-result">No matching suburb found</div>`;
+        // Convert response into JSON
+        const lgas = await response.json();
+
+        // If no matching LGA found, show message in dropdown
+        if (!lgas.length) {
+          lgaSuggestions.innerHTML = `
+            <div class="location-suggestion-item no-result">
+              No matching LGA found
+            </div>
+          `;
           return;
         }
 
-        locationSearchSuggestions.innerHTML = locations.map(item => `
-          <button type="button" class="location-suggestion-item"
-            data-locality="${item.locality}" data-postcode="${item.postcode}">
-            ${item.locality} (${item.postcode})
-          </button>`).join("");
+        // Render matching LGAs into clickable dropdown buttons
+        lgaSuggestions.innerHTML = lgas.map(item => `
+          <button
+            type="button"
+            class="location-suggestion-item"
+            data-lga="${item.lga_name}"
+            data-lgacode="${item.lgacode}"
+          >
+            ${item.lga_name}
+          </button>
+        `).join("");
+
       } catch (error) {
-        console.error("Location fetch error:", error);
-        locationSearchSuggestions.innerHTML = "";
+        // If API fails, clear dropdown and log error
+        console.error("LGA fetch error:", error);
+        lgaSuggestions.innerHTML = "";
       }
     });
+    const lgaDropdownBtn = document.getElementById('lgaDropdownBtn');
 
-    locationSearchSuggestions.addEventListener('click', async function (event) {
+if (lgaDropdownBtn) {
+  lgaDropdownBtn.addEventListener('click', async function () {
+    try {
+      const response = await fetch(`/api/all-lgas`);
+      // const response = await fetch(`${BASE_PATH}/api/all-lgas`);
+      const lgas = await response.json();
+
+      lgaSuggestions.innerHTML = lgas.map(item => `
+        <button
+          type="button"
+          class="location-suggestion-item"
+          data-lga="${item.lga_name}"
+          data-lgacode="${item.lgacode}"
+        >
+          ${item.lga_name}
+        </button>
+      `).join("");
+
+    } catch (error) {
+      console.error("All LGA fetch error:", error);
+    }
+  });
+}
+
+    // Handle user clicking one of the LGA suggestions
+
+    lgaSuggestions.addEventListener('click', function (event) {
       const item = event.target.closest(".location-suggestion-item");
+    
       if (!item || item.classList.contains("no-result")) return;
-
-      const locality = item.dataset.locality;
-      const postcode = item.dataset.postcode;
-
-      locationSearchInput.value = `${locality} (${postcode})`;
-      locationSearchSuggestions.innerHTML = "";
-
-      try {
-        const response = await fetch(
-          `/api/lga-from-location?locality=${encodeURIComponent(locality)}&postcode=${encodeURIComponent(postcode)}`
-        );
-        const data = await response.json();
-
-        if (data.lga_name && data.lgacode) {
-          if (selectedLgaInput)     selectedLgaInput.value     = data.lga_name;
-          if (selectedLgacodeInput) selectedLgacodeInput.value = data.lgacode;
-          selectedLGAName = data.lga_name;
-
-          const display = document.getElementById('resolvedLgaDisplay');
-          if (display) {
-            display.textContent = `Local Government Area: ${data.lga_name}`;
-            display.style.display = "block";
-          }
-
-          handleLGASelect(data.lga_name, data.lgacode);
-        } else {
-          alert("Could not find an LGA for that location. Please try a different suburb or postcode.");
-        }
-      } catch (error) {
-        console.error("LGA lookup error:", error);
+    
+      const lgaName = item.dataset.lga;
+      const lgacode = item.dataset.lgacode;
+    
+      // Fill visible input
+      lgaInput.value = lgaName;
+    
+      // Save selected LGA name
+      if (selectedLgaInput) {
+        selectedLgaInput.value = lgaName;
       }
+    
+      // Save selected LGA code
+      const selectedLgacodeInput = document.getElementById('selectedLgacodeInput');
+      if (selectedLgacodeInput) {
+        selectedLgacodeInput.value = lgacode;
+      }
+    
+      // Save in JS state
+      selectedLGAName = lgaName;
+    
+      console.log("Selected LGA:", {
+        lga_name: lgaName,
+        lgacode: lgacode
+      });
+    
+      // Later this will trigger real DB suburb map
+      handleLGASelect(lgaName, lgacode);
+    
+      // Clear dropdown
+      lgaSuggestions.innerHTML = "";
     });
   }
 
@@ -117,7 +174,9 @@ function initializeEventListeners() {
 
   // Pressing Enter in budget input also applies budget filter
   document.getElementById('budgetInput').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') { handleBudgetFilter(); }
+    if (e.key === 'Enter') {
+      handleBudgetFilter();
+    }
   });
 
   // Close button hides the suburb detail panel
@@ -126,58 +185,71 @@ function initializeEventListeners() {
 
 
 async function loadUserData() {
-  const budgetInput          = document.getElementById('budgetInput');
-  const locationSearchInput  = document.getElementById('locationSearchInput');
-  const selectedLgaInput     = document.getElementById('selectedLgaInput');
+  const budgetInput = document.getElementById('budgetInput');
+  const lgaInput = document.getElementById('lgaInput');
+  const selectedLgaInput = document.getElementById('selectedLgaInput');
   const selectedLgacodeInput = document.getElementById('selectedLgacodeInput');
 
-  if (!window.userProfileData) { userIncome = 500; return; }
+  if (!window.userProfileData) {
+    userIncome = 500;
+    return;
+  }
 
   userIncome = window.userProfileData.income || 500;
 
   let defaultBudget = null;
-  if (window.userProfileData.rent && Number(window.userProfileData.rent) > 0) {
-    defaultBudget = Number(window.userProfileData.rent);
-  } else if (window.userProfileData.income && Number(window.userProfileData.income) > 0) {
-    defaultBudget = Number(window.userProfileData.income);
-  }
-  if (defaultBudget && budgetInput) {
-    budgetInput.value = defaultBudget;
-    currentBudget = defaultBudget;
-    updateBudgetDisplay();
-  }
+
+if (window.userProfileData.rent && Number(window.userProfileData.rent) > 0) {
+  defaultBudget = Number(window.userProfileData.rent);
+} else if (window.userProfileData.income && Number(window.userProfileData.income) > 0) {
+  defaultBudget = Number(window.userProfileData.income);
+}
+
+if (defaultBudget && budgetInput) {
+  budgetInput.value = defaultBudget;
+  currentBudget = defaultBudget;
+  updateBudgetDisplay();
+}
 
   const locality = window.userProfileData.locality || "";
   const postcode = window.userProfileData.postcode || "";
 
   if (locality || postcode) {
-    if (locationSearchInput) {
-      locationSearchInput.value = locality ? `${locality} (${postcode})` : postcode;
-    }
-
     try {
       const response = await fetch(
+        // `${BASE_PATH}/api/lga-from-location?locality=${encodeURIComponent(locality)}&postcode=${encodeURIComponent(postcode)}`
         `/api/lga-from-location?locality=${encodeURIComponent(locality)}&postcode=${encodeURIComponent(postcode)}`
       );
+
       const data = await response.json();
 
       if (data.lga_name) {
-        if (selectedLgaInput)     selectedLgaInput.value     = data.lga_name;
-        if (selectedLgacodeInput) selectedLgacodeInput.value = data.lgacode;
-        selectedLGAName = data.lga_name;
+        lgaInput.value = data.lga_name;
 
-        const display = document.getElementById('resolvedLgaDisplay');
-        if (display) {
-          display.textContent = `Local Government Area: ${data.lga_name}`;
-          display.style.display = "block";
+        if (selectedLgaInput) {
+          selectedLgaInput.value = data.lga_name;
         }
 
+        if (selectedLgacodeInput) {
+          selectedLgacodeInput.value = data.lgacode;
+        }
+
+        selectedLGAName = data.lga_name;
+
+        // Later this will load real suburb/map data
+        console.log("Default user LGA:", data);
+
+        // Automatically load map for user's default LGA
         if (data.lgacode) {
           handleLGASelect(data.lga_name, data.lgacode);
         }
+      } else {
+        lgaInput.placeholder = `Search LGA near ${locality || postcode}`;
       }
+
     } catch (error) {
       console.error("Error finding LGA from profile location:", error);
+      lgaInput.placeholder = "Search an LGA";
     }
   }
   updateMapModeBox();
@@ -185,49 +257,20 @@ async function loadUserData() {
 
 
 // Handle LGA selection
-//INPUT:("Monash", "24600")
-//PROCESS:
-// Fetch APIs
-// Store data
-// Render map
-// Show details
-//OUTPUT:
-// 1. Map updated:
-//    - Previous map cleared
-//    - New map created
-//    - Base tiles loaded
-//    - LGA overview layer rendered
-//    - Suburb layer rendered
-//    - Map zoomed to selected LGA
-
-// 2. UI updated:
-//    - LGA name and rent displayed
-//    - Trend chart rendered
-//    - Insight text generated
-//    - Trend status badge updated
-//    - Map legend/mode box updated
-
-// 3. Internal state updated:
-//    - Suburb GeoJSON stored
-//    - LGA boundary stored
-//    - Selected LGA name saved
-//    - Filter state reset
-//    - Data prepared for future interactions
-
 async function handleLGASelect(lgaName, lgacode) {
   selectedLGAName = lgaName;
 
-  const mapTitle = document.getElementById('mapTitle');
-  if (mapTitle) mapTitle.textContent = `${lgaName} — Rental Prices by Suburb`;
-
   try {
-    const [suburbResponse, lgaResponse] = await Promise.all([ // Promise.all runs 2 api calls in parlllel
-      fetch(`/api/suburb-rent-map?lgacode=${encodeURIComponent(lgacode)}`), //return suburb polygon
-      fetch(`/api/lga-boundary?lgacode=${encodeURIComponent(lgacode)}`)// return lga polygon
+    const [suburbResponse, lgaResponse] = await Promise.all([
+      // fetch(`${BASE_PATH}/api/suburb-rent-map?lgacode=${encodeURIComponent(lgacode)}`),
+      // fetch(`${BASE_PATH}/api/lga-boundary?lgacode=${encodeURIComponent(lgacode)}`)
+
+      fetch(`/api/suburb-rent-map?lgacode=${encodeURIComponent(lgacode)}`),
+      fetch(`/api/lga-boundary?lgacode=${encodeURIComponent(lgacode)}`)
     ]);
 
-    const suburbGeojson = await suburbResponse.json();//geojson to json
-    const lgaGeojson = await lgaResponse.json();//geojson to josn
+    const suburbGeojson = await suburbResponse.json();
+    const lgaGeojson = await lgaResponse.json();
 
     currentGeoJson = suburbGeojson;
     currentLgaGeoJson = lgaGeojson;
@@ -265,7 +308,7 @@ async function handleLGASelect(lgaName, lgacode) {
 function initializeMap(suburbGeojson, lgaGeojson) {
   const container = document.getElementById('mapContainer');
 
-  if (!lgaGeojson || !lgaGeojson.features || !lgaGeojson.features.length) {//safety check, prevents crash
+  if (!lgaGeojson || !lgaGeojson.features || !lgaGeojson.features.length) {
     container.innerHTML = `
       <div style="padding: 20px;">
         No LGA boundary data found for ${selectedLGAName}.
@@ -289,21 +332,9 @@ function initializeMap(suburbGeojson, lgaGeojson) {
   }).addTo(map);
 
   // 1. Draw all LGAs as background overview
-//Example of geojson
-  // {
-  //   "type": "FeatureCollection",
-  //   "features": [
-  //     {
-  //       "properties": {
-  //         "lga_name": "Monash",
-  //         "rent": 520
-  //       },
-  //       "geometry": { ... }
-  //     }
-  //   ]
   if (currentLgaRentGeoJson) {
-    lgaRentLayer = L.geoJSON(currentLgaRentGeoJson, {//leaflet function reads geojson and draw on map based on features
-      style: function (feature) {//apply style to  each feature(lga)
+    lgaRentLayer = L.geoJSON(currentLgaRentGeoJson, {
+      style: function (feature) {
         const rent = feature.properties.rent;
 
         return {
@@ -338,13 +369,12 @@ function initializeMap(suburbGeojson, lgaGeojson) {
         });
       }
     }).addTo(map);
-    lgaRentLayer.bringToBack();
   }
 
   // 2. Draw selected LGA suburb polygons on top
   if (suburbGeojson && suburbGeojson.features && suburbGeojson.features.length) {
     suburbRentLayer = L.geoJSON(suburbGeojson, {
-      // interactive: false,
+      interactive: false,
       style: function (feature) {
         const rent = feature.properties.rent;
 
@@ -408,7 +438,7 @@ function getLgaRentColor(rent) {
   if (rent >= 350) return "#ce93d8";
   return "#f3e5f5";
 }
-// Get color based on rent price suburb color
+// Get color based on rent price
 function getRentColor(rent) {
   if (!rent) return "#cccccc";
 
@@ -473,56 +503,48 @@ function renderLgaTrendChart(lga) {
   const ctx = document.getElementById('trendChart').getContext('2d');
 
   const labels = lga.historyLabels || [];
-  const data = lga.history || [];//y-axis
+  const data = lga.history || [];
 
-  trendChart = new Chart(ctx, {//Create a new Chart.js
+  trendChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: labels,//X-axis labels (e.g., ["03-21", "06-21", ..., "09-25"])
-      datasets: [{// Array of datasets ( can have multiple lines, here only one)
+      labels: labels,
+      datasets: [{
         label: `${lga.name} average weekly rent`,
-        data: data,// Y-axis values (rent values over time)
-        borderColor: 'rgb(232, 84, 106)', //line color
+        data: data,
+        borderColor: 'rgb(232, 84, 106)',
         backgroundColor: 'rgba(232, 84, 106, 0.05)',
         borderWidth: 3,
-        fill: true, //Fill area under the line (area chart effect)
-        tension: 0.35,//a smooth curve 
-        pointBackgroundColor: 'rgb(232, 84, 106)',//color data point
-        pointBorderColor: '#fff',//white border around data point
+        fill: true,
+        tension: 0.35,
+        pointBackgroundColor: 'rgb(232, 84, 106)',
+        pointBorderColor: '#fff',
         pointBorderWidth: 2,
-        pointRadius: 4//size of each point
+        pointRadius: 4
       }]
     },
-    options: { // Chart behaviour and display settings
-      responsive: true,// Chart resizes automatically with container
-      maintainAspectRatio: false,//allow custom  height/width instead of fixed
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
           display: true,
           position: 'top'
         },
-        tooltip: {// Tooltip (hover popup) settings
-          callbacks: { // Customise what tooltip shows, function js chart
-            label: function (context) { // Runs when user hovers a data point 
-              // context = {
-              //   parsed: {
-              //     x: "03-21",
-              //     y: 520
-              //   },
-              //   dataset: {...},
-              //   dataIndex: 5
-              // }
-              return `$${Math.round(context.parsed.y)}/week`; // Format value → "$520/week"
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              return `$${Math.round(context.parsed.y)}/week`;
             }
           }
         }
       },
-      scales: {//axis config
-        y: {// Y-axis settings (vertical axis)
-          beginAtZero: false,// Do NOT force axis to start at 0 (better for rent data)
+      scales: {
+        y: {
+          beginAtZero: false,
           ticks: {
-            callback: function (value) {// For each tick value
-              return `$${value}`;// Format as currency (e.g., "$500")
+            callback: function (value) {
+              return `$${value}`;
             }
           }
         }
@@ -628,7 +650,13 @@ function updateBudgetDisplay() {
   }
 }
 
-
+// Function to update user income
+function updateUserIncome(income) {
+  userIncome = income;
+  if (selectedLGA) {
+    showLGADetail(selectedLGA);
+  }
+}
 function updateMapModeBox() {
   const title = document.getElementById('mapModeTitle');
   const text = document.getElementById('mapModeText');

@@ -42,29 +42,58 @@ function loadUserProfile() {
       ? `${userProfile.locality} (${userProfile.postcode})`
       : userProfile.locality || "Not provided";
 
-  document.getElementById("profileAge").textContent = userProfile.age || "--";
-  document.getElementById("profileLocation").textContent = locationText;
-  document.getElementById("profileWorkStatus").textContent = userProfile.workStatus || "--";
-  document.getElementById("profileIndustry").textContent = userProfile.industry || "--";
+  setTextIfExists("profileAge", userProfile.age || "--");
+  setTextIfExists("profileLocation", locationText);
+  setTextIfExists("profileWorkStatus", userProfile.workStatus || "--");
+  setTextIfExists("profileIndustry", userProfile.industry || "--");
 
-  document.getElementById("profileIncome").textContent =
-    userProfile.income ? `$${Number(userProfile.income).toLocaleString()}/week` : "--";
+  setTextIfExists(
+    "profileIncome",
+    userProfile.income ? `$${Number(userProfile.income).toLocaleString()}/week` : "--"
+  );
 
-  document.getElementById("profileLiving").textContent = userProfile.living || "--";
+  setTextIfExists("profileLiving", userProfile.living || "--");
+}
+
+function setTextIfExists(id, value) {
+  const element = document.getElementById(id);
+
+  if (element) {
+    element.textContent = value;
+  }
 }
 
 // -----------------------------
 // 2. INITIALISE MAP
 // -----------------------------
 
+// -----------------------------
+// 2. INITIALISE MAP
+// -----------------------------
+
 function initialiseIncomeMap() {
-  incomeMap = L.map("incomeMapContainer").setView([-37.4713, 144.7852], 7);
+  // Victoria's geographic bounding box
+  const victoriaBounds = L.latLngBounds(
+    L.latLng(-39.20, 140.95),  // South-West corner
+    L.latLng(-33.98, 150.10)   // North-East corner
+  );
+
+  incomeMap = L.map("incomeMapContainer", {
+    maxBounds: victoriaBounds,      // Prevent panning outside Victoria
+    maxBoundsViscosity: 1.0,        // Hard lock — snaps back on drag
+    minZoom: 6,                     // Prevent zooming out to see other states
+    maxZoom: 18
+  }).setView([-37.4713, 144.7852], 7);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 18,
-    attribution: "&copy; OpenStreetMap contributors"
+    attribution: "© OpenStreetMap contributors"
   }).addTo(incomeMap);
 }
+
+// -----------------------------
+// 3. LOAD SA3 GEOJSON
+// -----------------------------
 
 // -----------------------------
 // 3. LOAD SA3 GEOJSON
@@ -78,11 +107,20 @@ async function loadSa3IncomeMap() {
       throw new Error("Failed to load SA3 income map data");
     }
 
-    sa3IncomeData = await response.json();
+    const rawData = await response.json();
+
+    // Filter to Victoria-only SA3 areas (ABS SA3 codes 20000–29999)
+    sa3IncomeData = {
+      ...rawData,
+      features: rawData.features.filter(feature => {
+        const code = String(feature.properties.sa3_code).trim();
+        return code.startsWith("2") && code.length === 5;
+      })
+    };
 
     if (!sa3IncomeData.features || sa3IncomeData.features.length === 0) {
       document.getElementById("incomeMapContainer").innerHTML =
-        "<span>No SA3 income map data found.</span>";
+        "No SA3 income map data found.";
       return;
     }
 
@@ -98,25 +136,23 @@ async function loadSa3IncomeMap() {
     // Add legend/text explanation under the map
     createIncomeLegend();
 
-// Only zoom to all Victoria SA3s if the user has no saved location.
-// If the user has postcode/locality, prefillSa3FromUserLocation()
-// will zoom to the user's SA3 instead.
-const hasUserLocation = userProfile.postcode || userProfile.locality;
+    // Only zoom to all Victoria SA3s if the user has no saved location.
+    // If the user has postcode/locality, prefillSa3FromUserLocation()
+    // will zoom to the user's SA3 instead.
+    const hasUserLocation = userProfile.postcode || userProfile.locality;
 
-if (!hasUserLocation) {
-  const bounds = sa3IncomeLayer.getBounds();
-
-  if (bounds.isValid()) {
-    incomeMap.fitBounds(bounds);
-  }
-}
+    if (!hasUserLocation) {
+      const bounds = sa3IncomeLayer.getBounds();
+      if (bounds.isValid()) {
+        incomeMap.fitBounds(bounds);
+      }
+    }
 
   } catch (error) {
     console.error("Error loading SA3 income map:", error);
-
     const mapContainer = document.getElementById("incomeMapContainer");
     if (mapContainer) {
-      mapContainer.innerHTML = "<span>Unable to load SA3 income map.</span>";
+      mapContainer.innerHTML = "Unable to load SA3 income map.";
     }
   }
 }
@@ -272,32 +308,28 @@ function addSa3Labels() {
 // -----------------------------
 
 function onEachSa3Feature(feature, layer) {
-  const props = feature.properties;
-
-  // Tooltip appears on hover
-  layer.bindTooltip(
-    `<strong>${props.sa3_name}</strong><br>
-     Young female annual income: ${formatAnnualMoney(props.income_2022_23)}`,
-    { sticky: true }
-  );
-
   layer.on({
+    click: function () {
+      // Guard: only allow interaction with Victorian SA3s (codes 20000–29999)
+      const code = String(feature.properties.sa3_code).trim();
+      if (!code.startsWith("2") || code.length !== 5) return;
+
+      selectSa3Feature(feature);
+    },
     mouseover: function (e) {
-      e.target.setStyle({
-        weight: 3,
+      const layer = e.target;
+      layer.setStyle({
+        weight: 2,
         color: "#333333",
         fillOpacity: 0.9
       });
+      layer.bringToFront();
     },
-
     mouseout: function (e) {
-      if (sa3IncomeLayer) {
-        sa3IncomeLayer.resetStyle(e.target);
+      sa3IncomeLayer.resetStyle(e.target);
+      if (selectedSa3BoundaryLayer) {
+        selectedSa3BoundaryLayer.bringToFront();
       }
-    },
-
-    click: function () {
-      selectSa3Feature(feature);
     }
   });
 }
