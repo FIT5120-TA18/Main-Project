@@ -1,206 +1,284 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Dashboard</title>
+    <title>Dashboard</title>
 
-  <!-- Fonts -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap"
-    rel="stylesheet"
-  />
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap"
+      rel="stylesheet"
+    />
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-    rel="stylesheet"
-  />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-</head>
+    <!-- Styles -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
 
-<body>
-  <!-- Top Navigation Bar -->
-  <nav class="navbar">
-    <div class="container nav-inner">
-      <div class="nav-brand">
-        <a href="{{ url_for('main.landing') }}" class="logo-link">
-          <img
-            src="{{ url_for('static', filename='img/hermap-logo.png') }}"
-            alt="Hermap Logo"
-            class="logo"
-          />
-        </a>
+  <body>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+      <div class="container nav-inner">
+        <div class="nav-brand">
+          <a href="{{ url_for('main.landing') }}" class="logo-link">
+            <img
+              src="{{ url_for('static', filename='img/hermap-logo.png') }}"
+              alt="Hermap Logo"
+              class="logo"
+            />
+          </a>
+        </div>
+
+        <div class="nav-links">
+          <a href="{{ url_for('main.landing') }}" class="nav-link">Home</a>
+          <a href="{{ url_for('main.landing') }}#how-it-works" class="nav-link"
+            >How it works</a
+          >
+        </div>
       </div>
+    </nav>
 
-      <div class="nav-links">
-        <a href="{{ url_for('main.landing') }}" class="nav-link">Home</a>
-        <a href="{{ url_for('main.landing') }}#how-it-works" class="nav-link">How it works</a>
-      </div>
-    </div>
-  </nav>
+    <main class="container">
+      <!-- Gemini-generated financial insight -->
+      <section class="insight-card">
+        <h2 class="insight-title">Your Financial Snapshot</h2>
+        <p class="insight-label">Based on your details</p>
 
-  <main class="container">
-    <!-- Gemini-generated financial insight -->
-    <section class="insight-card">
-      <h2 class="insight-title">Your Financial Snapshot</h2>
-      <p class="insight-label">Based on your details</p>
+        <p id="typewriter-text" data-text="{{ financial_fact | e }}"></p>
+      </section>
 
-      <p
-        id="typewriter-text"
-        data-text="{{ financial_fact | e }}"
-      ></p>
-    </section>
-
-    <!-- Dashboard insights section -->
-    <section class="dashboard-insights-section">
-      <!-- <div class="insights-header">
+      <!-- Dashboard insights section -->
+      <section class="dashboard-insights-section">
+        <!-- <div class="insights-header">
         <h2>Insights</h2>
         <p>Click on the graph to learn more</p>
       </div> -->
 
-<div class="insights-grid">
-  <div class="insight-graph-card feature-card dashboard-feature-tile">
-    <a href="{{ url_for('main.income_comparison') }}" class="dashboard-feature-link">
-      <div class="dashboard-feature-icon">
-        <span class="material-symbols-outlined">monitoring</span>
+        <div class="insights-grid">
+          <div class="insight-graph-card feature-card dashboard-feature-tile">
+            <a
+              href="{{ url_for('main.income_comparison') }}"
+              class="dashboard-feature-link"
+            >
+              <div class="dashboard-feature-icon">
+                <span class="material-symbols-outlined">monitoring</span>
+              </div>
+
+              <div class="dashboard-feature-copy">
+                <p class="dashboard-feature-title">
+                  Understand my financial position
+                </p>
+                <p class="dashboard-feature-text">
+                  Compare your income across Victoria
+                </p>
+              </div>
+            </a>
+          </div>
+
+          <div class="insight-graph-card feature-card dashboard-feature-tile">
+            <a
+              href="{{ url_for('main.rent_comparison') }}"
+              class="dashboard-feature-link"
+            >
+              <div class="dashboard-feature-icon">
+                <span class="material-symbols-outlined">home_work</span>
+              </div>
+
+              <div class="dashboard-feature-copy">
+                <p class="dashboard-feature-title">
+                  Explore Affordable Living Options
+                </p>
+                <p class="dashboard-feature-text">
+                  Compare rent across locations
+                </p>
+              </div>
+            </a>
+          </div>
+
+          <div
+            class="insight-graph-card feature-card dashboard-feature-tile placeholder-tile"
+          >
+            <div class="dashboard-feature-link">
+              <div class="dashboard-feature-icon">
+                <span class="material-symbols-outlined">savings</span>
+              </div>
+
+              <div class="dashboard-feature-copy">
+                <p class="dashboard-feature-title">Track My Spending</p>
+                <!-- <p class="dashboard-feature-text">Savings insights placeholder</p> -->
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="insight-graph-card feature-card dashboard-feature-tile placeholder-tile"
+          >
+            <div class="dashboard-feature-link">
+              <div class="dashboard-feature-icon">
+                <span class="material-symbols-outlined">finance</span>
+              </div>
+
+              <div class="dashboard-feature-copy">
+                <p class="dashboard-feature-title">Credit and Debt Awareness</p>
+                <!-- <p class="dashboard-feature-text">Study pathway placeholder</p> -->
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="insight-graph-card feature-card dashboard-feature-tile placeholder-tile"
+          >
+            <div class="dashboard-feature-link">
+              <div class="dashboard-feature-icon">
+                <span class="material-symbols-outlined">work</span>
+              </div>
+
+              <div class="dashboard-feature-copy">
+                <p class="dashboard-feature-title">Career Aspirations</p>
+                <!-- <p class="dashboard-feature-text">Work readiness placeholder</p> -->
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="insight-graph-card feature-card dashboard-feature-tile placeholder-tile"
+          >
+            <div class="dashboard-feature-link">
+              <div class="dashboard-feature-icon">
+                <span class="material-symbols-outlined">school</span>
+              </div>
+
+              <div class="dashboard-feature-copy">
+                <p class="dashboard-feature-title">
+                  Build My Financial Literacy
+                </p>
+                <!-- <p class="dashboard-feature-text">Study pathway placeholder</p> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <a href="{{ url_for('main.landing') }}" class="logo-link">
+            <img
+              src="{{ url_for('static', filename='img/hermap-logo.png') }}"
+              alt="Hermap Logo"
+              class="logo"
+            />
+          </a>
+        </div>
+
+        <div class="nav-links">
+          <a href="#" class="nav-link">Privacy Policy</a>
+          <button
+            type="button"
+            class="nav-link footer-modal-link"
+            id="absDataBtn"
+          >
+            ABS Data Sources
+          </button>
+          <a href="#" class="nav-link">Terms of Service</a>
+        </div>
       </div>
+    </footer>
 
-      <div class="dashboard-feature-copy">
-        <p class="dashboard-feature-title">Understand my financial position </p>
-        <p class="dashboard-feature-text">Compare your income across Victoria</p>
-      </div>
-    </a>
-  </div>
-
-  <div class="insight-graph-card feature-card dashboard-feature-tile">
-    <a href="{{ url_for('main.rent_comparison') }}" class="dashboard-feature-link">
-      <div class="dashboard-feature-icon">
-        <span class="material-symbols-outlined">home_work</span>
-      </div>
-
-      <div class="dashboard-feature-copy">
-        <p class="dashboard-feature-title">Explore Affordable Living Options</p>
-        <p class="dashboard-feature-text">Compare rent across locations</p>
-      </div>
-    </a>
-  </div>
-
-  <div class="insight-graph-card feature-card dashboard-feature-tile placeholder-tile">
-    <div class="dashboard-feature-link">
-      <div class="dashboard-feature-icon">
-        <span class="material-symbols-outlined">savings</span>
-      </div>
-
-      <div class="dashboard-feature-copy">
-        <p class="dashboard-feature-title">Track My Spending</p>
-        <!-- <p class="dashboard-feature-text">Savings insights placeholder</p> -->
-      </div>
-    </div>
-  </div>
-
-  <div class="insight-graph-card feature-card dashboard-feature-tile placeholder-tile">
-    <div class="dashboard-feature-link">
-      <div class="dashboard-feature-icon">
-        <span class="material-symbols-outlined">finance</span>
-      </div>
-
-      <div class="dashboard-feature-copy">
-        <p class="dashboard-feature-title">Credit and Debt Awareness</p>
-        <!-- <p class="dashboard-feature-text">Study pathway placeholder</p> -->
-      </div>
-    </div>
-  </div>
-
-  <div class="insight-graph-card feature-card dashboard-feature-tile placeholder-tile">
-    <div class="dashboard-feature-link">
-      <div class="dashboard-feature-icon">
-        <span class="material-symbols-outlined">work</span>
-      </div>
-
-      <div class="dashboard-feature-copy">
-        <p class="dashboard-feature-title">Career Aspirations</p>
-        <!-- <p class="dashboard-feature-text">Work readiness placeholder</p> -->
-      </div>
-    </div>
-  </div>
-
-    <div class="insight-graph-card feature-card dashboard-feature-tile placeholder-tile">
-    <div class="dashboard-feature-link">
-      <div class="dashboard-feature-icon">
-        <span class="material-symbols-outlined">school</span>
-      </div>
-
-      <div class="dashboard-feature-copy">
-        <p class="dashboard-feature-title">Build My Financial Literacy</p>
-        <!-- <p class="dashboard-feature-text">Study pathway placeholder</p> -->
-      </div>
-    </div>
-  </div>
-</div>
-
-    </section>
-  </main>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container footer-inner">
-      <div class="footer-brand">
-        <a href="{{ url_for('main.landing') }}" class="logo-link">
-          <img
-            src="{{ url_for('static', filename='img/hermap-logo.png') }}"
-            alt="Hermap Logo"
-            class="logo"
-          />
-        </a>
-      </div>
-
-      <div class="nav-links">
-        <a href="#" class="nav-link">Privacy Policy</a>
-        <button type="button" class="nav-link footer-modal-link" id="absDataBtn">
-          ABS Data Sources
+    <!-- ABS Data Sources Popup -->
+    <div class="modal-overlay hidden" id="absModal">
+      <div class="modal-box">
+        <button
+          type="button"
+          class="modal-close"
+          id="absModalClose"
+          aria-label="Close popup"
+        >
+          <span class="material-symbols-outlined">close</span>
         </button>
-        <a href="#" class="nav-link">Terms of Service</a>
+
+        <div class="modal-icon gradient-bg">
+          <span class="material-symbols-outlined">database</span>
+        </div>
+
+        <h2>ABS Data Sources</h2>
+
+        <p>
+          The numbers and benchmarks used across this website are based on
+          datasets from the Australian Bureau of Statistics, commonly known as
+          the ABS.
+        </p>
+
+        <p>
+          The ABS is Australia’s national statistical agency. It collects and
+          publishes official data about population, housing, work, income, cost
+          of living, and other areas that help explain how people live across
+          Australia.
+        </p>
+
+        <p>
+          In Hermap, ABS data is used in context to support comparisons around
+          living costs, income, location, and financial readiness. These figures
+          are intended to help users better understand possible trade-offs, not
+          to provide personal financial advice.
+        </p>
       </div>
     </div>
-  </footer>
 
-   <!-- ABS Data Sources Popup -->
-<div class="modal-overlay hidden" id="absModal">
-  <div class="modal-box">
-    <button type="button" class="modal-close" id="absModalClose" aria-label="Close popup">
-      <span class="material-symbols-outlined">close</span>
-    </button>
+    <!-- Dashboard Guided Tutorial Spotlight -->
+    <div class="tutorial-spotlight-overlay hidden" id="dashboardTutorial">
+      <div class="tutorial-highlight-box" id="tutorialHighlightBox"></div>
 
-    <div class="modal-icon gradient-bg">
-      <span class="material-symbols-outlined">database</span>
+      <div class="tutorial-popover" id="tutorialPopover">
+        <button
+          type="button"
+          class="tutorial-close"
+          id="tutorialSkipBtn"
+          aria-label="Skip tutorial"
+        >
+          <span class="material-symbols-outlined">close</span>
+        </button>
+
+        <div class="tutorial-step-indicator">
+          <span id="tutorialStepText">Step 1 of 2</span>
+        </div>
+
+        <h2 id="tutorialTitle">Your Financial Snapshot</h2>
+
+        <p id="tutorialDescription">
+          The top box gives you a financial snapshot based on the information
+          you added earlier.
+        </p>
+
+        <div class="tutorial-actions">
+          <button
+            type="button"
+            class="tutorial-skip-btn"
+            id="tutorialSkipTextBtn"
+          >
+            Skip tutorial
+          </button>
+
+          <button type="button" class="tutorial-next-btn" id="tutorialNextBtn">
+            Next
+          </button>
+        </div>
+      </div>
     </div>
 
-    <h2>ABS Data Sources</h2>
-
-    <p>
-      The numbers and benchmarks used across this website are based on datasets from the
-      Australian Bureau of Statistics, commonly known as the ABS.
-    </p>
-
-    <p>
-      The ABS is Australia’s national statistical agency. It collects and publishes official
-      data about population, housing, work, income, cost of living, and other areas that help
-      explain how people live across Australia.
-    </p>
-
-    <p>
-      In Hermap, ABS data is used in context to support comparisons around living costs,
-      income, location, and financial readiness. These figures are intended to help users
-      better understand possible trade-offs, not to provide personal financial advice.
-    </p>
-  </div>
-</div>
-
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-</body>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
 </html>
