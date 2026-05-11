@@ -42,48 +42,28 @@
       <div class="rent-comparison-grid">
         <!-- Sidebar Filters -->
         <aside class="rent-sidebar">
-          <!-- State Selection -->
+          <!-- Location Search -->
           <div class="rent-filter-card">
-            <p class="filter-title">Select LGA</p>
+            <p class="filter-title">Search Location</p>
             <div class="info-message">
-              Search an LGA to explore rental options by suburb.
+              Enter your suburb or postcode to explore rental prices in your area.
             </div>
-          
-            <div class="budget-input-group">
-              <label for="profileLocationInput" style="font-size: 12px; color: var(--text-muted); font-weight: 600;">
-                Your selected location
-              </label>
-              
-              <div class="profile-location-display" id="profileLocationInput">
-                {% if profile_data.get('locality') and profile_data.get('postcode') %}
-                  {{ profile_data.get('locality') }} ({{ profile_data.get('postcode') }})
-                {% else %}
-                  No saved location
-                {% endif %}
-              </div>
-              <label for="lgaInput" style="font-size: 12px; color: var(--text-muted); font-weight: 600;">
-                Local Government Area
-              </label>
-            </label>
 
-            <div class="lga-input-row">
+            <div class="budget-input-group">
+              <label for="locationSearchInput" style="font-size: 12px; color: var(--text-muted); font-weight: 600;">
+                Suburb or Postcode
+              </label>
               <input
                 type="text"
-                id="lgaInput"
+                id="locationSearchInput"
                 class="budget-input"
-                placeholder="Loading your LGA..."
+                placeholder="e.g. Clayton or 3168"
                 autocomplete="off"
               >
-            
-              <button type="button" id="lgaDropdownBtn" class="lga-dropdown-btn">
-                ▼
-              </button>
-            </div>
-            
-            <input type="hidden" id="selectedLgaInput">
-            <input type="hidden" id="selectedLgacodeInput">
-            
-            <div id="lgaSuggestions" class="location-suggestions"></div>
+              <div id="locationSearchSuggestions" class="location-suggestions"></div>
+              <input type="hidden" id="selectedLgaInput">
+              <input type="hidden" id="selectedLgacodeInput">
+              <div id="resolvedLgaDisplay" class="profile-location-display" style="display:none; margin-top:8px;"></div>
             </div>
           </div>
 
@@ -118,10 +98,10 @@
           <div class="rent-filter-card">
             <p class="filter-title">ℹ️ How to Use</p>
             <p style="margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6;">
-              1. Select an LGA to explore nearby suburbs<br>
+              1. Search your suburb or postcode to load your local area<br>
               2. Use the map to compare suburb rent within that LGA<br>
-              3. Click <strong>See Suburbs Within Budget</strong> to highlight suburbs within or above your budget<br>
-              4. Click an LGA to view rent, affordability, and rent trends
+              3. Enter a budget and click <strong>See Suburbs Within Budget</strong> to highlight affordable suburbs<br>
+              4. Click any LGA on the map to view rent, affordability, and rent trends
             </p>
           </div>
         </aside>
@@ -130,7 +110,7 @@
         <div class="rent-main">
           <!-- Map Section -->
           <div class="map-card">
-            <h2 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">Local Government Areas - Rental Prices</h2>
+            <h2 id="mapTitle" style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">Explore Rental Prices by Suburb</h2>
             <div id="mapContainer" class="map-placeholder">
               <span>Select a LGA to view suburbs on the map</span>
             </div>

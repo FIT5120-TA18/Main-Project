@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Track My Spending - Hermap</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    .tracker-container { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    .tracker-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 36px; flex-wrap: wrap; }
+    .tracker-header h1 { margin: 0 0 8px; font-family: var(--font-heading); font-size: clamp(26px, 5vw, 38px); line-height: 1.15; }
+    .tracker-header p { margin: 0; color: var(--text-muted); font-size: 15px; }
+
+    /* Income banner */
+    .income-banner { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 28px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
+    .income-banner-label { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .income-banner-value { font-size: 28px; font-weight: 700; line-height: 1; }
+    .income-divider { width: 1px; height: 40px; background: var(--divider); }
+    .income-edit { display: flex; align-items: center; gap: 10px; }
+    .income-edit label { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+    .income-edit input { width: 110px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-family: var(--font-body); font-size: 14px; background: var(--background); color: var(--text-main); outline: none; }
+    .income-edit input:focus { border-color: var(--primary); }
+
+    /* Expense cards area */
+    .expenses-section { margin-bottom: 24px; }
+    .expenses-section-title { font-size: 15px; font-weight: 600; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
+    .section-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: var(--radius-pill); }
+    .badge-essential { background: #dff0e8; color: #1a6640; }
+    .badge-nonessential { background: #ede8f7; color: #6b3fa0; }
+
+    .expense-cards { display: flex; flex-direction: column; gap: 10px; }
+
+    .expense-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 20px; display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow-sm); transition: border-color 0.2s; }
+    .expense-card:hover { border-color: var(--primary); }
+    .expense-card.essential-card { border-left: 3px solid #2d8a4e; }
+    .expense-card.nonessential-card { border-left: 3px solid #9b72cf; }
+
+    .expense-icon { font-size: 22px; flex-shrink: 0; width: 36px; text-align: center; }
+    .expense-info { flex: 1; min-width: 0; }
+    .expense-name { font-size: 14px; font-weight: 600; margin: 0 0 2px; }
+    .expense-hint { font-size: 12px; color: var(--text-muted); margin: 0; }
+    .expense-input-wrap { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .expense-prefix { font-size: 14px; color: var(--text-muted); font-weight: 600; }
+    .expense-input { width: 90px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-family: var(--font-body); font-size: 15px; font-weight: 600; text-align: right; background: var(--background); color: var(--text-main); outline: none; }
+    .expense-input:focus { border-color: var(--primary); }
+    .expense-suffix { font-size: 12px; color: var(--text-muted); }
+    .remove-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; padding: 4px; line-height: 1; border-radius: 50%; transition: color 0.15s, background 0.15s; flex-shrink: 0; }
+    .remove-btn:hover { color: var(--primary); background: rgba(232,84,106,0.08); }
+
+    /* Add expense dropdown row */
+    .add-expense-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .add-expense-row select { flex: 1; min-width: 200px; padding: 10px 14px; border: 1px dashed var(--border); border-radius: var(--radius-md); background: var(--background); font-family: var(--font-body); font-size: 14px; color: var(--text-muted); outline: none; cursor: pointer; transition: border-color 0.2s; }
+    .add-expense-row select:focus { border-color: var(--primary); border-style: solid; }
+    .add-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-pill); font-family: var(--font-body); font-size: 14px; font-weight: 600; color: var(--text-main); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .add-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* Running total bar */
+    .totals-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 16px; box-shadow: var(--shadow-sm); }
+    .total-item { text-align: center; }
+    .total-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .total-value { font-size: 22px; font-weight: 700; }
+    .total-value.essential-color { color: #2d8a4e; }
+    .total-value.nonessential-color { color: #9b72cf; }
+    .total-value.total-color { color: var(--text-main); }
+    .total-value.surplus-color { color: #2d8a4e; }
+    .total-value.deficit-color { color: #c0392b; }
+
+    /* CTA */
+    .cta-row { display: flex; justify-content: center; margin-bottom: 36px; }
+    .primary-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; background: linear-gradient(135deg, #e8546a 0%, #c45fa8 50%, #9b72cf 100%); color: #fff; border: none; border-radius: var(--radius-pill); font-family: var(--font-body); font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-brand); transition: opacity 0.2s, transform 0.15s; }
+    .primary-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .primary-btn:active { transform: translateY(0); }
+
+    /* Results section */
+    #resultsSection { display: none; }
+    #resultsSection.visible { display: block; }
+
+    /* Donut chart card */
+    .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+    @media (max-width: 640px) { .results-grid { grid-template-columns: 1fr; } }
+
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); }
+    .chart-card h3 { margin: 0 0 6px; font-size: 16px; font-weight: 600; }
+    .chart-card p { margin: 0 0 20px; font-size: 13px; color: var(--text-muted); }
+    .donut-wrap { position: relative; height: 220px; display: flex; align-items: center; justify-content: center; }
+    .donut-center { position: absolute; text-align: center; pointer-events: none; }
+    .donut-center-val { font-size: 22px; font-weight: 700; }
+    .donut-center-lbl { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 16px; max-height: 100px; overflow-y: auto; padding-right: 4px; }
+    .chart-legend::-webkit-scrollbar { width: 4px; }
+    .chart-legend::-webkit-scrollbar-track { background: transparent; }
+    .chart-legend::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .chart-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+    .chart-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Position summary */
+    .position-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 14px; }
+    .position-card h3 { margin: 0; font-size: 16px; font-weight: 600; }
+    .position-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--divider); font-size: 14px; }
+    .position-row:last-child { border-bottom: none; }
+    .position-row.total-row { font-weight: 700; font-size: 15px; }
+    .position-row span:first-child { color: var(--text-muted); }
+
+    /* Verdict + insight cards */
+    .verdict-card { border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 16px; display: flex; gap: 16px; align-items: flex-start; }
+    .verdict-card.surplus { background: linear-gradient(135deg, #d4edda, #c3e6cb); border: 1px solid #b8dfc5; }
+    .verdict-card.deficit { background: linear-gradient(135deg, #fce8eb, #f8d0d6); border: 1px solid #f0b8c2; }
+    .verdict-card.tight { background: linear-gradient(135deg, #fff3cd, #ffeaa7); border: 1px solid #f5d87a; }
+    .verdict-icon { font-size: 28px; flex-shrink: 0; }
+    .verdict-body h4 { margin: 0 0 6px; font-size: 16px; font-weight: 700; }
+    .verdict-body p { margin: 0; font-size: 13px; line-height: 1.6; }
+
+    /* Epic link cards */
+    .epic-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 24px; }
+    .epic-link-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; text-decoration: none; color: inherit; display: flex; gap: 14px; align-items: flex-start; box-shadow: var(--shadow-sm); transition: border-color 0.2s, transform 0.15s; }
+    .epic-link-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .epic-link-icon { font-size: 22px; flex-shrink: 0; }
+    .epic-link-text h4 { margin: 0 0 4px; font-size: 14px; font-weight: 600; }
+    .epic-link-text p { margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+    .data-note { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 20px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container nav-inner">
+    <div class="nav-brand">
+      <a href="{{ url_for('main.landing') }}" class="logo-link">
+        <img src="{{ url_for('static', filename='img/hermap-logo.png') }}" alt="Hermap Logo" class="logo" />
+      </a>
+    </div>
+    <div class="nav-links">
+      <a href="{{ url_for('main.dashboard') }}" class="nav-link">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<main class="tracker-container">
+
+  <!-- Header -->
+  <div class="tracker-header">
+    <div>
+      <h1>Track My <span class="gradient-text">Spending</span></h1>
+      <p>Enter your weekly expenses to see where your money actually goes.</p>
+    </div>
+    <a href="{{ url_for('main.dashboard') }}" class="back-home-btn">Back to Dashboard</a>
+  </div>
+
+  <!-- Income banner -->
+  <div class="income-banner">
+    <div>
+      <div class="income-banner-label">Your weekly take-home</div>
+      <div class="income-banner-value" id="incomeBannerValue">$--</div>
+    </div>
+    <div class="income-divider"></div>
+    <div class="income-edit">
+      <label for="incomeInput">Adjust income</label>
+      <input type="number" id="incomeInput" placeholder="e.g. 720" min="0" step="10" />
+    </div>
+  </div>
+
+  <!-- Essentials section -->
+  <div class="expenses-section">
+    <div class="expenses-section-title">
+      <span class="section-badge badge-essential">Essential</span>
+      Things you need to pay to live
+    </div>
+    <div class="expense-cards" id="essentialCards"></div>
+    <div class="add-expense-row" id="addEssentialRow">
+      <select id="essentialDropdown">
+        <option value="">+ Add an essential expense…</option>
+      </select>
+      <button class="add-btn" id="addEssentialBtn">Add</button>
+    </div>
+  </div>
+
+  <!-- Non-essentials section -->
+  <div class="expenses-section">
+    <div class="expenses-section-title">
+      <span class="section-badge badge-nonessential">Non-essential</span>
+      Things you enjoy but could reduce
+    </div>
+    <div class="expense-cards" id="nonessentialCards"></div>
+    <div class="add-expense-row" id="addNonEssentialRow">
+      <select id="nonessentialDropdown">
+        <option value="">+ Add a non-essential expense…</option>
+      </select>
+      <button class="add-btn" id="addNonEssentialBtn">Add</button>
+    </div>
+  </div>
+
+  <!-- Running totals -->
+  <div class="totals-bar">
+    <div class="total-item">
+      <div class="total-label">Essentials</div>
+      <div class="total-value essential-color" id="totalEssential">$0</div>
+    </div>
+    <div class="total-item">
+      <div class="total-label">Non-essentials</div>
+      <div class="total-value nonessential-color" id="totalNonessential">$0</div>
+    </div>
+    <div class="total-item">
+      <div class="total-label">Total spending</div>
+      <div class="total-value total-color" id="totalAll">$0</div>
+    </div>
+    <div class="total-item">
+      <div class="total-label">Left over</div>
+      <div class="total-value" id="totalSurplus">$0</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-row">
+    <button class="primary-btn" id="checkPositionBtn">✦ Check my financial position</button>
+  </div>
+
+  <!-- Results -->
+  <div id="resultsSection">
+
+    <div class="results-grid">
+      <!-- Donut chart -->
+      <div class="chart-card">
+        <h3>Spending breakdown</h3>
+        <p>Where your money goes each week</p>
+        <div class="donut-wrap">
+          <canvas id="spendingDonut" style="max-height:220px;max-width:220px;"></canvas>
+          <div class="donut-center">
+            <div class="donut-center-val" id="donutCenterVal">$0</div>
+            <div class="donut-center-lbl">per week</div>
+          </div>
+        </div>
+        <div id="spendingLegend" class="chart-legend"></div>
+      </div>
+
+      <!-- Position summary -->
+      <div class="position-card">
+        <h3>Your weekly position</h3>
+        <div class="position-row"><span>Income</span><strong id="posIncome">$0</strong></div>
+        <div class="position-row"><span>Essential spending</span><strong id="posEssential" style="color:#2d8a4e">$0</strong></div>
+        <div class="position-row"><span>Non-essential spending</span><strong id="posNonessential" style="color:#9b72cf">$0</strong></div>
+        <div class="position-row total-row"><span>Weekly surplus / deficit</span><strong id="posSurplus">$0</strong></div>
+        <div class="position-row"><span>Rent as % of income</span><strong id="posRentPct">--</strong></div>
+        <div class="position-row"><span>Housing stress status</span><strong id="posStressStatus">--</strong></div>
+      </div>
+    </div>
+
+    <!-- Verdict -->
+    <div class="verdict-card" id="verdictCard">
+      <div class="verdict-icon" id="verdictIcon">⏳</div>
+      <div class="verdict-body">
+        <h4 id="verdictTitle">Calculating…</h4>
+        <p id="verdictBody"></p>
+      </div>
+    </div>
+
+    <!-- Epic cross-links -->
+    <div id="epicLinks" class="epic-links"></div>
+
+    <p class="data-note">
+      This tool does not store your spending data. All figures are held in your browser session only.<br>
+      ABS Household Expenditure Survey 2022 benchmarks used for reference. Not financial advice.
+    </p>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <a href="{{ url_for('main.landing') }}" class="logo-link">
+        <img src="{{ url_for('static', filename='img/hermap-logo.png') }}" alt="Hermap Logo" class="logo" />
+      </a>
+    </div>
+    <div class="nav-links">
+      <a href="#" class="nav-link">Privacy Policy</a>
+      <a href="#" class="nav-link">ABS Data Sources</a>
+      <a href="#" class="nav-link">Terms of Service</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  window.userProfileData = {
+    income:  parseFloat("{{ profile_data.get('income', '0') }}") || 0,
+    rent:    parseFloat("{{ profile_data.get('rent',   '0') }}") || 0,
+    living:  "{{ profile_data.get('living', '') }}",
+    locality:"{{ profile_data.get('locality', '') }}"
+  };
+</script>
+<script src="{{ url_for('static', filename='js/spending_tracker.js') }}"></script>
+</body>
+</html>

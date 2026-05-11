@@ -148,3 +148,20 @@ def income_comparison():
         return redirect(url_for("main.quick_profile"))
 
     return render_template("income_comparison.html", profile_data=profile_data)
+@main.route("/forecast")
+@access_required
+def forecast():
+    profile_data = session.get("profile", {})
+
+    if not profile_data:
+        return redirect(url_for("main.quick_profile"))
+
+    return render_template("forecast.html", profile_data=profile_data)
+
+@main.route("/spending_tracker")
+@access_required
+def spending_tracker():
+    profile_data = session.get("profile", {})
+    if not profile_data:
+        return redirect(url_for("main.quick_profile"))
+    return render_template("spending_tracker.html", profile_data=profile_data)

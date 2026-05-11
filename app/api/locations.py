@@ -48,6 +48,16 @@ def get_locations():
         conn.close()
 @api.route("/lga-from-location", methods=["GET"])
 def get_lga_from_location():
+    """
+    Example request:
+    /api/lga-from-location?postcode=3168&locality=Clayton
+
+    Example response:
+    {
+        "lgacode": "24600",
+        "lga_name": "Monash"
+    }
+    """
     postcode = request.args.get("postcode", "").strip()
     locality = request.args.get("locality", "").strip()
 
@@ -86,6 +96,16 @@ def get_lga_from_location():
 
 @api.route("/lgas", methods=["GET"])
 def get_lgas():
+    """
+    Example request:
+    /api/lgas?q=mo
+
+    Example response:
+    [
+        {"lgacode": "24600", "lga_name": "Monash"},
+        {"lgacode": "25150", "lga_name": "Moreland"}
+    ]
+    """
     search_term = request.args.get("q", "").strip()
 
     if len(search_term) < 2:
@@ -159,6 +179,30 @@ def get_suburbs_by_lga():
 
 @api.route("/suburb-rent-map", methods=["GET"])
 def get_suburb_rent_map():
+    """
+    Example request:
+    /api/suburb-rent-map?lgacode=24600
+
+    Example response (GeoJSON):
+    {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {
+                    "sal_code": "208041",
+                    "suburb_name": "Clayton",
+                    "postcode": "3168",
+                    "rent": 520.0
+                },
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [...]
+                }
+            }
+        ]
+    }
+    """
     lgacode = request.args.get("lgacode", "").strip()
 
     if not lgacode:
@@ -214,6 +258,28 @@ def get_suburb_rent_map():
 
 @api.route("/lga-boundary", methods=["GET"])
 def get_lga_boundary():
+    """
+    Example request:
+    /api/lga-boundary?lgacode=24600
+
+    Example response:
+    {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {
+                    "lgacode": "24600",
+                    "lga_name": "Monash"
+                },
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [...]
+                }
+            }
+        ]
+    }
+    """
     lgacode = request.args.get("lgacode", "").strip()
 
     if not lgacode:
@@ -258,6 +324,14 @@ def get_lga_boundary():
 
 @api.route("/all-lgas", methods=["GET"])
 def get_all_lgas():
+    """
+    Example response:
+    [
+        {"lgacode": "24600", "lga_name": "Monash"},
+        {"lgacode": "25060", "lga_name": "Melbourne"},
+        {"lgacode": "25150", "lga_name": "Moreland"}
+    ]
+    """
     conn = connection()
 
     try:
@@ -285,6 +359,32 @@ def get_all_lgas():
 
 @api.route("/lga-rent-map", methods=["GET"])
 def get_lga_rent_map():
+    """
+    Example response (GeoJSON):
+    {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {
+                    "lgacode": "24600",
+                    "lga_name": "Monash",
+                    "rent": 520.0,
+                    "history_labels": [
+                        "03-21", "06-21", "09-21", ...
+                    ],
+                    "history": [
+                        450.0, 460.0, 470.0, ..., 520.0
+                    ]
+                },
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [...]
+                }
+            }
+        ]
+    }
+    """
     conn = connection()
 
     try:
@@ -363,6 +463,32 @@ def get_lga_rent_map():
         conn.close()
 @api.route("/sa3-income-map", methods=["GET"])
 def get_sa3_income_map():
+    """
+    Example response (GeoJSON):
+    {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {
+                    "sa3_code": "20604",
+                    "sa3_name": "Monash",
+                    "income_2022_23": 68000,
+                    "history_labels": [
+                        "2018-19", "2019-20", "2020-21", "2021-22", "2022-23"
+                    ],
+                    "history": [
+                        55000, 58000, 60000, 64000, 68000
+                    ]
+                },
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [...]
+                }
+            }
+        ]
+    }
+    """
     conn = connection()
 
     try:
@@ -429,6 +555,16 @@ def get_sa3_income_map():
 
 @api.route("/sa3-from-location", methods=["GET"])
 def get_sa3_from_location():
+    """
+    Example request:
+    /api/sa3-from-location?postcode=3168&locality=Clayton
+
+    Example response:
+    {
+        "sa3_code": "20604",
+        "sa3_name": "Monash"
+    }
+    """
     postcode = request.args.get("postcode", "").strip()
     locality = request.args.get("locality", "").strip()
 
