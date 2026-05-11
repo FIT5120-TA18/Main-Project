@@ -14,16 +14,21 @@ def create_app():
 
     app.config["SECRET_KEY"] = os.getenv("sec_key")
 
-    # Database values from .env
-    db_host = os.getenv("host")
-    db_name = os.getenv("name")
-    db_user = os.getenv("user")
-    db_pass = os.getenv("pass")
+    # Allow override via DATABASE_URL for local development (e.g., sqlite)
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+    else:
+        # Database values from .env
+        db_host = os.getenv("host")
+        db_name = os.getenv("name")
+        db_user = os.getenv("user")
+        db_pass = os.getenv("pass")
 
-    # SQLAlchemy ORM database connection string
-    app.config["SQLALCHEMY_DATABASE_URI"] = (
-        f"mysql+pymysql://{db_user}:{db_pass}@{db_host}/{db_name}"
-    )
+        # SQLAlchemy ORM database connection string
+        app.config["SQLALCHEMY_DATABASE_URI"] = (
+            f"mysql+pymysql://{db_user}:{db_pass}@{db_host}/{db_name}"
+        )
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 

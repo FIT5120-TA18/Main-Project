@@ -153,3 +153,59 @@ def income_comparison():
         return redirect(url_for("main.quick_profile"))
 
     return render_template("income_comparison.html", profile_data=profile_data)
+
+# ─── Iteration 3 Routes ────────────────────────────────────────────────────────
+
+# Epic 5 – Spending Input
+@main.route("/spending")
+@access_required
+def spending_input():
+    profile_data = session.get("profile", {})
+    if not profile_data:
+        return redirect(url_for("main.quick_profile"))
+    return render_template("spending_input.html", profile_data=profile_data)
+
+# Epic 5 – Spending Results
+@main.route("/spending/result")
+@access_required
+def spending_result():
+    profile_data = session.get("profile", {})
+    if not profile_data:
+        return redirect(url_for("main.quick_profile"))
+    return render_template("spending_result.html", profile_data=profile_data)
+
+# Epic 6 – Debt Awareness
+@main.route("/debt_awareness")
+@access_required
+def debt_awareness():
+    profile_data = session.get("profile", {})
+    if not profile_data:
+        return redirect(url_for("main.quick_profile"))
+    return render_template("debt_awareness.html", profile_data=profile_data)
+
+# Epic 6 – Debt Projection
+@main.route("/debt_projection")
+@access_required
+def debt_projection():
+    profile_data = session.get("profile", {})
+    if not profile_data:
+        return redirect(url_for("main.quick_profile"))
+    return render_template("debt_projection.html", profile_data=profile_data)
+
+# Epic 7 – Career Aspirations
+@main.route("/career_aspirations")
+@access_required
+def career_aspirations():
+    profile_data = session.get("profile", {})
+    if not profile_data:
+        return redirect(url_for("main.quick_profile"))
+    return render_template("career_aspirations.html", profile_data=profile_data)
+
+# Epic 8 – Knowledge Hub
+@main.route("/knowledge_hub")
+@access_required
+def knowledge_hub():
+    profile_data = session.get("profile", {})
+    if not profile_data:
+        return redirect(url_for("main.quick_profile"))
+    return render_template("knowledge_hub.html", profile_data=profile_data)

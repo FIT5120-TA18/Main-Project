@@ -1,17 +1,29 @@
 from flask_sqlalchemy import SQLAlchemy
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+from flask_sqlalchemy import SQLAlchemy
+
 db = SQLAlchemy()
+
+# Helper: use schema only when not using sqlite (local dev)
+USE_SCHEMA = True
+if os.getenv("DATABASE_URL", "").startswith("sqlite"):
+    USE_SCHEMA = False
+
+SCHEMA_ARGS = {"schema": "hermap"} if USE_SCHEMA else {}
 
 class LocationData(db.Model):
     __tablename__ = "locations_data"
-    __table_args__ = {"schema": "hermap"}
+    __table_args__ = SCHEMA_ARGS
 
     locality = db.Column(db.String(100), primary_key=True)
     postcode = db.Column(db.String(10), primary_key=True)
 
 class PostcodeLGACodeVIC(db.Model):
     __tablename__ = "postcode_lgacode_vic"
-    __table_args__ = {"schema": "hermap"}
+    __table_args__ = SCHEMA_ARGS
 
     locality = db.Column(db.String(100), primary_key=True)
     postcode = db.Column(db.String(10), primary_key=True)
@@ -21,7 +33,7 @@ class PostcodeLGACodeVIC(db.Model):
 
 class LGABoundaryVIC(db.Model):
     __tablename__ = "lga_boundaries_vic"
-    __table_args__ = {"schema": "hermap"}
+    __table_args__ = SCHEMA_ARGS
 
     lgacode = db.Column(db.String(20), primary_key=True)
     lga_name = db.Column(db.String(100))
@@ -29,7 +41,7 @@ class LGABoundaryVIC(db.Model):
 
 class MedianRentVIC(db.Model):
     __tablename__ = "median_rent_vic"
-    __table_args__ = {"schema": "hermap"}
+    __table_args__ = SCHEMA_ARGS
 
     locality = db.Column(db.String(100), primary_key=True)
     postcode = db.Column(db.String(10), primary_key=True)
@@ -61,7 +73,7 @@ class MedianRentVIC(db.Model):
 
 class MedianRentVIC1BR(db.Model):
     __tablename__ = "median_rent_vic_1br"
-    __table_args__ = {"schema": "hermap"}
+    __table_args__ = SCHEMA_ARGS
 
     locality = db.Column(db.String(100), primary_key=True)
     postcode = db.Column(db.String(10), primary_key=True)
@@ -70,7 +82,7 @@ class MedianRentVIC1BR(db.Model):
 
 class SuburbBoundaryVIC(db.Model):
     __tablename__ = "suburb_boundaries_vic"
-    __table_args__ = {"schema": "hermap"}
+    __table_args__ = SCHEMA_ARGS
 
     sal_code = db.Column(db.String(20), primary_key=True)
     suburb_name = db.Column(db.String(100))
@@ -78,7 +90,7 @@ class SuburbBoundaryVIC(db.Model):
 
 class SA3BoundaryVIC(db.Model):
     __tablename__ = "sa3_boundaries_vic"
-    __table_args__ = {"schema": "hermap"}
+    __table_args__ = SCHEMA_ARGS
 
     sa3_code = db.Column(db.String(20), primary_key=True)
     sa3_name = db.Column(db.String(100))
@@ -86,7 +98,7 @@ class SA3BoundaryVIC(db.Model):
 
 class SA3IncomeVIC(db.Model):
     __tablename__ = "sa3_income_vic"
-    __table_args__ = {"schema": "hermap"}
+    __table_args__ = SCHEMA_ARGS
 
     SA3 = db.Column(db.String(20), primary_key=True)
 
@@ -98,7 +110,7 @@ class SA3IncomeVIC(db.Model):
 
 class IndustryBasedAverageEarnings(db.Model):
     __tablename__ = "industry_based_average_earnings"
-    __table_args__ = {"schema": "hermap"}
+    __table_args__ = SCHEMA_ARGS
 
     industry = db.Column(db.String(150), primary_key=True)
 
