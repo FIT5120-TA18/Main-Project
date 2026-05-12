@@ -236,47 +236,6 @@
       </div>
     </div>
 
-    <!-- Dashboard Guided Tutorial Spotlight -->
-    <div class="tutorial-spotlight-overlay hidden" id="dashboardTutorial">
-      <div class="tutorial-highlight-box" id="tutorialHighlightBox"></div>
-
-      <div class="tutorial-popover" id="tutorialPopover">
-        <button
-          type="button"
-          class="tutorial-close"
-          id="tutorialSkipBtn"
-          aria-label="Skip tutorial"
-        >
-          <span class="material-symbols-outlined">close</span>
-        </button>
-
-        <div class="tutorial-step-indicator">
-          <span id="tutorialStepText">Step 1 of 2</span>
-        </div>
-
-        <h2 id="tutorialTitle">Your Financial Snapshot</h2>
-
-        <p id="tutorialDescription">
-          The top box gives you a financial snapshot based on the information
-          you added earlier.
-        </p>
-
-        <div class="tutorial-actions">
-          <button
-            type="button"
-            class="tutorial-skip-btn"
-            id="tutorialSkipTextBtn"
-          >
-            Skip tutorial
-          </button>
-
-          <button type="button" class="tutorial-next-btn" id="tutorialNextBtn">
-            Next
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>

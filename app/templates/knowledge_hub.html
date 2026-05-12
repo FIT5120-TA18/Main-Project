@@ -323,6 +323,9 @@
         English, practical, and linked to trusted Australian sources.</p>
     </div>
 
+    <!-- US 8.1 AC2: personalised scenario alert (injected by JS) -->
+    <div id="personalScenarioNote" style="display:none;margin-bottom:20px;padding:14px 18px;background:rgba(232,84,106,0.07);border:1px solid rgba(232,84,106,0.25);border-radius:12px;font-size:14px;line-height:1.7;color:var(--text-primary);"></div>
+
     <div class="hub-grid">
 
       <!-- Tile 1: Credit & BNPL 101 -->
@@ -361,13 +364,16 @@
           </div>
 
           <div class="content-section">
-            <p class="content-section-title"><span class="material-symbols-outlined">warning</span> Hidden Conditions to
-              Watch</p>
-            <ul class="checklist">
+            <p class="content-section-title"><span class="material-symbols-outlined">warning</span> Hidden Conditions to Watch</p>
+            <button type="button" onclick="toggleHiddenConditions(this)" style="margin-bottom:10px;padding:7px 16px;border:1.5px solid var(--primary);border-radius:20px;background:transparent;color:var(--primary);font-size:13px;font-weight:600;cursor:pointer;">
+              See hidden conditions ↓
+            </button>
+            <ul class="checklist" id="hiddenConditionsList" style="display:none;">
               <li>Interest-free periods end — often without warning</li>
-              <li>Minimum repayments only reduce your balance slowly</li>
+              <li>Minimum repayments only reduce your balance slowly — interest keeps compounding</li>
               <li>Store credit cards often have higher rates (25–30% p.a.)</li>
               <li>BNPL is not always free — some providers charge account fees</li>
+              <li>Late payment fees stack — one bad week can trigger multiple BNPL penalties</li>
             </ul>
           </div>
 
@@ -473,18 +479,27 @@
               <p class="budget-method-desc">Split your after-tax income: <strong>50%</strong> on needs (rent, groceries,
                 transport), <strong>30%</strong> on wants (dining out, entertainment), <strong>20%</strong> on savings
                 and debt repayment. Simple and flexible for irregular incomes.</p>
+              <a class="ext-link" href="https://moneysmart.gov.au/budgeting/budget-planner" target="_blank" rel="noopener" style="margin-top:6px;font-size:13px;">
+                <span class="material-symbols-outlined">open_in_new</span> Try this method — MoneySmart Budget Planner
+              </a>
             </div>
             <div class="budget-method">
               <p class="budget-method-name">💸 Pay Yourself First</p>
               <p class="budget-method-desc">As soon as you get paid, transfer a set amount to savings <em>before</em>
                 spending anything else. Even $20/week adds up to $1,040 a year. Automate it so you don't have to think
                 about it.</p>
+              <a class="ext-link" href="https://moneysmart.gov.au/saving/how-to-save-money" target="_blank" rel="noopener" style="margin-top:6px;font-size:13px;">
+                <span class="material-symbols-outlined">open_in_new</span> Try this method — MoneySmart Savings Guide
+              </a>
             </div>
             <div class="budget-method">
               <p class="budget-method-name">✉️ The Envelope Method</p>
               <p class="budget-method-desc">Allocate cash (or separate bank accounts) for each spending category. Once
                 an envelope is empty, you stop spending in that category. Works great for controlling discretionary
                 spending.</p>
+              <a class="ext-link" href="https://moneysmart.gov.au/budgeting/track-your-spending" target="_blank" rel="noopener" style="margin-top:6px;font-size:13px;">
+                <span class="material-symbols-outlined">open_in_new</span> Try this method — MoneySmart Spending Tracker
+              </a>
             </div>
           </div>
 
@@ -641,6 +656,49 @@
         setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
       }
     })();
+
+    // US 8.1 AC2: personalised scenario notes
+    (function injectScenarioNote() {
+      const rentAmt = parseFloat(spending.rent || 0);
+      const notes = [];
+
+      if (weeklyIncome > 0 && rentAmt > 0) {
+        const rentPct = (rentAmt / weeklyIncome) * 100;
+        if (rentPct > 35) {
+          notes.push(`🏠 <strong>You are in housing stress.</strong> Your rent ($${rentAmt.toFixed(0)}/week) is ${rentPct.toFixed(0)}% of your income — above the 35% threshold. In Victoria, this usually means less room for savings or emergencies.`);
+        }
+      }
+
+      if (weeklyDeficit > 50) {
+        const weeksToMissedRent = rentAmt > 0 ? Math.floor(rentAmt / weeklyDeficit) : 9;
+        notes.push(`⚠️ <strong>At this rate, your shortfall could become one missed rent payment in ${weeksToMissedRent} weeks.</strong> Addressing even $40/week of discretionary spending now can make a real difference.`);
+      }
+
+      if (weeklyDeficit > 0 && weeklyIncome > 0) {
+        const savingPerWeek = 40;
+        const bondWeeks = rentAmt > 0 ? Math.ceil((rentAmt * 4) / savingPerWeek) : null;
+        const delayCutWeeks = Math.floor((weeklyDeficit) / (weeklyDeficit - savingPerWeek + weeklyDeficit));
+        if (bondWeeks) {
+          notes.push(`💡 <strong>Cutting $${savingPerWeek}/week from discretionary spending</strong> could save your bond deposit ${Math.max(1, Math.round(bondWeeks * 0.15))} weeks sooner.`);
+        }
+      }
+
+      if (notes.length > 0) {
+        const el = document.getElementById('personalScenarioNote');
+        if (el) {
+          el.innerHTML = notes.join('<br><br>');
+          el.style.display = 'block';
+        }
+      }
+    })();
+
+    function toggleHiddenConditions(btn) {
+      const list = document.getElementById('hiddenConditionsList');
+      if (!list) return;
+      const isHidden = list.style.display === 'none';
+      list.style.display = isHidden ? 'block' : 'none';
+      btn.textContent = isHidden ? 'Hide conditions ↑' : 'See hidden conditions ↓';
+    }
   </script>
 </body>
 

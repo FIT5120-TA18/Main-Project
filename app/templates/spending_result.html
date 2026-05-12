@@ -410,6 +410,24 @@
           </div>
         </div>
 
+        <!-- Essential vs Non-Essential Pie Charts -->
+        <div style="display:flex;gap:16px;margin-top:24px;flex-wrap:wrap;" id="splitChartsRow">
+          <div class="chart-card" id="essentialChartCard" style="flex:1;min-width:240px;">
+            <h3 class="chart-card-title">Essential Spending</h3>
+            <p class="chart-card-sub">Rent, Utilities, Groceries, Transport, Medical</p>
+            <div class="chart-wrap">
+              <canvas id="essentialChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card" id="nonEssentialChartCard" style="flex:1;min-width:240px;">
+            <h3 class="chart-card-title">Non-Essential Spending</h3>
+            <p class="chart-card-sub">Eating Out, Entertainment, Clothing, Other</p>
+            <div class="chart-wrap">
+              <canvas id="nonEssentialChart"></canvas>
+            </div>
+          </div>
+        </div>
+
         <!-- CTA to Knowledge Hub if deficit -->
         <div class="cta-box hidden" id="deficitCta" style="margin-top:24px;">
           <p>Your spending exceeds your income. Learning a few budgeting strategies could help you get back on track.
@@ -586,6 +604,47 @@
         }
       }
     });
+
+    // --- Essential / Non-Essential split pie charts ---
+    const ESSENTIAL_KEYS = ["rent", "utilities", "groceries", "transport", "medical"];
+    const NON_ESSENTIAL_KEYS = ["eating_out", "entertain", "clothing", "other"];
+    const ESSENTIAL_COLORS = ["#4e9af1", "#26c6da", "#43a047", "#ff7043", "#ab47bc"];
+    const NON_ESSENTIAL_COLORS = ["#e8546a", "#c45fa8", "#9b72cf", "#ec407a"];
+
+    function buildSplitChart(canvasId, cardId, keys, colors) {
+      const labels = [], data = [], bgColors = [];
+      keys.forEach((k, i) => {
+        const v = parseFloat(expenses[k]) || 0;
+        if (v > 0) {
+          labels.push(CAT_LABELS[k] || k);
+          data.push(v);
+          bgColors.push(colors[i % colors.length]);
+        }
+      });
+      if (data.length === 0) {
+        document.getElementById(cardId).style.display = "none";
+        return;
+      }
+      const total = data.reduce((s, v) => s + v, 0);
+      new Chart(document.getElementById(canvasId), {
+        type: "pie",
+        data: { labels, datasets: [{ data, backgroundColor: bgColors, borderWidth: 2, borderColor: "#fff" }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom", labels: { font: { family: "DM Sans", size: 11 }, padding: 10 } },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` $${ctx.parsed.toFixed(0)}/week (${((ctx.parsed / total) * 100).toFixed(0)}%)`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    buildSplitChart("essentialChart", "essentialChartCard", ESSENTIAL_KEYS, ESSENTIAL_COLORS);
+    buildSplitChart("nonEssentialChart", "nonEssentialChartCard", NON_ESSENTIAL_KEYS, NON_ESSENTIAL_COLORS);
 
     // --- Breakdown list ---
     const bl = document.getElementById("breakdownList");

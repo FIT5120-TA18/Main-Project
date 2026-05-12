@@ -403,6 +403,8 @@
         const extra = minFull[MONTHS] - ccFull[MONTHS];
         document.getElementById("statMinExtra").textContent = `$${extra.toFixed(0)}`;
         document.getElementById("minRepayCard").style.display = "block";
+        // Set data for chart annotation plugin
+        gapAnnotationData = { ccVal: ccFull[MONTHS], minVal: minFull[MONTHS], extra };
       }
     }
 
@@ -430,6 +432,48 @@
       legendEl.appendChild(row);
     });
 
+    // Gap annotation plugin for chart (US 6.2 AC1: label difference in total cost at month 6)
+    let gapAnnotationData = null; // { ccVal, minVal, extra }
+
+    const gapAnnotationPlugin = {
+      id: 'gapAnnotation',
+      afterDatasetsDraw(chart) {
+        if (!gapAnnotationData) return;
+        const { ccVal, minVal, extra } = gapAnnotationData;
+        const ctx = chart.ctx;
+        const xAxis = chart.scales.x;
+        const yAxis = chart.scales.y;
+        const x = xAxis.getPixelForValue(MONTHS);
+        const yCC = yAxis.getPixelForValue(ccVal);
+        const yMin = yAxis.getPixelForValue(minVal);
+        if (Math.abs(yMin - yCC) < 12) return; // too close, skip
+        ctx.save();
+        // Dashed vertical bracket
+        ctx.strokeStyle = '#9b72cf';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.moveTo(x + 12, yCC);
+        ctx.lineTo(x + 12, yMin);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // Tick marks
+        [yCC, yMin].forEach(y => {
+          ctx.beginPath();
+          ctx.moveTo(x + 8, y);
+          ctx.lineTo(x + 16, y);
+          ctx.stroke();
+        });
+        // Label
+        const midY = (yCC + yMin) / 2;
+        ctx.fillStyle = '#9b72cf';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`+$${Math.round(extra).toLocaleString()} extra`, x + 18, midY + 4);
+        ctx.restore();
+      }
+    };
+
     // Draw chart
     new Chart(document.getElementById("debtChart"), {
       type: "line",
@@ -450,7 +494,8 @@
             ticks: { callback: v => "$" + v.toLocaleString() }
           }
         }
-      }
+      },
+      plugins: [gapAnnotationPlugin]
     });
 
     // Update stat sidebar
