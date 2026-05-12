@@ -371,6 +371,7 @@
 
     const datasets = [];
     const legendItems = [];
+    let gapAnnotationData = null; // { ccVal, minVal, extra }
 
     if (creditType === "credit" || creditType === "both" || creditType === "considering") {
       const ccData = calcCreditCard(startingDebt);
@@ -433,7 +434,6 @@
     });
 
     // Gap annotation plugin for chart (US 6.2 AC1: label difference in total cost at month 6)
-    let gapAnnotationData = null; // { ccVal, minVal, extra }
 
     const gapAnnotationPlugin = {
       id: 'gapAnnotation',
