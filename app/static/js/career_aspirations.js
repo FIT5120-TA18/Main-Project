@@ -168,15 +168,6 @@ function showDetail(item) {
     gapWrap.innerHTML = "";
   }
 
-  // Optional: add men annual income below the badge
-  if (!Number.isNaN(menAnnualIncome)) {
-    gapWrap.innerHTML += `
-      <p class="disclaimer-note">
-        Estimated men average annual income: $${menAnnualIncome.toLocaleString()}/year
-      </p>
-    `;
-  }
-
   highlightSelectedBar(item.industry);
 }
 
