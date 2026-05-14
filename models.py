@@ -1,5 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
-
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -116,3 +114,41 @@ class IndustryBasedAverageEarnings(db.Model):
 
     year_2021_22 = db.Column("2021-22", db.Float)
     year_2022_23 = db.Column("2022-23", db.Float)
+
+class GenderPayGapIndustrySummary(db.Model):
+    __tablename__ = "pay_gap_by_industry"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    industry = db.Column(db.String(255), nullable=False)
+
+    average_total_gpg_percent = db.Column(db.Float)
+    average_base_salary_gpg_percent = db.Column(db.Float)
+    median_total_gpg_percent = db.Column(db.Float)
+    median_base_salary_gpg_percent = db.Column(db.Float)
+
+    women_workforce_percent = db.Column(db.Float)
+    women_to_men_pay_ratio_percent = db.Column(db.Float)
+    female_cents_per_male_dollar = db.Column(db.Float)
+
+    average_total_remuneration = db.Column(db.Float)
+    estimated_men_annual_income = db.Column(db.Float)
+    estimated_women_annual_income = db.Column(db.Float)
+    estimated_women_weekly_income = db.Column(db.Float)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "industry": self.industry,
+            "average_total_gpg_percent": self.average_total_gpg_percent,
+            "average_base_salary_gpg_percent": self.average_base_salary_gpg_percent,
+            "median_total_gpg_percent": self.median_total_gpg_percent,
+            "median_base_salary_gpg_percent": self.median_base_salary_gpg_percent,
+            "women_workforce_percent": self.women_workforce_percent,
+            "women_to_men_pay_ratio_percent": self.women_to_men_pay_ratio_percent,
+            "female_cents_per_male_dollar": self.female_cents_per_male_dollar,
+            "average_total_remuneration": self.average_total_remuneration,
+            "estimated_men_annual_income": self.estimated_men_annual_income,
+            "estimated_women_annual_income": self.estimated_women_annual_income,
+            "estimated_women_weekly_income": self.estimated_women_weekly_income,
+        }
