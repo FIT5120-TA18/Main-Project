@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>My Spending Results - Hermap</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/spending_results.css') }}" /> -->
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+
+<body>
+
+<nav class="navbar">
+  <div class="container nav-inner">
+    <div class="nav-brand">
+      <a href="{{ url_for('main.landing') }}" class="logo-link">
+        <img src="{{ url_for('static', filename='img/hermap-logo.png') }}" alt="Hermap Logo" class="logo" />
+      </a>
+    </div>
+
+    <div class="nav-links">
+      <a href="{{ url_for('main.dashboard') }}" class="nav-link">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<main class="results-container">
+
+  <div class="results-header">
+    <div>
+      <h1>Your <span class="gradient-text">Spending Results</span></h1>
+      <p>
+        See your weekly position, rent pressure, spending breakdown, and practical steps to improve your financial position.
+      </p>
+    </div>
+
+    <a href="/spending_tracker" class="back-home-btn">Edit spending</a>
+  </div>
+
+  <section id="emptyState" class="empty-state">
+    <h2>No spending data found</h2>
+    <p>Please enter your expenses first.</p>
+    <a href="/spending-tracker" class="primary-btn">Go to spending tracker</a>
+  </section>
+
+  <section id="resultsContent" class="results-content">
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-label">Weekly income</div>
+        <div class="summary-value" id="summaryIncome">$0</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Total spending</div>
+        <div class="summary-value" id="summaryTotal">$0</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Weekly surplus / deficit</div>
+        <div class="summary-value" id="summarySurplus">$0</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Rent pressure</div>
+        <div class="summary-value" id="summaryRentPressure">--</div>
+      </div>
+    </div>
+
+    <div class="verdict-card" id="verdictCard">
+      <div class="verdict-icon" id="verdictIcon">⏳</div>
+      <div>
+        <h2 id="verdictTitle">Calculating…</h2>
+        <p id="verdictBody"></p>
+      </div>
+    </div>
+
+    <section class="insight-grid">
+      <div class="insight-card">
+        <h3>What this means</h3>
+        <p id="positionInsight"></p>
+      </div>
+
+      <div class="insight-card">
+        <h3>Fastest improvement</h3>
+        <p id="fastestImprovement"></p>
+      </div>
+
+      <div class="insight-card">
+        <h3>Move-out readiness</h3>
+        <p id="moveOutReadiness"></p>
+      </div>
+    </section>
+
+    <section class="chart-grid">
+      <div class="chart-card">
+        <h3>Spending breakdown</h3>
+        <p>Where your money goes each week.</p>
+        <div class="chart-wrap">
+          <canvas id="spendingDonut"></canvas>
+        </div>
+        <div id="spendingLegend" class="chart-legend"></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Essential vs flexible spending</h3>
+        <p>This helps identify how much of your budget is harder to change.</p>
+        <div class="position-list">
+          <div class="position-row">
+            <span>Essential spending</span>
+            <strong id="essentialAmount">$0</strong>
+          </div>
+          <div class="position-row">
+            <span>Non-essential spending</span>
+            <strong id="nonessentialAmount">$0</strong>
+          </div>
+          <div class="position-row">
+            <span>Rent as % of income</span>
+            <strong id="rentPct">--</strong>
+          </div>
+          <div class="position-row">
+            <span>Housing stress status</span>
+            <strong id="stressStatus">--</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="benchmark-card">
+      <h3>Your spending pattern compared with Victoria</h3>
+      <p>
+        This comparison uses spending shares, not raw dollars. It is a broad Victorian household reference,
+        not a perfect young-women-only benchmark.
+      </p>
+
+      <div id="benchmarkWarning" class="benchmark-warning"></div>
+
+      <div class="benchmark-layout">
+        <div class="benchmark-chart-wrap">
+          <canvas id="benchmarkChart"></canvas>
+        </div>
+
+        <div id="benchmarkInsights" class="benchmark-insights"></div>
+      </div>
+
+      <table class="benchmark-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Your share</th>
+            <th>Victoria</th>
+            <th>Difference</th>
+          </tr>
+        </thead>
+        <tbody id="benchmarkTableBody"></tbody>
+      </table>
+    </section>
+
+    <section class="action-card">
+      <h3>Next step</h3>
+      <p id="nextStepText"></p>
+
+      <div class="action-links" id="actionLinks"></div>
+    </section>
+
+    <p class="data-note">
+      This is an automated spending summary and is not financial advice. Your data is stored only in this browser session.
+    </p>
+
+  </section>
+
+</main>
+
+<script src="{{ url_for('static', filename='js/spending_results.js') }}"></script>
+
+</body>
+</html>

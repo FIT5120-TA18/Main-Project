@@ -1,112 +1,208 @@
 /**
- * spending_tracker.js  —  Epic 5: Track My Spending
+ * spending_tracker.js — Epic 5: Understand and Improve My Spending Habits
  *
- * One initial category shown on load (Rent if she pays rent, Groceries otherwise).
- * User adds more from a dropdown of essential / non-essential categories.
- * Results show a donut chart + position summary + contextual epic cross-links.
+ * Purpose:
+ * - Let Sarah enter weekly expenses
+ * - Split spending into essentials / non-essentials
+ * - Show surplus or deficit
+ * - Show rent stress
+ * - Compare Sarah's spending pattern with broader Victorian ABS household spending proportions
+ *
+ * Note:
+ * ABS benchmark comparison uses proportions, not direct dollar comparison.
+ * This avoids pretending broad Victorian household totals are a perfect young-women-only benchmark.
  */
 
 // ─────────────────────────────────────────────
-// Category definitions
+// ABS benchmark proportions
+// TEMPORARY FRONTEND CONSTANTS
+// Later, we can replace this with an API call from MySQL.
+// Values here should be replaced with percentages calculated from your spending_categories_ABS table.
 // ─────────────────────────────────────────────
 const ESSENTIAL_CATEGORIES = [
-    { id: "rent",       icon: "🏠", name: "Rent",                  hint: "Weekly rent amount",              default: 0  },
-    { id: "utilities",  icon: "⚡", name: "Electricity & gas",      hint: "ABS HES benchmark ~$28/wk",      default: 28 },
-    { id: "internet",   icon: "📶", name: "Internet",               hint: "NBN plan ~$14/wk",               default: 14 },
-    { id: "groceries",  icon: "🛒", name: "Groceries",              hint: "ABS HES single person ~$110/wk", default: 0  },
-    { id: "transport",  icon: "🚌", name: "Public transport",       hint: "Myki weekly cap $53",            default: 53 },
-    { id: "phone",      icon: "📱", name: "Phone bill",             hint: "Monthly plan ÷ 4",               default: 0  },
-    { id: "medical",    icon: "💊", name: "Medical & pharmacy",     hint: "ABS HES ~$12/wk",                default: 0  },
-    { id: "insurance",  icon: "🛡️", name: "Contents insurance",     hint: "~$14/wk for renters",            default: 0  },
+    {
+      id: "groceries",
+      icon: "🛒",
+      name: "Groceries",
+      hint: "Food and household basics",
+      default: 0,
+      absGroup: "Food"
+    },
+    {
+      id: "utilities",
+      icon: "⚡",
+      name: "Utilities & bills",
+      hint: "Electricity, gas, internet and phone",
+      default: 0,
+      absGroup: "Services"
+    },
+    {
+      id: "transport",
+      icon: "🚌",
+      name: "Transport",
+      hint: "Public transport, petrol, rideshare or parking",
+      default: 0,
+      absGroup: "Transport"
+    },
+    {
+      id: "medical",
+      icon: "💊",
+      name: "Medical & pharmacy",
+      hint: "Medicine, pharmacy items and health costs",
+      default: 0,
+      absGroup: "Health"
+    }
   ];
   
   const NONESSENTIAL_CATEGORIES = [
-    { id: "eating_out",      icon: "🍜", name: "Eating out & takeaway",   hint: "Restaurants, UberEats, cafés",   default: 0 },
-    { id: "entertainment",   icon: "🎬", name: "Entertainment",           hint: "Streaming, events, activities",  default: 0 },
-    { id: "clothing",        icon: "👗", name: "Clothing & personal care", hint: "Clothes, beauty, haircuts",      default: 0 },
-    { id: "bnpl",            icon: "💳", name: "BNPL repayments",         hint: "Afterpay, Zip, Klarna",          default: 0 },
-    { id: "subscriptions",   icon: "📺", name: "Subscriptions",           hint: "Netflix, Spotify, gym etc.",     default: 0 },
-    { id: "hobbies",         icon: "🎮", name: "Hobbies & leisure",       hint: "Sport, games, crafts etc.",      default: 0 },
-    { id: "gifts",           icon: "🎁", name: "Gifts & social",          hint: "Birthdays, going out",           default: 0 },
-    { id: "other",           icon: "📦", name: "Other",                   hint: "Anything else",                  default: 0 },
+    {
+      id: "eating_out",
+      icon: "🍜",
+      name: "Eating out & takeaway",
+      hint: "Restaurants, cafés, delivery and takeaway",
+      default: 0,
+      absGroup: "Hotels, cafes and restaurants"
+    },
+    {
+      id: "entertainment_subscriptions",
+      icon: "🎬",
+      name: "Entertainment & subscriptions",
+      hint: "Streaming, events, apps, games and activities",
+      default: 0,
+      absGroup: "Recreation and culture"
+    },
+    {
+      id: "clothing_personal",
+      icon: "👗",
+      name: "Clothing & personal care",
+      hint: "Clothes, beauty, haircuts and personal items",
+      default: 0,
+      absGroup: "Clothing and footwear"
+    },
+    {
+      id: "bnpl",
+      icon: "💳",
+      name: "BNPL repayments",
+      hint: "Afterpay, Zip, Klarna or similar repayments",
+      default: 0,
+      absGroup: "Miscellaneous goods and services"
+    },
+    {
+      id: "social_hobbies",
+      icon: "🎁",
+      name: "Social & hobbies",
+      hint: "Going out, gifts, hobbies and leisure spending",
+      default: 0,
+      absGroup: "Recreation and culture"
+    }
   ];
   
-  // ─────────────────────────────────────────────
-  // State
-  // ─────────────────────────────────────────────
-  let activeEssentials    = [];  // array of category ids currently shown
+  let activeEssentials = [];
   let activeNonessentials = [];
-  let donutChart          = null;
   
-  // ─────────────────────────────────────────────
-  // Boot
-  // ─────────────────────────────────────────────
   document.addEventListener("DOMContentLoaded", () => {
-    const p = window.userProfileData || {};
+    const profile = window.userProfileData || {};
   
-    // Pre-fill income
     const incomeEl = document.getElementById("incomeInput");
-    if (p.income) incomeEl.value = p.income;
-    updateIncomeBanner();
+    const rentEl = document.getElementById("rentBannerInput");
   
-    // Show one initial card based on living situation
-    if (p.living === "Shared rental" || p.living === "Living alone") {
-      // She already pays rent - start with rent card pre-filled
-      addExpenseCard("essential", "rent", p.rent || 0);
-    } else {
-      // She lives at home - start with groceries so she can see her current spending
-      addExpenseCard("essential", "groceries", 0);
+    if (incomeEl && profile.income) {
+      incomeEl.value = profile.income;
     }
   
-    // Populate dropdowns (only show categories not already active)
-    rebuildDropdowns();
+    if (rentEl && profile.rent) {
+      rentEl.value = profile.rent;
+    }
   
-    // Listeners
-    incomeEl.addEventListener("input", () => { updateIncomeBanner(); updateTotals(); });
-    document.getElementById("addEssentialBtn").addEventListener("click", () => addFromDropdown("essential"));
-    document.getElementById("addNonEssentialBtn").addEventListener("click", () => addFromDropdown("nonessential"));
-    document.getElementById("checkPositionBtn").addEventListener("click", showResults);
+    updateIncomeBanner();
+    updateRentBanner();
+  
+    addExpenseCard("essential", "groceries", 0);
+    rebuildDropdowns();
+    updateTotals();
+  
+    incomeEl?.addEventListener("input", () => {
+      updateIncomeBanner();
+      updateTotals();
+    });
+  
+    rentEl?.addEventListener("input", () => {
+      updateRentBanner();
+      updateTotals();
+    });
+  
+    document.getElementById("addEssentialBtn")?.addEventListener("click", () => {
+      addFromDropdown("essential");
+    });
+  
+    document.getElementById("addNonEssentialBtn")?.addEventListener("click", () => {
+      addFromDropdown("nonessential");
+    });
+  
+    document.getElementById("checkPositionBtn")?.addEventListener("click", handleCheckPosition);
   });
   
-  // ─────────────────────────────────────────────
-  // Income banner
-  // ─────────────────────────────────────────────
   function getIncome() {
-    return parseFloat(document.getElementById("incomeInput").value) || 0;
+    return parseFloat(document.getElementById("incomeInput")?.value) || 0;
+  }
+  
+  function getRent() {
+    return parseFloat(document.getElementById("rentBannerInput")?.value) || 0;
   }
   
   function updateIncomeBanner() {
-    const v = getIncome();
-    document.getElementById("incomeBannerValue").textContent = v ? `$${v}/wk` : "$--";
+    const income = getIncome();
+    const el = document.getElementById("incomeBannerValue");
+  
+    if (!el) return;
+  
+    el.textContent = income > 0 ? `$${Math.round(income)}/wk` : "$--";
   }
   
-  // ─────────────────────────────────────────────
-  // Add a category card
-  // ─────────────────────────────────────────────
+  function updateRentBanner() {
+    const rent = getRent();
+    const el = document.getElementById("rentBannerValue");
+  
+    if (!el) return;
+  
+    el.textContent = rent > 0 ? `$${Math.round(rent)}/wk` : "$--";
+  }
+  
   function addExpenseCard(type, id, prefillValue) {
     const catalogue = type === "essential" ? ESSENTIAL_CATEGORIES : NONESSENTIAL_CATEGORIES;
-    const cat = catalogue.find(c => c.id === id);
-    if (!cat) return;
+    const category = catalogue.find(c => c.id === id);
   
-    const activeArr = type === "essential" ? activeEssentials : activeNonessentials;
-    if (activeArr.includes(id)) return; // already shown
+    if (!category) return;
   
-    activeArr.push(id);
+    const activeArray = type === "essential" ? activeEssentials : activeNonessentials;
   
-    const container = document.getElementById(type === "essential" ? "essentialCards" : "nonessentialCards");
-    const val = prefillValue !== undefined ? prefillValue : cat.default;
+    if (activeArray.includes(id)) return;
+  
+    activeArray.push(id);
+  
+    const container = document.getElementById(
+      type === "essential" ? "essentialCards" : "nonessentialCards"
+    );
+  
+    if (!container) return;
+  
+    const value = prefillValue !== undefined ? prefillValue : category.default;
   
     const card = document.createElement("div");
+  
     card.className = `expense-card ${type === "essential" ? "essential-card" : "nonessential-card"}`;
-    card.dataset.id   = id;
+    card.dataset.id = id;
     card.dataset.type = type;
+    card.dataset.absGroup = category.absGroup;
   
     card.innerHTML = `
-      <div class="expense-icon">${cat.icon}</div>
+      <div class="expense-icon">${category.icon}</div>
+  
       <div class="expense-info">
-        <p class="expense-name">${cat.name}</p>
-        <p class="expense-hint">${cat.hint}</p>
+        <p class="expense-name">${category.name}</p>
+        <p class="expense-hint">${category.hint}</p>
       </div>
+  
       <div class="expense-input-wrap">
         <span class="expense-prefix">$</span>
         <input
@@ -114,344 +210,205 @@ const ESSENTIAL_CATEGORIES = [
           type="number"
           min="0"
           step="1"
-          value="${val || ""}"
+          value="${value || ""}"
           placeholder="0"
-          aria-label="${cat.name} weekly amount"
+          aria-label="${category.name} weekly amount"
           data-id="${id}"
           data-type="${type}"
         />
         <span class="expense-suffix">/wk</span>
       </div>
-      <button class="remove-btn" aria-label="Remove ${cat.name}">✕</button>
+  
+      <button class="remove-btn" type="button" aria-label="Remove ${category.name}">✕</button>
     `;
   
-    // Listeners on this card
-    card.querySelector(".expense-input").addEventListener("input", updateTotals);
-    card.querySelector(".remove-btn").addEventListener("click", () => removeCard(card, id, type));
+    card.querySelector(".expense-input")?.addEventListener("input", updateTotals);
+  
+    card.querySelector(".remove-btn")?.addEventListener("click", () => {
+      removeCard(card, id, type);
+    });
   
     container.appendChild(card);
+  
     rebuildDropdowns();
     updateTotals();
   }
   
-  // ─────────────────────────────────────────────
-  // Remove a card
-  // ─────────────────────────────────────────────
   function removeCard(card, id, type) {
-    const activeArr = type === "essential" ? activeEssentials : activeNonessentials;
-    const idx = activeArr.indexOf(id);
-    if (idx > -1) activeArr.splice(idx, 1);
+    const activeArray = type === "essential" ? activeEssentials : activeNonessentials;
+    const index = activeArray.indexOf(id);
+  
+    if (index > -1) {
+      activeArray.splice(index, 1);
+    }
+  
     card.remove();
     rebuildDropdowns();
     updateTotals();
   }
   
-  // ─────────────────────────────────────────────
-  // Rebuild dropdowns — only show unselected categories
-  // ─────────────────────────────────────────────
   function rebuildDropdowns() {
-    const essentialDrop    = document.getElementById("essentialDropdown");
-    const nonessentialDrop = document.getElementById("nonessentialDropdown");
+    const essentialDropdown = document.getElementById("essentialDropdown");
+    const nonessentialDropdown = document.getElementById("nonessentialDropdown");
   
-    const availableEssentials    = ESSENTIAL_CATEGORIES.filter(c => !activeEssentials.includes(c.id));
-    const availableNonessentials = NONESSENTIAL_CATEGORIES.filter(c => !activeNonessentials.includes(c.id));
+    if (!essentialDropdown || !nonessentialDropdown) return;
   
-    essentialDrop.innerHTML = `<option value="">+ Add an essential expense…</option>` +
-      availableEssentials.map(c => `<option value="${c.id}">${c.icon} ${c.name}</option>`).join("");
+    const availableEssentials = ESSENTIAL_CATEGORIES.filter(
+      category => !activeEssentials.includes(category.id)
+    );
   
-    nonessentialDrop.innerHTML = `<option value="">+ Add a non-essential expense…</option>` +
-      availableNonessentials.map(c => `<option value="${c.id}">${c.icon} ${c.name}</option>`).join("");
+    const availableNonessentials = NONESSENTIAL_CATEGORIES.filter(
+      category => !activeNonessentials.includes(category.id)
+    );
   
-    // Hide add row if no more options
-    document.getElementById("addEssentialRow").style.display    = availableEssentials.length    ? "flex" : "none";
-    document.getElementById("addNonEssentialRow").style.display = availableNonessentials.length ? "flex" : "none";
+    essentialDropdown.innerHTML =
+      `<option value="">+ Add an essential expense…</option>` +
+      availableEssentials
+        .map(category => `<option value="${category.id}">${category.icon} ${category.name}</option>`)
+        .join("");
+  
+    nonessentialDropdown.innerHTML =
+      `<option value="">+ Add a non-essential expense…</option>` +
+      availableNonessentials
+        .map(category => `<option value="${category.id}">${category.icon} ${category.name}</option>`)
+        .join("");
+  
+    const essentialRow = document.getElementById("addEssentialRow");
+    const nonessentialRow = document.getElementById("addNonEssentialRow");
+  
+    if (essentialRow) {
+      essentialRow.style.display = availableEssentials.length ? "flex" : "none";
+    }
+  
+    if (nonessentialRow) {
+      nonessentialRow.style.display = availableNonessentials.length ? "flex" : "none";
+    }
   }
   
-  // ─────────────────────────────────────────────
-  // Add from dropdown button
-  // ─────────────────────────────────────────────
   function addFromDropdown(type) {
-    const dropId = type === "essential" ? "essentialDropdown" : "nonessentialDropdown";
-    const sel    = document.getElementById(dropId);
-    const id     = sel.value;
-    if (!id) return;
-    addExpenseCard(type, id);
-    sel.value = "";
+    const dropdown = document.getElementById(
+      type === "essential" ? "essentialDropdown" : "nonessentialDropdown"
+    );
+  
+    if (!dropdown || !dropdown.value) return;
+  
+    addExpenseCard(type, dropdown.value);
+    dropdown.value = "";
   }
   
-  // ─────────────────────────────────────────────
-  // Calculate totals from all visible inputs
-  // ─────────────────────────────────────────────
   function getTotals() {
-    let essential    = 0;
+    let essential = getRent();
     let nonessential = 0;
   
-    document.querySelectorAll(".expense-input").forEach(inp => {
-      const val = parseFloat(inp.value) || 0;
-      if (inp.dataset.type === "essential")    essential    += val;
-      else                                     nonessential += val;
+    document.querySelectorAll(".expense-input").forEach(input => {
+      const value = parseFloat(input.value) || 0;
+  
+      if (input.dataset.type === "essential") {
+        essential += value;
+      } else {
+        nonessential += value;
+      }
     });
   
-    const income  = getIncome();
-    const total   = essential + nonessential;
+    const income = getIncome();
+    const total = essential + nonessential;
     const surplus = income - total;
   
-    return { essential, nonessential, total, surplus, income };
+    return {
+      income,
+      rent: getRent(),
+      essential,
+      nonessential,
+      total,
+      surplus
+    };
   }
   
   function updateTotals() {
     const { essential, nonessential, total, surplus } = getTotals();
   
-    document.getElementById("totalEssential").textContent    = `$${Math.round(essential)}`;
+    document.getElementById("totalEssential").textContent = `$${Math.round(essential)}`;
     document.getElementById("totalNonessential").textContent = `$${Math.round(nonessential)}`;
-    document.getElementById("totalAll").textContent          = `$${Math.round(total)}`;
+    document.getElementById("totalAll").textContent = `$${Math.round(total)}`;
   
     const surplusEl = document.getElementById("totalSurplus");
-    surplusEl.textContent  = surplus >= 0 ? `+$${Math.round(surplus)}` : `-$${Math.round(Math.abs(surplus))}`;
-    surplusEl.className    = "total-value " + (surplus >= 0 ? "surplus-color" : "deficit-color");
+  
+    if (!surplusEl) return;
+  
+    surplusEl.textContent = surplus >= 0
+      ? `+$${Math.round(surplus)}`
+      : `-$${Math.round(Math.abs(surplus))}`;
+  
+    surplusEl.className = "total-value " + (surplus >= 0 ? "surplus-color" : "deficit-color");
   }
   
-  // ─────────────────────────────────────────────
-  // Show results
-  // ─────────────────────────────────────────────
-  function showResults() {
-    const { essential, nonessential, total, surplus, income } = getTotals();
+  function getEnteredExpenseItems() {
+    const items = [];
+    const rent = getRent();
   
-    if (income === 0) { alert("Please enter your weekly income first."); return; }
+    if (rent > 0) {
+      items.push({
+        id: "rent",
+        name: "Rent",
+        value: rent,
+        type: "essential",
+        absGroup: null
+      });
+    }
   
-    // Build donut data - one segment per active card with a value > 0
-    const donutLabels  = [];
-    const donutValues  = [];
-    const donutColors  = [];
-  
-    const essentialPalette    = ["#2d8a4e","#4aab6d","#6dc98a","#94d9a8","#b8e8c5","#d4f0dd"];
-    const nonessentialPalette = ["#9b72cf","#b08ad8","#c4a3e0","#d7bde8","#e8d5f2","#f0e8f8"];
-  
-    let ei = 0, ni = 0;
     document.querySelectorAll(".expense-card").forEach(card => {
-      const inp = card.querySelector(".expense-input");
-      const val = parseFloat(inp?.value) || 0;
-      if (val === 0) return;
+      const input = card.querySelector(".expense-input");
+      const value = parseFloat(input?.value) || 0;
+  
+      if (value <= 0) return;
   
       const type = card.dataset.type;
-      const id   = card.dataset.id;
-      const cat  = (type === "essential" ? ESSENTIAL_CATEGORIES : NONESSENTIAL_CATEGORIES).find(c => c.id === id);
-      if (!cat) return;
+      const id = card.dataset.id;
+      const catalogue = type === "essential" ? ESSENTIAL_CATEGORIES : NONESSENTIAL_CATEGORIES;
+      const category = catalogue.find(c => c.id === id);
   
-      donutLabels.push(cat.name);
-      donutValues.push(val);
+      if (!category) return;
   
-      if (type === "essential") {
-        donutColors.push(essentialPalette[ei % essentialPalette.length]);
-        ei++;
-      } else {
-        donutColors.push(nonessentialPalette[ni % nonessentialPalette.length]);
-        ni++;
-      }
+      items.push({
+        id,
+        name: category.name,
+        value,
+        type,
+        absGroup: category.absGroup
+      });
     });
   
-    // Render donut
-    renderDonut(donutLabels, donutValues, donutColors, total);
-  
-    // Position summary
-    const rentCard = document.querySelector('.expense-card[data-id="rent"] .expense-input');
-    const rentVal  = parseFloat(rentCard?.value) || 0;
-    const rentPct  = income > 0 ? (rentVal / income) * 100 : 0;
-  
-    document.getElementById("posIncome").textContent      = `$${Math.round(income)}/wk`;
-    document.getElementById("posEssential").textContent   = `-$${Math.round(essential)}/wk`;
-    document.getElementById("posNonessential").textContent= `-$${Math.round(nonessential)}/wk`;
-  
-    const surplusEl = document.getElementById("posSurplus");
-    surplusEl.textContent = surplus >= 0 ? `+$${Math.round(surplus)}/wk` : `-$${Math.round(Math.abs(surplus))}/wk`;
-    surplusEl.style.color = surplus >= 0 ? "#2d8a4e" : "#c0392b";
-  
-    // Rent stress classification (Planning and Environment Act 1987 Vic)
-    if (rentVal > 0) {
-      document.getElementById("posRentPct").textContent = `${rentPct.toFixed(1)}%`;
-      let stressLabel, stressColor;
-      if (rentPct <= 25)       { stressLabel = "✅ Stable";      stressColor = "#2d8a4e"; }
-      else if (rentPct <= 30)  { stressLabel = "⚠️ Vulnerable";  stressColor = "#b8860b"; }
-      else                     { stressLabel = "🔴 At Risk";     stressColor = "#c0392b"; }
-      const statusEl = document.getElementById("posStressStatus");
-      statusEl.textContent = stressLabel;
-      statusEl.style.color = stressColor;
-    } else {
-      document.getElementById("posRentPct").textContent    = "No rent entered";
-      document.getElementById("posStressStatus").textContent = "—";
-    }
-  
-    // Verdict
-    renderVerdict(surplus, income, nonessential, rentPct, rentVal);
-  
-    // Epic cross-links
-    renderEpicLinks(surplus, income, nonessential, rentPct);
-  
-    // Persist spending data so the forecast page can pull it
-    try {
-      const items = [];
-      document.querySelectorAll(".expense-card").forEach(card => {
-        const inp = card.querySelector(".expense-input");
-        const val = parseFloat(inp?.value) || 0;
-        if (!val) return;
-        const type = card.dataset.type;
-        const id   = card.dataset.id;
-        const cat  = (type === "essential" ? ESSENTIAL_CATEGORIES : NONESSENTIAL_CATEGORIES).find(c => c.id === id);
-        if (cat) items.push({ id, name: cat.name, value: val, type });
-      });
-      sessionStorage.setItem("hermapSpendingData", JSON.stringify({ items, income, savedAt: Date.now() }));
-    } catch(e) {}
-
-    // Show results
-    const section = document.getElementById("resultsSection");
-    section.classList.add("visible");
-    section.scrollIntoView({ behavior: "smooth", block: "start" });
+    return items;
   }
   
-  // ─────────────────────────────────────────────
-  // Donut chart
-  // ─────────────────────────────────────────────
-  function renderDonut(labels, values, colors, total) {
-    if (donutChart) { donutChart.destroy(); donutChart = null; }
+  function handleCheckPosition() {
+    const totals = getTotals();
+    const items = getEnteredExpenseItems();
   
-    document.getElementById("donutCenterVal").textContent = `$${Math.round(total)}/wk`;
+    if (totals.income <= 0) {
+      alert("Please enter your weekly income first.");
+      return;
+    }
   
-    const ctx = document.getElementById("spendingDonut").getContext("2d");
-    donutChart = new Chart(ctx, {
-      type: "doughnut",
-      data: {
-        labels,
-        datasets: [{
-          data: values,
-          backgroundColor: colors,
-          borderWidth: 2,
-          borderColor: "#ffffff",
-          hoverOffset: 8,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        cutout: "68%",
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: ctx => {
-                const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
-                return ` $${Math.round(ctx.raw)}/wk  (${pct}%)`;
-              }
-            }
-          }
-        }
-      }
-    });
-
-    const legendEl = document.getElementById("spendingLegend");
-    legendEl.innerHTML = labels.map((label, i) => `
-      <div class="chart-legend-item">
-        <span class="chart-legend-dot" style="background:${colors[i]}"></span>
-        <span>${label}</span>
-      </div>
-    `).join("");
+    if (items.length === 0) {
+      alert("Please enter at least one weekly expense.");
+      return;
+    }
+  
+    const payload = {
+      income: totals.income,
+      rent: totals.rent,
+      essential: totals.essential,
+      nonessential: totals.nonessential,
+      total: totals.total,
+      surplus: totals.surplus,
+      living: window.userProfileData?.living || "",
+      locality: window.userProfileData?.locality || "",
+      items,
+      savedAt: Date.now()
+    };
+  
+    sessionStorage.setItem("hermapSpendingData", JSON.stringify(payload));
+  
+    window.location.href = "/spending-results";
   }
-
-  // ─────────────────────────────────────────────
-  // Verdict card
-  // ─────────────────────────────────────────────
-  function renderVerdict(surplus, income, nonessential, rentPct, rentVal) {
-    const card  = document.getElementById("verdictCard");
-    const icon  = document.getElementById("verdictIcon");
-    const title = document.getElementById("verdictTitle");
-    const body  = document.getElementById("verdictBody");
-  
-    card.className = "verdict-card";
-  
-    if (surplus > 50) {
-      card.classList.add("surplus");
-      icon.textContent  = "✅";
-      title.textContent = `You have $${Math.round(surplus)}/wk left over`;
-      body.textContent  = `Your spending is within your income. ${rentPct > 30 ? `However, rent is ${rentPct.toFixed(0)}% of your income — above the 30% stress threshold. ` : ""}Non-essential spending is $${Math.round(nonessential)}/wk. Cutting even $30/wk from non-essentials adds $1,560 to your savings over a year.`;
-    } else if (surplus >= 0) {
-      card.classList.add("tight");
-      icon.textContent  = "⚠️";
-      title.textContent = "You are just breaking even";
-      body.textContent  = `Only $${Math.round(surplus)}/wk left over means one unexpected bill — a medical visit, a phone repair — could put you in the red. Your non-essential spending of $${Math.round(nonessential)}/wk is where you have flexibility.`;
-    } else {
-      card.classList.add("deficit");
-      icon.textContent  = "🔴";
-      title.textContent = `You are $${Math.round(Math.abs(surplus))}/wk over your income`;
-      const shortfall3m = Math.round(Math.abs(surplus) * 13);
-      body.textContent  = `At this rate, your shortfall becomes approximately $${shortfall3m.toLocaleString()} over 3 months. Your non-essential spending of $${Math.round(nonessential)}/wk is driving most of this gap — reducing it is the fastest lever you have right now.`;
-    }
-  }
-  
-  // ─────────────────────────────────────────────
-  // Epic cross-links — contextual based on situation
-  // ─────────────────────────────────────────────
-  function renderEpicLinks(surplus, income, nonessential, rentPct) {
-    const container = document.getElementById("epicLinks");
-    const links     = [];
-  
-    // Always show forecast if she has rent
-    const rentCard = document.querySelector('.expense-card[data-id="rent"] .expense-input');
-    if (rentCard && parseFloat(rentCard.value) > 0) {
-      links.push({
-        href: "/forecast",
-        icon: "📈",
-        title: "See my 12-month independence forecast",
-        desc:  "Find out if you can sustain moving out — including bond timeline and hidden costs.",
-      });
-    }
-  
-    // If rent is high or no rent, suggest exploring cheaper areas
-    if (rentPct > 30 || !rentCard) {
-      links.push({
-        href: "/rent_comparison",
-        icon: "🗺️",
-        title: "Explore more affordable areas",
-        desc:  rentPct > 30
-          ? `Rent is ${rentPct.toFixed(0)}% of your income. See suburbs where rent fits your budget.`
-          : "Compare rent across Victorian LGAs to find your affordable range.",
-      });
-    }
-  
-    // If in deficit or high non-essentials, link to budgeting
-    if (surplus < 0 || nonessential > income * 0.20) {
-      links.push({
-        href: "/dashboard",  // Epic 8 budgeting tile — update to direct URL when built
-        icon: "💡",
-        title: "Learn simple budgeting strategies",
-        desc:  "The 50/30/20 rule and envelope method — pick one that works for your lifestyle.",
-      });
-    }
-  
-    // If in deficit, link to credit awareness
-    if (surplus < 0) {
-      links.push({
-        href: "/dashboard",  // Epic 6 — update to direct URL when built
-        icon: "💳",
-        title: "Understand credit and BNPL risk",
-        desc:  "Before using a credit card or Afterpay to cover a shortfall, see what it actually costs.",
-      });
-    }
-  
-    // Always show income comparison
-    links.push({
-      href: "/income_comparison",
-      icon: "📊",
-      title: "See how your income compares",
-      desc:  "Explore what women in different industries and areas typically earn.",
-    });
-  
-    container.innerHTML = links.map(l => `
-      <a href="${l.href}" class="epic-link-card">
-        <div class="epic-link-icon">${l.icon}</div>
-        <div class="epic-link-text">
-          <h4>${l.title}</h4>
-          <p>${l.desc}</p>
-        </div>
-      </a>
-    `).join("");
-  }
-  

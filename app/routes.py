@@ -170,3 +170,8 @@ def spending_tracker():
     if not profile_data:
         return redirect(url_for("main.quick_profile"))
     return render_template("spending_tracker.html", profile_data=profile_data)
+
+
+@main.route("/spending-results")
+def spending_results():
+    return render_template("spending_results.html")
