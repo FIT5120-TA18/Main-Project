@@ -25,7 +25,14 @@ if (userIndustry) {
 }
 
 // Fetch gender pay gap industry data from Flask API
-fetch("/api/gender-pay-gap-industries")
+const BASE_PATH = window.location.pathname.startsWith("/underdevelopment")
+  ? "/underdevelopment"
+  : "";
+
+const API_BASE = `${BASE_PATH}/api`;
+
+// fetch("/api/gender-pay-gap-industries");
+fetch(`${API_BASE}/gender-pay-gap-industries`)
   .then((response) => response.json())
   .then((data) => {
     industryData = data;
