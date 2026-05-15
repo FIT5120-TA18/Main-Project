@@ -93,8 +93,8 @@ function initChart() {
         : buildBNPLData(state.opening, state.totalMonths);
 
     const isCC = state.scenario === 'credit';
-    const baseColor = isCC ? 'rgba(232,84,106,0.35)' : 'rgba(155,114,207,0.35)';
-    const topColor = isCC ? 'rgba(232,84,106,0.95)' : 'rgba(155,114,207,0.95)';    
+    const baseColor = 'rgba(155,114,207,0.95)';
+    const topColor = 'rgba(232,84,106,0.95)';    
     const labels = buildLabels(state.totalMonths);
     
     // Start will all values at 0 to let the user control the reveal and fill the data
@@ -198,8 +198,90 @@ function updateSidebar(stepIndex) {
 // Boot the chart on page load
 initChart();
 
+// Log to console for debugging
 console.log('US 6.3 AC 1 loaded: Chart Initailised', { 
     scenario: state.scenario, 
     opening: state.opening, 
     totalMonths: state.totalMonths 
 });
+
+// --- US 6.3 AC 2: Reveal Controls ---
+
+function revealNext() {
+    if (state.isComplete) return;
+    state.currentStep++;
+    applyReveal();
+    updateSidebar(state.currentStep);
+    if (state.currentStep >= state.totalSteps) {
+        state.isComplete = true;
+        onRevealComplete();
+    }
+    updateRevealUI();
+}
+
+function skipToEnd() {
+    if (state.isComplete) return;
+
+    const btn = document.getElementById('revealNextBtn');
+    const skip = document.getElementById('skipToEndBtn');
+    if (btn) btn.disabled = true;
+    if (skip) skip.disabled = true;
+
+    function revealStep() {
+        if (state.currentStep >= state.totalSteps) {
+            state.isComplete = true;
+            onRevealComplete();
+            updateRevealUI();
+            return;
+        }
+        state.currentStep++;
+        applyReveal();
+        updateSidebar(state.currentStep);
+        setTimeout(revealStep, 350);
+    }
+    revealStep();
+}
+
+function onRevealComplete() {
+    document.getElementById('keyMessage').style.display = 'block';
+    document.getElementById('ctaBox').style.display = 'block';
+}
+
+function updateRevealUI() {
+    const btn = document.getElementById('revealNextBtn');
+    const skip = document.getElementById('skipToEndBtn');
+    if (!btn || !skip) return;
+
+    btn.disabled = state.isComplete;
+    skip.disabled = state.isComplete;
+    btn.textContent = state.isComplete ? 'All Months Revealed' : `Reveal Month ${Math.min(state.currentStep + 1, state.totalMonths)}`;
+}
+
+// --- US 6.3 AC 3: Custom Legend ---
+
+function buildLegend() {
+    const legend = document.getElementById('chartLegend');
+    if (!legend) return;
+    const isCC = state.scenario === 'credit';
+    const baseHex = 'rgba(155,114,207,0.95)';
+    const topHex = 'rgba(232,84,106,0.95)';
+    const feeLabel = isCC ? 'Interest accrued' : 'Late fees accrued';
+
+    legend.innerHTML = `
+        <span class="legend-item">
+            <span class="legend-swatch" style="background:${baseHex};"></span>
+            Original Amount Owed
+        </span>
+        <span class="legend-item">
+            <span class="legend-swatch" style="background:${topHex};"></span>
+            ${feeLabel}
+        </span>
+    `;
+}
+
+// Boot legend and reveal UI
+buildLegend();
+updateRevealUI();
+
+// Log to console for debugging
+console.log('US 6.3 AC 2 & 3 loaded: Reveal controls and custom legend initialised');
