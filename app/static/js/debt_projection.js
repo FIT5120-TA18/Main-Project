@@ -52,13 +52,16 @@ function buildCCData(opening, months) {
 }
 
 // Build monthly data for BNPL scenario
-// $20 flat fee per month (2 * $10 fortnightly missed instalments)
+const BNPL_MONTHLY_FEE = 17; // $10 + $7 two-tier Afterpay late fee structure
+
 function buildBNPLData (opening, months) {
     const result = []; 
+    let totalFees = 0;
     for (let m = 1; m <= months; m++) {
+        totalFees += BNPL_MONTHLY_FEE;
         result.push({
-            base: opening,
-            interest: 20 * m
+            base: opening, // locked - never changes
+            interest: totalFees // accumulates additively, no compounding
         });
     }
     return result;
@@ -70,12 +73,6 @@ function buildLabels(totalMonths) {
     return labels;
 }
 
-function getStepSize(totalMonths) {
-    if (totalMonths === 18) return 2;
-    if (totalMonths === 24) return 3;
-    return 1;
-}
-
 function initChart() {
     if (state.chartInstance) {
         state.chartInstance.destroy();
@@ -84,9 +81,8 @@ function initChart() {
 
     state.currentStep = 1;
     state.isComplete = false;
-    const stepSize = getStepSize(state.totalMonths);
-    state.stepSize = stepSize;
-    state.totalSteps = state.totalMonths / stepSize;
+    state.stepSize = 1;
+    state.totalSteps = state.totalMonths;
     
     const allData = state.scenario === 'credit'
         ? buildCCData(state.opening, state.totalMonths)
@@ -199,7 +195,7 @@ function updateSidebar(stepIndex) {
 initChart();
 
 // Log to console for debugging
-console.log('US 6.3 AC 1 loaded: Chart Initailised', { 
+console.log('US 6.3: Chart initialised', { 
     scenario: state.scenario, 
     opening: state.opening, 
     totalMonths: state.totalMonths 
@@ -279,9 +275,25 @@ function buildLegend() {
     `;
 }
 
+
+function updateSourceNote() {
+    const ccNote = document.getElementById('sourceNoteCC');
+    const bnplNote = document.getElementById('sourceNoteBNPL');
+    if (!ccNote || !bnplNote) return;
+
+    if (state.scenario === 'credit') {
+        ccNote.style.display = 'block';
+        bnplNote.style.display = 'none';
+    } else {
+        ccNote.style.display = 'none';
+        bnplNote.style.display = 'block';
+    }
+}
+
 // Boot legend and reveal UI
 buildLegend();
 updateRevealUI();
+updateSourceNote();
 
 // Log to console for debugging
-console.log('US 6.3 AC 2 & 3 loaded: Reveal controls and custom legend initialised');
+console.log('US 6.3: Reveal controls and custom legend initialised');
