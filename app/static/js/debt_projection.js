@@ -33,7 +33,7 @@ let state = {
     totalSteps: DEFAULT_MONTHS,
     stepSize: 1,
     isComplete: false,
-    chartInstance: null
+    chartInstance: null,
 };
 
 // Build monthly data for credit card scenario
@@ -67,10 +67,21 @@ function buildBNPLData (opening, months) {
     return result;
 }
 
+// Build labels M1, M2, ... dynamically based on total months to ensure flexibility
 function buildLabels(totalMonths) {
     const labels = [];
     for (let m = 1; m <= totalMonths; m++) labels.push(`M${m}`);
     return labels;
+}
+
+function roundUpTo25 (value) {
+    return Math.ceil(value / 25) * 25;
+}
+
+function getStepSizeForMax (max) {
+    if (max <= 250) return 25;
+    if (max <= 1000) return 50;
+    return 100;
 }
 
 function initChart() {
@@ -88,6 +99,10 @@ function initChart() {
         ? buildCCData(state.opening, state.totalMonths)
         : buildBNPLData(state.opening, state.totalMonths);
 
+    const m1Total = allData[0].base + allData[0].interest;
+    const initialMax = roundUpTo25(m1Total);
+    const initialStepSize = getStepSizeForMax(initialMax);
+    
     const isCC = state.scenario === 'credit';
     const baseColor = 'rgba(155,114,207,0.95)';
     const topColor = 'rgba(232,84,106,0.95)';    
@@ -148,10 +163,11 @@ function initChart() {
             scales: {
                 r: {
                     beginAtZero: true,
-                    max: Math.max(state.opening * 1.2, 250),
+                    max: initialMax,
                     ticks: {
                         callback: v => '$' + v.toLocaleString(),
-                        font: { size: 11 }
+                        font: { size: 11 },
+                        stepSize: initialStepSize
                     },
                     grid: { color: 'rgba(0,0,0,0.06)'}
                 }
@@ -169,16 +185,24 @@ function applyReveal() {
     const top = state.chartInstance.data.datasets[0].data; // inner -> original amount
     const base = state.chartInstance.data.datasets[1].data; // outer -> original + interest/fees amount
 
+    let highestRevealed = 0;
+
     for (let i = 0; i < state.totalMonths; i++) {
-        const monthIndex = Math.floor(i / state.stepSize);
-        if (monthIndex < state.currentStep) {
+        if (i < state.currentStep) {
             top[i] = allData[i].base;
             base[i] = allData[i].base + allData[i].interest;
+            highestRevealed = Math.max(highestRevealed, base[i]);
         } else {
             top[i] = 0;
             base[i] = 0;
         }
     }
+
+    const newMax = roundUpTo25(highestRevealed);
+    const newStepSize = getStepSizeForMax(newMax);
+
+    state.chartInstance.options.scales.r.max = newMax;
+    state.chartInstance.options.scales.r.ticks.stepSize = newStepSize;
     state.chartInstance.update();
 }
 
