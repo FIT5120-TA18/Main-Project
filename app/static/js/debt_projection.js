@@ -306,11 +306,6 @@ function updateSourceNote() {
     }
 }
 
-// Boot legend and reveal UI
-buildLegend();
-updateRevealUI();
-updateSourceNote();
-
 // Log to console for debugging
 console.log('US 6.3 loaded:', { state });
 
@@ -333,7 +328,84 @@ function setScenario(scenario) {
     buildLegend();
     updateRevealUI();
     updateSourceNote();
+    updateBalanceLabel();
 
     // Log to console for debugging
     console.log('US 6.6 Scenario changed to:', { scenario });
 }
+
+// --- US 6.4: DCustomise Projection ---
+
+const DURATION_OPTIONS = [12, 18, 24];
+
+function onSliderChange(index) {
+    const months = DURATION_OPTIONS[parseInt(index)];
+    document.getElementById('durationDisplay').textContent = `${months} months`;
+}
+
+function updateBalanceLabel () {
+    const label = document.getElementById('balanceLabel');
+    if (!label) return;
+    label.textContent = state.scenario === 'bnpl' 
+        ? 'Monthly amount you cover with BNPL ($)'
+        : 'Current debt balance ($)';
+}
+
+function applyCustomisation() {
+    // Read projection length
+    const sliderIndex = parseInt(document.getElementById('.duration-slider').value);
+    const newMonths = DURATION_OPTIONS[sliderIndex];
+
+    // Read and validate opening balance
+    const input = document.getElementById('openingBalanceInput');
+    const errorE1 = document.getElementById('balanceError');
+    const raw = input.value.trim();
+
+    // Clear previous error
+    errorE1.style.display = 'none';
+    errorE1.textContent = '';
+    input.classList.remove('input-error');
+
+    if (raw !== '') {
+        const val = Number(raw);
+
+        if (isNaN(val) || val <= 0) {
+            errorE1.textContent = 'Please enter a valid debt amount.';
+            errorE1.style.display = 'block';
+            input.classList.add('input-error');
+            return
+        }
+
+        if (val > 10000) { 
+            errorE1.textContent = 'We can only project up to $5,000. For larger amounts, please speak to a financial consellor.';
+            errorE1.style.display = 'block';
+            input.classList.add('input-error');
+            return
+        }
+
+        state.opening = val;
+    } else {
+        // Empty inpur use default
+        state.opening = DEFAULT_OPENING;
+    }
+
+    // Apply new projection length
+    state.totalMonths = newMonths;
+
+    // Rebuild everything
+    initChart();
+    buildLegend();
+    updateRevealUI();
+    updateSourceNote();
+
+    // Log to console for debugging
+    console.log('US 6.4 Chart Updated', { totalMonths: state.totalMonths, opening: state.opening });
+}
+
+
+
+// Boot legend and reveal UI
+buildLegend();
+updateRevealUI();
+updateSourceNote();
+updateBalanceLabel();

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Debt Projection – HerMap</title>
+  <title>Debt Projection - HerMap</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap"
     rel="stylesheet" />
@@ -88,21 +88,61 @@
 
         <div class="cta-box" style="display:none;" id="ctaBox">
           <p>Now that you can see how debt grows, learn about credit products and how to avoid the trap.</p>
-          <a href="{{ url_for('main.knowledge_hub') }}#credit" class="cta-link">Learn about credit products →</a>
+          <a href="{{ url_for('main.knowledge_hub') }}#credit" class="cta-link">Learn about credit products</a>
         </div>
       </div>
 
       <!-- Right: Stats -->
       <div>
-        <div class="side-card">
+        <div class="side-card" id="customCard">
+          <h4 class="side-card-title"> Customise Your Projection</h4>
+
+          <div style="margin-bottom:20px;">
+            <p style="font-size:13px;font-weight:700;color:var(--text-muted);margin:0 0 10px;"> 
+              Projection Length <span id="durationDisplay" style="color:var(--primary);"> 12 months </span>
+            </p>
+            <input
+              type="range"
+              id="durationSlider"
+              min="0"
+              max="2"
+              step="1"
+              value="0"
+              class="duration-slider"
+              oninput="onSliderChange(this.value)"
+            />
+            <div class="slider-labels">
+              <span>12 months</span>
+              <span>18 months</span>
+              <span>24 months</span>
+            </div>
+          </div>
+          <div style="margin-bottom:20px;">
+            <label id="balanceLabel" for="openingBalanceInput" style="font-size:13px;font-weight:700;color:var(--text-muted);display:block;margin:8px;"> 
+              Current debt balance ($)
+            </label>
+            <input
+              type="number"
+              id="openingBalanceInput"
+              class="form-input"
+              placeholder="e.g. 150"
+              min="50"
+              max="5000"
+              style="font-size:15px;"
+              />
+            <p id="balanceError" style="display:none;color:#c0392b;font-size:13px;font-weight:700;margin-top:8px;"></p>
+          </div>
+          <button class="reveal-btn-primary" style="width:100%" onclick="applyCustomisation()"> Update Chart </button>
+        </div>
+      <div class="side-card">
           <h4 class="side-card-title">Your Numbers</h4>
           <div class="data-row">
             <span class="data-label">Credit type</span>
-            <span class="data-value" id="statCreditType">—</span>
+            <span class="data-value" id="statCreditType">-</span>
           </div>
           <div class="data-row">
             <span class="data-label">Current total</span>
-            <span class="data-value red" id="statCurrentTotal">$—</span>
+            <span class="data-value red" id="statCurrentTotal">$-</span>
           </div>
         </div>
 
@@ -114,7 +154,7 @@
           </p>
           <div class="data-row">
             <span class="data-label">Extra cost vs full payoff</span>
-            <span class="data-value red" id="statMinExtra">$—</span>
+            <span class="data-value red" id="statMinExtra">$-</span>
           </div>
         </div>
 
