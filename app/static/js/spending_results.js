@@ -26,6 +26,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   renderSummaryCards(data);
   renderVerdict(data);
+  renderPressureMeter(data);
+  renderTopDrivers(data);
+  renderScenarioCards(data);
+  renderSavingsPathway(data);
   renderActionInsights(data);
   renderSpendingDonut(data);
   renderPositionDetails(data);
@@ -84,6 +88,25 @@ function money(value) {
   return `$${Math.round(Number(value) || 0)}`;
 }
 
+function signedMoney(value) {
+  const amount = Math.round(Number(value) || 0);
+  return amount >= 0 ? `+${money(amount)}` : `-${money(Math.abs(amount))}`;
+}
+
+function setScenarioClass(element, value) {
+  if (!element) return;
+
+  element.classList.remove("scenario-positive", "scenario-warning", "scenario-negative");
+
+  if (value >= 50) {
+    element.classList.add("scenario-positive");
+  } else if (value >= 0) {
+    element.classList.add("scenario-warning");
+  } else {
+    element.classList.add("scenario-negative");
+  }
+}
+
 function renderSummaryCards(data) {
   const rentPct = data.income > 0 ? (data.rent / data.income) * 100 : 0;
 
@@ -91,10 +114,7 @@ function renderSummaryCards(data) {
   document.getElementById("summaryTotal").textContent = `${money(data.total)}/wk`;
 
   const surplusEl = document.getElementById("summarySurplus");
-  surplusEl.textContent = data.surplus >= 0
-    ? `+${money(data.surplus)}/wk`
-    : `-${money(Math.abs(data.surplus))}/wk`;
-
+  surplusEl.textContent = `${signedMoney(data.surplus)}/wk`;
   surplusEl.className = "summary-value " + (data.surplus >= 0 ? "surplus-color" : "deficit-color");
 
   document.getElementById("summaryRentPressure").textContent =
@@ -133,6 +153,149 @@ function renderVerdict(data) {
   }
 }
 
+function renderPressureMeter(data) {
+  const marker = document.getElementById("pressureMarker");
+  const value = document.getElementById("pressureValue");
+
+  if (!marker || !value) return;
+
+  if (!data.rent || data.rent <= 0 || data.income <= 0) {
+    marker.style.left = "0%";
+    value.textContent = "No rent entered";
+    return;
+  }
+
+  const rentPct = (data.rent / data.income) * 100;
+  const markerLeft = Math.min(rentPct, 80);
+
+  marker.style.left = `${markerLeft}%`;
+
+  let status = "Stable";
+  if (rentPct >= 45) {
+    status = "At Risk";
+  } else if (rentPct >= 30) {
+    status = "Vulnerable";
+  }
+
+  value.textContent = `${rentPct.toFixed(1)}% of income on rent · ${status}`;
+}
+
+function renderTopDrivers(data) {
+  const container = document.getElementById("topDrivers");
+  if (!container) return;
+
+  const topItems = [...data.items]
+    .filter(item => item.value > 0)
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 3);
+
+  if (!topItems.length) {
+    container.innerHTML = `
+      <div class="driver-item">
+        <div class="driver-left">
+          <span class="driver-icon">ℹ️</span>
+          <span class="driver-name">No spending entered</span>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const icons = ["🔴", "🟠", "🟡"];
+
+  container.innerHTML = topItems.map((item, index) => `
+    <div class="driver-item ${item.type === "essential" ? "driver-essential" : "driver-nonessential"}">
+      <div class="driver-left">
+        <span class="driver-icon">${icons[index]}</span>
+        <span class="driver-name">${item.name}</span>
+      </div>
+      <span class="driver-amount">${money(item.value)}/wk</span>
+    </div>
+  `).join("");
+}
+
+function renderScenarioCards(data) {
+  const currentEl = document.getElementById("scenarioCurrent");
+  const sharedEl = document.getElementById("scenarioShared");
+  const aloneEl = document.getElementById("scenarioAlone");
+
+  if (!currentEl || !sharedEl || !aloneEl) return;
+
+  const currentPosition = data.surplus;
+
+  const estimatedSharedRent = data.rent > 0 ? data.rent : 280;
+  const estimatedSharedUtilities = 45;
+
+  const estimatedRentAlone = data.rent > 0 ? data.rent * 1.45 : 420;
+  const estimatedAloneUtilities = 65;
+
+  let sharedPosition;
+  let alonePosition;
+
+  const living = String(data.living || "").toLowerCase();
+
+  if (living.includes("home")) {
+    sharedPosition = data.income - (data.total + estimatedSharedRent + estimatedSharedUtilities);
+    alonePosition = data.income - (data.total + estimatedRentAlone + estimatedAloneUtilities);
+  } else {
+    sharedPosition = data.income - data.total;
+    alonePosition = data.income - (data.total - data.rent + estimatedRentAlone + estimatedAloneUtilities);
+  }
+
+  currentEl.textContent = `${signedMoney(currentPosition)}/wk`;
+  sharedEl.textContent = `${signedMoney(sharedPosition)}/wk`;
+  aloneEl.textContent = `${signedMoney(alonePosition)}/wk`;
+
+  setScenarioClass(currentEl.closest(".scenario-item"), currentPosition);
+  setScenarioClass(sharedEl.closest(".scenario-item"), sharedPosition);
+  setScenarioClass(aloneEl.closest(".scenario-item"), alonePosition);
+}
+
+function renderSavingsPathway(data) {
+  const emergencyWeeks = document.getElementById("emergencyWeeks");
+  const bondWeeks = document.getElementById("bondWeeks");
+  const emergencyProgress = document.getElementById("emergencyProgress");
+  const bondProgress = document.getElementById("bondProgress");
+  const emergencyNote = document.getElementById("emergencyNote");
+  const bondNote = document.getElementById("bondNote");
+
+  if (!emergencyWeeks || !bondWeeks || !emergencyProgress || !bondProgress) return;
+
+  const surplus = Math.max(Number(data.surplus) || 0, 0);
+  const emergencyTarget = 2000;
+  const bondTarget = 1600;
+
+  if (surplus <= 0) {
+    emergencyWeeks.textContent = "Not yet";
+    bondWeeks.textContent = "Not yet";
+    emergencyProgress.style.width = "0%";
+    bondProgress.style.width = "0%";
+
+    if (emergencyNote) emergencyNote.textContent = "Build a weekly surplus first before estimating this goal.";
+    if (bondNote) bondNote.textContent = "A bond buffer becomes realistic once spending is below income.";
+    return;
+  }
+
+  const emergencyNeededWeeks = Math.ceil(emergencyTarget / surplus);
+  const bondNeededWeeks = Math.ceil(bondTarget / surplus);
+
+  emergencyWeeks.textContent = `≈ ${emergencyNeededWeeks} weeks`;
+  bondWeeks.textContent = `≈ ${bondNeededWeeks} weeks`;
+
+  emergencyProgress.style.width = `${Math.min((surplus * 13 / emergencyTarget) * 100, 100)}%`;
+  bondProgress.style.width = `${Math.min((surplus * 13 / bondTarget) * 100, 100)}%`;
+
+  if (emergencyNote) {
+    emergencyNote.textContent =
+      `At ${money(surplus)}/wk, you could save about ${money(surplus * 13)} in 3 months.`;
+  }
+
+  if (bondNote) {
+    bondNote.textContent =
+      `This estimates how long it may take to build a basic rental bond buffer.`;
+  }
+}
+
 function renderActionInsights(data) {
   const positionInsight = document.getElementById("positionInsight");
   const fastestImprovement = document.getElementById("fastestImprovement");
@@ -143,10 +306,10 @@ function renderActionInsights(data) {
 
   if (data.surplus < 0) {
     positionInsight.textContent =
-      `Your spending is currently higher than your income. The main risk is that small weekly gaps can quickly become a larger shortfall.`;
+      "Your spending is currently higher than your income. The main risk is that small weekly gaps can quickly become a larger shortfall.";
   } else {
     positionInsight.textContent =
-      `Your spending is currently within your income. The next question is whether this surplus is enough to support moving out, saving, or unexpected costs.`;
+      "Your spending is currently within your income. The next question is whether this surplus is enough to support moving out, saving, or unexpected costs.";
   }
 
   if (largestFlexible) {
@@ -157,7 +320,7 @@ function renderActionInsights(data) {
       `Your largest flexible category is ${largestFlexible.name} at ${money(largestFlexible.value)}/wk. Reducing it by about ${money(reduction)}/wk could free up around ${money(yearlySaving)} over one year.`;
   } else {
     fastestImprovement.textContent =
-      `Most of your entered spending is essential. Your biggest improvement may come from comparing lower-rent suburbs or reviewing fixed bills.`;
+      "Most of your entered spending is essential. Your biggest improvement may come from comparing lower-rent suburbs or reviewing fixed bills.";
   }
 
   const living = String(data.living || "").toLowerCase();
@@ -169,13 +332,13 @@ function renderActionInsights(data) {
     const projectedSurplus = data.income - projectedTotal;
 
     moveOutReadiness.textContent =
-      `Because you currently live at home, your current surplus may not reflect independent living costs. If shared rent and utilities added about ${money(estimatedSharedRent + estimatedUtilities)}/wk, your projected position would be ${projectedSurplus >= 0 ? "+" : "-"}${money(Math.abs(projectedSurplus))}/wk.`;
+      `Because you currently live at home, your current surplus may not reflect independent living costs. If shared rent and utilities added about ${money(estimatedSharedRent + estimatedUtilities)}/wk, your projected position would be ${signedMoney(projectedSurplus)}/wk.`;
   } else if (rentPct >= 30) {
     moveOutReadiness.textContent =
       `Rent takes up ${rentPct.toFixed(1)}% of your income, which may make independence harder to sustain unless other costs stay controlled.`;
   } else {
     moveOutReadiness.textContent =
-      `Your rent is below the 30% housing stress threshold, which gives you a stronger base for sustaining independence.`;
+      "Your rent is below the 30% housing stress threshold, which gives you a stronger base for sustaining independence.";
   }
 }
 
@@ -186,52 +349,41 @@ function getLargestNonEssential(items) {
 }
 
 function renderSpendingDonut(data) {
-    const labels = [];
-    const values = [];
-    const colors = [];
-    
-    let essentialIndex = 0;
-    let nonessentialIndex = 0;
-    const essentialPalette = [
-        "#2f5aa8",
-        "#4a73bb",
-        "#6a8ccd",
-        "#8ba6de",
-        "#b0c3ec"
-      ];
-      
-      const nonessentialPalette = [
-        "#9b72cf",
-        "#b08ad8",
-        "#c4a3e0",
-        "#d7bde8",
-        "#e8d5f2"
-      ];
-    
-    data.items.forEach(item => {
-      labels.push(item.name);
-      values.push(item.value);
-    
-      if (item.type === "essential") {
-        colors.push(
-          essentialPalette[
-            essentialIndex % essentialPalette.length
-          ]
-        );
-    
-        essentialIndex++;
-      } else {
-        colors.push(
-          nonessentialPalette[
-            nonessentialIndex % nonessentialPalette.length
-          ]
-        );
-    
-        nonessentialIndex++;
-      }
-    });
+  const labels = [];
+  const values = [];
+  const colors = [];
 
- 
+  let essentialIndex = 0;
+  let nonessentialIndex = 0;
+
+  const essentialPalette = [
+    "#2f5aa8",
+    "#4a73bb",
+    "#6a8ccd",
+    "#8ba6de",
+    "#b0c3ec"
+  ];
+
+  const nonessentialPalette = [
+    "#9b72cf",
+    "#b08ad8",
+    "#c4a3e0",
+    "#d7bde8",
+    "#e8d5f2"
+  ];
+
+  data.items.forEach(item => {
+    labels.push(item.name);
+    values.push(item.value);
+
+    if (item.type === "essential") {
+      colors.push(essentialPalette[essentialIndex % essentialPalette.length]);
+      essentialIndex++;
+    } else {
+      colors.push(nonessentialPalette[nonessentialIndex % nonessentialPalette.length]);
+      nonessentialIndex++;
+    }
+  });
 
   const canvas = document.getElementById("spendingDonut");
 
@@ -274,6 +426,9 @@ function renderSpendingDonut(data) {
   });
 
   const legend = document.getElementById("spendingLegend");
+
+  if (!legend) return;
+
   legend.innerHTML = labels.map((label, index) => `
     <div class="chart-legend-item">
       <span class="chart-legend-dot" style="background:${colors[index % colors.length]}"></span>
@@ -307,81 +462,72 @@ function renderPositionDetails(data) {
     status.className = "deficit-color";
   }
 }
+
 function renderBenchmarkComparison(data, benchmark) {
-    const enteredBenchmarkItems = data.items.filter(
-      item => item.absGroup && item.value > 0
-    );
-  
-    const warning = document.getElementById("benchmarkWarning");
-  
-    const userGroups = {};
-  
-    enteredBenchmarkItems.forEach(item => {
-      if (!userGroups[item.absGroup]) {
-        userGroups[item.absGroup] = 0;
-      }
-  
-      userGroups[item.absGroup] += item.value;
-    });
-  
-    const selectedGroups = Object.keys(userGroups).filter(
-      group => benchmark[group] !== undefined
-    );
-  
-    if (selectedGroups.length < 2) {
+  const enteredBenchmarkItems = data.items.filter(
+    item => item.absGroup && item.value > 0
+  );
+
+  const warning = document.getElementById("benchmarkWarning");
+
+  const userGroups = {};
+
+  enteredBenchmarkItems.forEach(item => {
+    if (!userGroups[item.absGroup]) {
+      userGroups[item.absGroup] = 0;
+    }
+
+    userGroups[item.absGroup] += item.value;
+  });
+
+  const selectedGroups = Object.keys(userGroups).filter(
+    group => benchmark[group] !== undefined
+  );
+
+  if (selectedGroups.length < 2) {
+    if (warning) {
       warning.textContent =
         "Add at least 2 spending categories to compare your spending pattern. With only one category, the share will always be 100%.";
-  
-      renderBenchmarkChart([], {}, {});
-      renderBenchmarkTable([], {}, {});
-      renderBenchmarkInsights([], {}, {});
-      return;
     }
-  
+
+    renderBenchmarkChart([], {}, {});
+    renderBenchmarkTable([], {}, {});
+    renderBenchmarkInsights([], {}, {});
+    return;
+  }
+
+  if (warning) {
     warning.textContent =
       "This comparison only uses the categories you entered. Add more categories for a fuller picture of your spending pattern.";
-  
-    const userTotal = selectedGroups.reduce(
-      (sum, group) => sum + userGroups[group],
-      0
-    );
-  
-    const selectedBenchmarkTotal = selectedGroups.reduce(
-      (sum, group) => sum + benchmark[group],
-      0
-    );
-  
-    const userPercentages = {};
-    const recalculatedBenchmarkPercentages = {};
-  
-    selectedGroups.forEach(group => {
-      userPercentages[group] =
-        userTotal > 0 ? (userGroups[group] / userTotal) * 100 : 0;
-  
-      recalculatedBenchmarkPercentages[group] =
-        selectedBenchmarkTotal > 0
-          ? (benchmark[group] / selectedBenchmarkTotal) * 100
-          : 0;
-    });
-  
-    renderBenchmarkChart(
-      selectedGroups,
-      userPercentages,
-      recalculatedBenchmarkPercentages
-    );
-  
-    renderBenchmarkTable(
-      selectedGroups,
-      userPercentages,
-      recalculatedBenchmarkPercentages
-    );
-  
-    renderBenchmarkInsights(
-      selectedGroups,
-      userPercentages,
-      recalculatedBenchmarkPercentages
-    );
   }
+
+  const userTotal = selectedGroups.reduce(
+    (sum, group) => sum + userGroups[group],
+    0
+  );
+
+  const selectedBenchmarkTotal = selectedGroups.reduce(
+    (sum, group) => sum + benchmark[group],
+    0
+  );
+
+  const userPercentages = {};
+  const recalculatedBenchmarkPercentages = {};
+
+  selectedGroups.forEach(group => {
+    userPercentages[group] =
+      userTotal > 0 ? (userGroups[group] / userTotal) * 100 : 0;
+
+    recalculatedBenchmarkPercentages[group] =
+      selectedBenchmarkTotal > 0
+        ? (benchmark[group] / selectedBenchmarkTotal) * 100
+        : 0;
+  });
+
+  renderBenchmarkChart(selectedGroups, userPercentages, recalculatedBenchmarkPercentages);
+  renderBenchmarkTable(selectedGroups, userPercentages, recalculatedBenchmarkPercentages);
+  renderBenchmarkInsights(selectedGroups, userPercentages, recalculatedBenchmarkPercentages);
+}
 
 function renderBenchmarkChart(groups, userPercentages, benchmark) {
   const canvas = document.getElementById("benchmarkChart");
@@ -424,83 +570,87 @@ function renderBenchmarkChart(groups, userPercentages, benchmark) {
     }
   });
 }
+
 function renderBenchmarkTable(groups, userPercentages, benchmarkPercentages) {
-    const body = document.getElementById("benchmarkTableBody");
-  
-    if (!body) return;
-  
-    if (!groups.length) {
-      body.innerHTML = `
-        <tr>
-          <td colspan="4" style="text-align:center;color:var(--text-muted);">
-            Add at least 2 spending categories to see a meaningful comparison.
-          </td>
-        </tr>
-      `;
-      return;
-    }
-  
-    body.innerHTML = groups.map(group => {
-      const userPct = userPercentages[group] || 0;
-      const benchPct = benchmarkPercentages[group] || 0;
-      const diff = userPct - benchPct;
-  
-      return `
-        <tr>
-          <td>${group}</td>
-          <td>${userPct.toFixed(1)}%</td>
-          <td>${benchPct.toFixed(1)}%</td>
-          <td>${diff >= 0 ? "+" : ""}${diff.toFixed(1)}%</td>
-        </tr>
-      `;
-    }).join("");
+  const body = document.getElementById("benchmarkTableBody");
+
+  if (!body) return;
+
+  if (!groups.length) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align:center;color:var(--text-muted);">
+          Add at least 2 spending categories to see a meaningful comparison.
+        </td>
+      </tr>
+    `;
+    return;
   }
-  function renderBenchmarkInsights(groups, userPercentages, benchmarkPercentages) {
-    const container = document.getElementById("benchmarkInsights");
-  
-    if (!container) return;
-  
-    if (!groups.length) {
-      container.innerHTML = `
-        <div class="benchmark-insight">
-          <h4>No comparison yet</h4>
-          <p>
-            Add at least 2 spending categories so the app can compare how your spending is split.
-          </p>
-        </div>
-      `;
-      return;
-    }
-  
-    const differences = groups
-      .map(group => ({
-        group,
-        userPct: userPercentages[group] || 0,
-        benchPct: benchmarkPercentages[group] || 0,
-        diff: (userPercentages[group] || 0) - (benchmarkPercentages[group] || 0)
-      }))
-      .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
-      .slice(0, 3);
-  
-    container.innerHTML = differences.map(item => {
-      const direction = item.diff >= 0 ? "higher" : "lower";
-  
-      return `
-        <div class="benchmark-insight">
-          <h4>${item.group}</h4>
-          <p>
-            Among the categories you entered, this takes up
-            ${Math.abs(item.diff).toFixed(1)} percentage points ${direction}
-            share than the Victorian benchmark pattern.
-          </p>
-        </div>
-      `;
-    }).join("");
+
+  body.innerHTML = groups.map(group => {
+    const userPct = userPercentages[group] || 0;
+    const benchPct = benchmarkPercentages[group] || 0;
+    const diff = userPct - benchPct;
+
+    return `
+      <tr>
+        <td>${group}</td>
+        <td><strong>${userPct.toFixed(1)}%</strong></td>
+        <td><strong>${benchPct.toFixed(1)}%</strong></td>
+        <td>
+          <span class="difference-pill ${diff >= 0 ? "higher" : "lower"}">
+            You spend ${Math.abs(diff).toFixed(1)}% ${diff >= 0 ? "more" : "less"}
+          </span>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function renderBenchmarkInsights(groups, userPercentages, benchmarkPercentages) {
+  const container = document.getElementById("benchmarkInsights");
+
+  if (!container) return;
+
+  if (!groups.length) {
+    container.innerHTML = `
+      <div class="benchmark-insight">
+        <h4>No comparison yet</h4>
+        <p>Add at least 2 spending categories so the app can compare how your spending is split.</p>
+      </div>
+    `;
+    return;
   }
+
+  const differences = groups
+    .map(group => ({
+      group,
+      userPct: userPercentages[group] || 0,
+      benchPct: benchmarkPercentages[group] || 0,
+      diff: (userPercentages[group] || 0) - (benchmarkPercentages[group] || 0)
+    }))
+    .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
+    .slice(0, 3);
+
+  container.innerHTML = differences.map(item => {
+    const direction = item.diff >= 0 ? "larger" : "smaller";
+
+    return `
+      <div class="benchmark-insight">
+        <h4>${item.group}</h4>
+        <p>
+          Among the categories you entered, this takes up a ${Math.abs(item.diff).toFixed(1)}%
+          ${direction} share compared with the Victorian benchmark pattern.
+        </p>
+      </div>
+    `;
+  }).join("");
+}
 
 function renderNextSteps(data) {
   const text = document.getElementById("nextStepText");
   const links = document.getElementById("actionLinks");
+  const chips = document.getElementById("actionChips");
 
   const rentPct = data.income > 0 ? (data.rent / data.income) * 100 : 0;
 
@@ -513,6 +663,28 @@ function renderNextSteps(data) {
   } else {
     text.textContent =
       "Your position looks more manageable. Your next step is to turn your weekly surplus into a savings pathway for bond, emergency savings, or moving costs.";
+  }
+
+  const chipItems = [];
+
+  if (data.surplus < 0) {
+    chipItems.push("Reduce flexible spending");
+    chipItems.push("Review BNPL repayments");
+  }
+
+  if (rentPct >= 30 || data.rent === 0) {
+    chipItems.push("Compare cheaper suburbs");
+  }
+
+  if (data.surplus > 0) {
+    chipItems.push("Build emergency savings");
+    chipItems.push("Plan rental bond buffer");
+  }
+
+  if (chips) {
+    chips.innerHTML = chipItems.map(label => `
+      <span class="action-chip">${label}</span>
+    `).join("");
   }
 
   const items = [];
@@ -542,13 +714,15 @@ function renderNextSteps(data) {
     icon: "📊"
   });
 
-  links.innerHTML = items.map(item => `
-    <a href="${item.href}" class="action-link-card">
-      <div class="action-link-icon">${item.icon}</div>
-      <div>
-        <h4>${item.title}</h4>
-        <p>${item.desc}</p>
-      </div>
-    </a>
-  `).join("");
+  if (links) {
+    links.innerHTML = items.map(item => `
+      <a href="${item.href}" class="action-link-card">
+        <div class="action-link-icon">${item.icon}</div>
+        <div>
+          <h4>${item.title}</h4>
+          <p>${item.desc}</p>
+        </div>
+      </a>
+    `).join("");
+  }
 }

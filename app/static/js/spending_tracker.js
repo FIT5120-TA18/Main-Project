@@ -138,6 +138,14 @@ const ESSENTIAL_CATEGORIES = [
     document.getElementById("addNonEssentialBtn")?.addEventListener("click", () => {
       addFromDropdown("nonessential");
     });
+    //add by cicking dropdown list
+    document.getElementById("essentialDropdown")?.addEventListener("change", () => {
+        addFromDropdown("essential");
+      });
+      
+      document.getElementById("nonessentialDropdown")?.addEventListener("change", () => {
+        addFromDropdown("nonessential");
+      });
   
     document.getElementById("checkPositionBtn")?.addEventListener("click", handleCheckPosition);
   });

@@ -10,7 +10,8 @@ from models import (
     SuburbBoundaryVIC,
     SA3BoundaryVIC,
     SA3IncomeVIC,
-    OSMPOIVIC
+    OSMPOIVIC,
+    SpendingCategoriesVIC
 )
 from models import db
 
