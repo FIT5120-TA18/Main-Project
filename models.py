@@ -131,8 +131,8 @@ class OSMPOIVIC(db.Model):
     suburb_name = db.Column(db.String(100))
 
 
-class SpendingCategoriesVIC(db.Model):
-    __tablename__ = "spending_categories_vic"
+class SpendingCategoriesABS(db.Model):
+    __tablename__ = "spending_categories_ABS"
     __table_args__ = {"schema": "hermap"}
 
     month = db.Column("Month", db.DateTime, primary_key=True)

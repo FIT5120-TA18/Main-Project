@@ -11,7 +11,7 @@ from models import (
     SA3BoundaryVIC,
     SA3IncomeVIC,
     OSMPOIVIC,
-    SpendingCategoriesVIC
+    SpendingCategoriesABS
 )
 from models import db
 
@@ -738,17 +738,17 @@ def calculate_average_rent(values):
 def get_abs_spending_benchmark():
     row = (
         db.session.query(
-            func.avg(SpendingCategoriesVIC.services).label("services"),
-            func.avg(SpendingCategoriesVIC.food).label("food"),
-            func.avg(SpendingCategoriesVIC.clothing_and_footwear).label("clothing_and_footwear"),
-            func.avg(SpendingCategoriesVIC.furnishings_and_household_equipment).label("furnishings_and_household_equipment"),
-            func.avg(SpendingCategoriesVIC.health).label("health"),
-            func.avg(SpendingCategoriesVIC.transport).label("transport"),
-            func.avg(SpendingCategoriesVIC.recreation_and_culture).label("recreation_and_culture"),
-            func.avg(SpendingCategoriesVIC.hotels_cafes_and_restaurants).label("hotels_cafes_and_restaurants"),
-            func.avg(SpendingCategoriesVIC.miscellaneous_goods_and_services).label("miscellaneous_goods_and_services"),
-            func.min(SpendingCategoriesVIC.month).label("start_month"),
-            func.max(SpendingCategoriesVIC.month).label("end_month"),
+            func.avg(SpendingCategoriesABS.services).label("services"),
+            func.avg(SpendingCategoriesABS.food).label("food"),
+            func.avg(SpendingCategoriesABS.clothing_and_footwear).label("clothing_and_footwear"),
+            func.avg(SpendingCategoriesABS.furnishings_and_household_equipment).label("furnishings_and_household_equipment"),
+            func.avg(SpendingCategoriesABS.health).label("health"),
+            func.avg(SpendingCategoriesABS.transport).label("transport"),
+            func.avg(SpendingCategoriesABS.recreation_and_culture).label("recreation_and_culture"),
+            func.avg(SpendingCategoriesABS.hotels_cafes_and_restaurants).label("hotels_cafes_and_restaurants"),
+            func.avg(SpendingCategoriesABS.miscellaneous_goods_and_services).label("miscellaneous_goods_and_services"),
+            func.min(SpendingCategoriesABS.month).label("start_month"),
+            func.max(SpendingCategoriesABS.month).label("end_month"),
         )
         .first()
     )
