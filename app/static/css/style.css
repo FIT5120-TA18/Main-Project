@@ -2762,7 +2762,7 @@ main.container {
 
 .reveal-btn-ghost:disabled {
   opacity: 0.35;
-  cursor: not-allowed
+  cursor: not-allowed;
   text-decoration: none;
 }
 
@@ -2789,6 +2789,43 @@ main.container {
   border-radius: 3px;
   display: inline-block;
   flex-shrink: 0;
+}
+
+/* Scenario Toggle */
+.scenario-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+  width: fit-content;
+}
+
+.scenario-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.scenario-btn.active {
+  background: linear-gradient(135deg, #e8546a 0%, #c45fa8 50%, #9b72cf 100%);
+  color: white;
+  box-shadow: var(--shadow-brand);
+}
+
+.scenario-btn:hover:not(.active) {
+  color: var(--primary);
 }
 
 /* Chao's code

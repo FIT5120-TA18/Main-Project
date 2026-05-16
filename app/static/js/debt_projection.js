@@ -18,7 +18,7 @@ document.getElementById('statCreditType').textContent = typeLabels[creditType] |
 console.log('US 6.1 loaded:', { creditType });
 
 
-// --- US 6.3 AC 1: Chart formulas and initalisation ---
+// --- US 6.3 ---
 
 const CC_RATE = 0.20 / 12;
 const DEFAULT_OPENING = 150;
@@ -218,12 +218,6 @@ function updateSidebar(stepIndex) {
 // Boot the chart on page load
 initChart();
 
-// Log to console for debugging
-console.log('US 6.3: Chart initialised', { 
-    scenario: state.scenario, 
-    opening: state.opening, 
-    totalMonths: state.totalMonths 
-});
 
 // --- US 6.3 AC 2: Reveal Controls ---
 
@@ -277,8 +271,6 @@ function updateRevealUI() {
     btn.textContent = state.isComplete ? 'All Months Revealed' : `Reveal Month ${Math.min(state.currentStep + 1, state.totalMonths)}`;
 }
 
-// --- US 6.3 AC 3: Custom Legend ---
-
 function buildLegend() {
     const legend = document.getElementById('chartLegend');
     if (!legend) return;
@@ -320,4 +312,28 @@ updateRevealUI();
 updateSourceNote();
 
 // Log to console for debugging
-console.log('US 6.3: Reveal controls and custom legend initialised');
+console.log('US 6.3 loaded:', { state });
+
+document.getElementById('btnCredit').classList.toggle('active', state.scenario === 'credit');
+document.getElementById('btnBNPL').classList.toggle('active', state.scenario === 'bnpl');
+
+// --- US 6.6: Scenario toggle ---
+function setScenario(scenario) {
+    if (state.scenario === scenario) return;
+
+    // Update state
+    state.scenario = scenario;
+
+    // Update toggle button active state
+    document.getElementById('btnCredit').classList.toggle('active', scenario === 'credit');
+    document.getElementById('btnBNPL').classList.toggle('active', scenario === 'bnpl');
+
+    // Rebuild chart with new scenario
+    initChart();
+    buildLegend();
+    updateRevealUI();
+    updateSourceNote();
+
+    // Log to console for debugging
+    console.log('US 6.6 Scenario changed to:', { scenario });
+}

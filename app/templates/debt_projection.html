@@ -45,6 +45,17 @@
           <h3 class="proj-card-title" id="chartMainTitle">Debt Projection</h3>
           <p class="proj-card-sub" id="chartSubtitle">Based on your weekly deficit and selected credit type.</p>
 
+          <div class="scenario-toggle" id="scenarioToggle">
+            <button class="scenario-btn active" id="btnCredit" onclick="setScenario('credit')">
+              <span class="material-symbols-outlined" style="font-size:16px;">credit_card</span>
+              Credit Card
+            </button>
+            <button class="scenario-btn" id="btnBNPL" onclick="setScenario('bnpl')">
+              <span class="material-symbols-outlined" style="font-size:16px;">shopping_bag</span>
+              BNPL
+            </button>
+          </div>
+
           <!-- Legend -->
           <div class="chart-legend-custom" id="chartLegend"></div>
 
