@@ -319,6 +319,8 @@ function setScenario(scenario) {
     // Update state
     state.scenario = scenario;
 
+    document.getElementById('statCreditType').textContent = scenario === 'credit' ? 'Credit Card' : 'BNPL';
+
     // Update toggle button active state
     document.getElementById('btnCredit').classList.toggle('active', scenario === 'credit');
     document.getElementById('btnBNPL').classList.toggle('active', scenario === 'bnpl');
@@ -351,9 +353,17 @@ function updateBalanceLabel () {
         : 'Current debt balance ($)';
 }
 
+function clearBalanceError() {
+    const input = document.getElementById('openingBalanceInput');
+    const errorE1 = document.getElementById('balanceError');
+    input.classList.remove('input-error');
+    errorE1.style.display = 'none';
+    errorE1.textContent = '';
+}
+
 function applyCustomisation() {
     // Read projection length
-    const sliderIndex = parseInt(document.getElementById('.duration-slider').value);
+    const sliderIndex = parseInt(document.getElementById('durationSlider').value);
     const newMonths = DURATION_OPTIONS[sliderIndex];
 
     // Read and validate opening balance
@@ -377,7 +387,7 @@ function applyCustomisation() {
         }
 
         if (val > 10000) { 
-            errorE1.textContent = 'We can only project up to $5,000. For larger amounts, please speak to a financial consellor.';
+            errorE1.textContent = 'We can only project up to $10,000. For larger amounts, please speak to a financial consellor.';
             errorE1.style.display = 'block';
             input.classList.add('input-error');
             return
@@ -402,10 +412,10 @@ function applyCustomisation() {
     console.log('US 6.4 Chart Updated', { totalMonths: state.totalMonths, opening: state.opening });
 }
 
-
-
 // Boot legend and reveal UI
 buildLegend();
 updateRevealUI();
 updateSourceNote();
 updateBalanceLabel();
+document.getElementById('btnCredit').classList.toggle('active', state.scenario === 'credit');
+document.getElementById('btnBNPL').classList.toggle('active', state.scenario === 'bnpl');
