@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderSavingsPathway(data);
   renderActionInsights(data);
   renderSpendingDonut(data);
-  renderPositionDetails(data);
+//   renderPositionDetails(data);
   renderBenchmarkComparison(data, benchmark);
   renderNextSteps(data);
 });
@@ -117,8 +117,32 @@ function renderSummaryCards(data) {
   surplusEl.textContent = `${signedMoney(data.surplus)}/wk`;
   surplusEl.className = "summary-value " + (data.surplus >= 0 ? "surplus-color" : "deficit-color");
 
-  document.getElementById("summaryRentPressure").textContent =
-    data.rent > 0 ? `${rentPct.toFixed(1)}%` : "No rent";
+  const rentPressureEl = document.getElementById("summaryRentPressure");
+
+if (data.rent > 0) {
+
+  let status = "Stable";
+  let statusClass = "gauge-status-stable";
+
+  if (rentPct > 45) {
+    status = "At Risk";
+    statusClass = "gauge-status-risk";
+
+  } else if (rentPct >= 30) {
+    status = "Vulnerable";
+    statusClass = "gauge-status-vulnerable";
+  }
+
+  rentPressureEl.innerHTML = `
+
+    <div class="summary-pressure-label ${statusClass}">
+      ${status}
+    </div>
+  `;
+
+} else {
+  rentPressureEl.textContent = "No rent";
+}
 }
 
 function renderVerdict(data) {
@@ -153,32 +177,78 @@ function renderVerdict(data) {
   }
 }
 
+// function renderPressureMeter(data) {
+//   const marker = document.getElementById("pressureMarker");
+//   const value = document.getElementById("pressureValue");
+
+//   if (!marker || !value) return;
+
+//   if (!data.rent || data.rent <= 0 || data.income <= 0) {
+//     marker.style.left = "0%";
+//     value.textContent = "No rent entered";
+//     return;
+//   }
+
+//   const rentPct = (data.rent / data.income) * 100;
+//   const markerLeft = Math.min(rentPct, 80);
+
+//   marker.style.left = `${markerLeft}%`;
+
+//   let status = "Stable";
+//   if (rentPct >= 45) {
+//     status = "At Risk";
+//   } else if (rentPct >= 30) {
+//     status = "Vulnerable";
+//   }
+
+//   value.textContent = `${rentPct.toFixed(1)}% of income on rent · ${status}`;
+// }
+
 function renderPressureMeter(data) {
-  const marker = document.getElementById("pressureMarker");
-  const value = document.getElementById("pressureValue");
+    const needle = document.getElementById("pressureMarker");
+    const value = document.getElementById("pressureValue");
+  
+    if (!needle || !value) return;
+  
+    if (!data.rent || data.rent <= 0 || data.income <= 0) {
+      needle.style.transform = "translateX(-50%) rotate(-90deg)";
+      value.textContent = "No rent entered";
+      return;
+    }
+  
+    const rentPct = (data.rent / data.income) * 100;
+  
+    let status = "Stable";
+  
+    if (rentPct > 45) {
+      status = "At Risk";
+    } else if (rentPct >= 30) {
+      status = "Vulnerable";
+    }
+  
+    const cappedPct = Math.min(rentPct, 75);
+    const angle = -90 + (cappedPct / 75) * 180;
+  
+    needle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+  
+    let statusClass = "gauge-status-stable";
 
-  if (!marker || !value) return;
-
-  if (!data.rent || data.rent <= 0 || data.income <= 0) {
-    marker.style.left = "0%";
-    value.textContent = "No rent entered";
-    return;
-  }
-
-  const rentPct = (data.rent / data.income) * 100;
-  const markerLeft = Math.min(rentPct, 80);
-
-  marker.style.left = `${markerLeft}%`;
-
-  let status = "Stable";
-  if (rentPct >= 45) {
-    status = "At Risk";
-  } else if (rentPct >= 30) {
-    status = "Vulnerable";
-  }
-
-  value.textContent = `${rentPct.toFixed(1)}% of income on rent · ${status}`;
+if (rentPct > 45) {
+  statusClass = "gauge-status-risk";
+} else if (rentPct >= 30) {
+  statusClass = "gauge-status-vulnerable";
 }
+
+value.innerHTML = `
+  <span class="${statusClass}">
+    ${rentPct.toFixed(1)}%
+  </span>
+  of income on rent ·
+  <span class="${statusClass}">
+    ${status}
+  </span>
+`;
+  }
 
 function renderTopDrivers(data) {
   const container = document.getElementById("topDrivers");
@@ -312,35 +382,35 @@ function renderActionInsights(data) {
       "Your spending is currently within your income. The next question is whether this surplus is enough to support moving out, saving, or unexpected costs.";
   }
 
-  if (largestFlexible) {
-    const reduction = Math.min(30, Math.round(largestFlexible.value * 0.25));
-    const yearlySaving = reduction * 52;
+//   if (largestFlexible) {
+//     const reduction = Math.min(30, Math.round(largestFlexible.value * 0.25));
+//     const yearlySaving = reduction * 52;
 
-    fastestImprovement.textContent =
-      `Your largest flexible category is ${largestFlexible.name} at ${money(largestFlexible.value)}/wk. Reducing it by about ${money(reduction)}/wk could free up around ${money(yearlySaving)} over one year.`;
-  } else {
-    fastestImprovement.textContent =
-      "Most of your entered spending is essential. Your biggest improvement may come from comparing lower-rent suburbs or reviewing fixed bills.";
-  }
+//     fastestImprovement.textContent =
+//       `Your largest flexible category is ${largestFlexible.name} at ${money(largestFlexible.value)}/wk. Reducing it by about ${money(reduction)}/wk could free up around ${money(yearlySaving)} over one year.`;
+//   } else {
+//     fastestImprovement.textContent =
+//       "Most of your entered spending is essential. Your biggest improvement may come from comparing lower-rent suburbs or reviewing fixed bills.";
+//   }
 
-  const living = String(data.living || "").toLowerCase();
+//   const living = String(data.living || "").toLowerCase();
 
-  if (living.includes("home")) {
-    const estimatedSharedRent = data.rent > 0 ? data.rent : 280;
-    const estimatedUtilities = 45;
-    const projectedTotal = data.total + estimatedSharedRent + estimatedUtilities;
-    const projectedSurplus = data.income - projectedTotal;
+//   if (living.includes("home")) {
+//     const estimatedSharedRent = data.rent > 0 ? data.rent : 280;
+//     const estimatedUtilities = 45;
+//     const projectedTotal = data.total + estimatedSharedRent + estimatedUtilities;
+//     const projectedSurplus = data.income - projectedTotal;
 
-    moveOutReadiness.textContent =
-      `Because you currently live at home, your current surplus may not reflect independent living costs. If shared rent and utilities added about ${money(estimatedSharedRent + estimatedUtilities)}/wk, your projected position would be ${signedMoney(projectedSurplus)}/wk.`;
-  } else if (rentPct >= 30) {
-    moveOutReadiness.textContent =
-      `Rent takes up ${rentPct.toFixed(1)}% of your income, which may make independence harder to sustain unless other costs stay controlled.`;
-  } else {
-    moveOutReadiness.textContent =
-      "Your rent is below the 30% housing stress threshold, which gives you a stronger base for sustaining independence.";
-  }
-}
+//     moveOutReadiness.textContent =
+//       `Because you currently live at home, your current surplus may not reflect independent living costs. If shared rent and utilities added about ${money(estimatedSharedRent + estimatedUtilities)}/wk, your projected position would be ${signedMoney(projectedSurplus)}/wk.`;
+//   } else if (rentPct >= 30) {
+//     moveOutReadiness.textContent =
+//       `Rent takes up ${rentPct.toFixed(1)}% of your income, which may make independence harder to sustain unless other costs stay controlled.`;
+//   } else {
+//     moveOutReadiness.textContent =
+//       "Your rent is below the 30% housing stress threshold, which gives you a stronger base for sustaining independence.";
+//   }
+ }
 
 function getLargestNonEssential(items) {
   return items
@@ -437,31 +507,31 @@ function renderSpendingDonut(data) {
   `).join("");
 }
 
-function renderPositionDetails(data) {
-  const rentPct = data.income > 0 ? (data.rent / data.income) * 100 : 0;
+// function renderPositionDetails(data) {
+//   const rentPct = data.income > 0 ? (data.rent / data.income) * 100 : 0;
 
-  document.getElementById("essentialAmount").textContent = `${money(data.essential)}/wk`;
-  document.getElementById("nonessentialAmount").textContent = `${money(data.nonessential)}/wk`;
-  document.getElementById("rentPct").textContent = data.rent > 0 ? `${rentPct.toFixed(1)}%` : "No rent entered";
+//   document.getElementById("essentialAmount").textContent = `${money(data.essential)}/wk`;
+//   document.getElementById("nonessentialAmount").textContent = `${money(data.nonessential)}/wk`;
+//   document.getElementById("rentPct").textContent = data.rent > 0 ? `${rentPct.toFixed(1)}%` : "No rent entered";
 
-  const status = document.getElementById("stressStatus");
+//   const status = document.getElementById("stressStatus");
 
-  if (data.rent <= 0) {
-    status.textContent = "—";
-    return;
-  }
+//   if (data.rent <= 0) {
+//     status.textContent = "—";
+//     return;
+//   }
 
-  if (rentPct < 30) {
-    status.textContent = "✅ Stable";
-    status.className = "surplus-color";
-  } else if (rentPct <= 45) {
-    status.textContent = "⚠️ Vulnerable";
-    status.className = "warning-color";
-  } else {
-    status.textContent = "🔴 At Risk";
-    status.className = "deficit-color";
-  }
-}
+//   if (rentPct < 30) {
+//     status.textContent = "✅ Stable";
+//     status.className = "surplus-color";
+//   } else if (rentPct <= 45) {
+//     status.textContent = "⚠️ Vulnerable";
+//     status.className = "warning-color";
+//   } else {
+//     status.textContent = "🔴 At Risk";
+//     status.className = "deficit-color";
+//   }
+// }
 
 function renderBenchmarkComparison(data, benchmark) {
   const enteredBenchmarkItems = data.items.filter(
