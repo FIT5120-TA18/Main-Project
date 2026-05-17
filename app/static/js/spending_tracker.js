@@ -106,20 +106,43 @@ const ESSENTIAL_CATEGORIES = [
     const incomeEl = document.getElementById("incomeInput");
     const rentEl = document.getElementById("rentBannerInput");
   
-    if (incomeEl && profile.income) {
-      incomeEl.value = profile.income;
-    }
-  
-    if (rentEl && profile.rent) {
-      rentEl.value = profile.rent;
-    }
-  
-    updateIncomeBanner();
-    updateRentBanner();
-  
-    addExpenseCard("essential", "groceries", 0);
-    rebuildDropdowns();
-    updateTotals();
+    const savedData = loadSavedSpendingData();
+
+if (savedData) {
+  if (incomeEl) {
+    incomeEl.value = savedData.income || 0;
+  }
+
+  if (rentEl) {
+    rentEl.value = savedData.rent || 0;
+  }
+
+  savedData.items.forEach(item => {
+    if (item.id === "rent") return;
+
+    addExpenseCard(
+      item.type,
+      item.id,
+      item.value
+    );
+  });
+
+} else {
+  if (incomeEl && profile.income) {
+    incomeEl.value = profile.income;
+  }
+
+  if (rentEl && profile.rent) {
+    rentEl.value = profile.rent;
+  }
+
+  addExpenseCard("essential", "groceries", 0);
+}
+
+updateIncomeBanner();
+updateRentBanner();
+rebuildDropdowns();
+updateTotals();
   
     incomeEl?.addEventListener("input", () => {
       updateIncomeBanner();
@@ -419,4 +442,21 @@ const ESSENTIAL_CATEGORIES = [
     sessionStorage.setItem("hermapSpendingData", JSON.stringify(payload));
   
     window.location.href = "/spending-results";
+  }
+
+  function loadSavedSpendingData() {
+    try {
+      const raw = sessionStorage.getItem("hermapSpendingData");
+  
+      if (!raw) return null;
+  
+      const data = JSON.parse(raw);
+  
+      if (!data || !Array.isArray(data.items)) return null;
+  
+      return data;
+    } catch (error) {
+      console.warn("Could not load saved spending data:", error);
+      return null;
+    }
   }
