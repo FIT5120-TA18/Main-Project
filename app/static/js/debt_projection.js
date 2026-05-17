@@ -455,10 +455,14 @@ const TUTORIAL_STEPS = [
     }
 ]
 
+function lockScroll() { document.body.style.overflow = 'hidden'; }
+function unlockScroll() { document.body.style.overflow = ''; }
+
 let tutorialStep = 0;
 
 function startTutorial() {
     tutorialStep = 0;
+    lockScroll();
     document.getElementById('tutorialOverlay').style.display = 'block';
     document.getElementById('tutorialFab').style.display = 'none';
     renderTutorialStep();
@@ -520,22 +524,37 @@ function positionPopover(rect, pad) {
     const POPOVER_WIDTH = 360;
     const MARGIN = 16;
 
+    const spaceRight = window.innerWidth - rect.right;
+    const spaceLeft = rect.left;
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
 
-    let top; 
+    let top, left; 
 
-    if (spaceBelow >= POPOVER_HEIGHT + MARGIN) {
+    if (spaceRight >= POPOVER_WIDTH + MARGIN) {
+        // Place to the right
+        left = rect.right + pad + MARGIN;
+        top = rect.top + (rect.height / 2) - (POPOVER_HEIGHT / 2);
+    } else if (spaceLeft >= POPOVER_WIDTH + MARGIN) {
+        // Place to the left
+        left = rect.left - POPOVER_WIDTH - pad - MARGIN;
+        top = rect.top + (rect.height / 2) - (POPOVER_HEIGHT / 2);
+    } else if (spaceBelow >= POPOVER_HEIGHT + MARGIN) {
+        // Fall back below
         top = rect.bottom + pad + MARGIN;
+        left = rect.left;
     } else if (spaceAbove >= POPOVER_HEIGHT + MARGIN) {
+        // Fall back below
         top = rect.top - POPOVER_HEIGHT - pad - MARGIN;
+        left = rect.left;
     } else {
+        // Centre of screen
         top = window.innerHeight / 2 - POPOVER_HEIGHT / 2;
+        left = window.innerWidth / 2 - POPOVER_WIDTH / 2;
     }
 
-    let left = rect.left;
-    const maxLeft = window.innerWidth - POPOVER_WIDTH - MARGIN;
-    left = Math.min(Math.max(left, MARGIN), maxLeft);
+    top = Math.min(Math.max(top, MARGIN), window.innerHeight - POPOVER_HEIGHT - MARGIN);
+    left = Math.min(Math.max(left, MARGIN), window.innerWidth - POPOVER_WIDTH - MARGIN);
 
     popover.style.top = `${top}px`;
     popover.style.left = `${left}px`;
@@ -556,6 +575,7 @@ function tutorialNext() {
 function endTutorial() {
     document.querySelectorAll('.tutorial-active-target').forEach(e1 => {e1.classList.remove('tutorial-active-target');
     });
+    unlockScroll();
     document.getElementById('tutorialOverlay').style.display = 'none';
     document.getElementById('tutorialHighlight').classList.remove('is-ready');
     document.getElementById('tutorialPopover').classList.remove('is-ready');
