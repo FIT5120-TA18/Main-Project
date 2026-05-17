@@ -4481,3 +4481,542 @@ main.container {
   }
 
 }
+/* =========================================
+   SPENDING RESULTS PAGE
+========================================= */
+
+.results-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.results-content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Header */
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.results-header h1 {
+  margin: 0 0 10px;
+  font-family: var(--font-heading);
+  font-size: clamp(34px, 5vw, 52px);
+  line-height: 1.1;
+}
+
+.results-header p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 700px;
+}
+
+/* =========================================
+   SUMMARY CARDS
+========================================= */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.summary-card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.summary-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.summary-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.surplus-color {
+  color: #2e7d32;
+}
+
+.deficit-color {
+  color: #c62828;
+}
+
+/* =========================================
+   TOP SECTION
+========================================= */
+
+.visual-insight-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.pressure-card,
+.verdict-card,
+.chart-card,
+.insight-card,
+.benchmark-card,
+.action-card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.pressure-card h3,
+.verdict-card h2,
+.chart-card h3,
+.insight-card h3,
+.benchmark-card h3,
+.action-card h3 {
+  margin-top: 0;
+}
+
+.pressure-card p,
+.chart-card p,
+.insight-card p,
+.benchmark-card p,
+.action-card p {
+  color: var(--text-muted);
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+/* =========================================
+   VERDICT CARD
+========================================= */
+
+.verdict-card {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.verdict-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 24px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(232, 84, 106, 0.14),
+    rgba(155, 114, 207, 0.16)
+  );
+}
+
+/* =========================================
+   RENT PRESSURE
+========================================= */
+
+.pressure-meter {
+  margin-top: 24px;
+}
+
+.pressure-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.pressure-track {
+  position: relative;
+  height: 16px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+}
+
+.pressure-zone {
+  height: 100%;
+}
+
+.stable-zone {
+  width: 30%;
+  background: #c8e6c9;
+}
+
+.vulnerable-zone {
+  width: 15%;
+  background: #ffe082;
+}
+
+.risk-zone {
+  width: 55%;
+  background: #ffcdd2;
+}
+
+.pressure-marker {
+  position: absolute;
+  top: -5px;
+
+  width: 24px;
+  height: 24px;
+
+  border-radius: 50%;
+  background: var(--primary);
+  border: 4px solid white;
+
+  transform: translateX(-50%);
+  box-shadow: var(--shadow-sm);
+}
+
+.pressure-value {
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* =========================================
+   TOP DRIVERS
+========================================= */
+
+.drivers-card {
+  margin-top: 24px;
+}
+
+.top-drivers {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.driver-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 14px 16px;
+
+  border-radius: 16px;
+  background: var(--surface-2);
+}
+
+.driver-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.driver-name {
+  font-weight: 700;
+}
+
+.driver-amount {
+  font-weight: 800;
+}
+
+/* =========================================
+   CHART AREA
+========================================= */
+/* 
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+} */
+
+.chart-wrap {
+  position: relative;
+  height: 320px;
+  margin-top: 20px;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.chart-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+/* =========================================
+   BENCHMARK
+========================================= */
+
+.benchmark-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 24px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.benchmark-chart-wrap {
+  min-height: 380px;
+}
+
+.benchmark-insights {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.benchmark-insight {
+  padding: 18px;
+  border-radius: 18px;
+  background: var(--surface-2);
+}
+
+.benchmark-insight h4 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.benchmark-insight p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.benchmark-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.benchmark-table th {
+  text-align: left;
+  padding: 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--divider);
+}
+
+.benchmark-table td {
+  padding: 16px 14px;
+  border-bottom: 1px solid var(--divider);
+  font-size: 14px;
+}
+
+.difference-pill {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 10px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.difference-pill.higher {
+  background: rgba(198, 40, 40, 0.12);
+  color: #c62828;
+}
+
+.difference-pill.lower {
+  background: rgba(46, 125, 50, 0.12);
+  color: #2e7d32;
+}
+
+/* =========================================
+   NEXT STEP
+========================================= */
+
+.action-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.action-chip {
+  padding: 10px 14px;
+  border-radius: 999px;
+
+  background: rgba(79, 111, 216, 0.1);
+
+  color: #2f4fb8;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.action-links {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.action-link-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+
+  padding: 18px;
+
+  border-radius: 18px;
+
+  background: var(--surface-2);
+
+  text-decoration: none;
+  color: inherit;
+
+  transition: all 0.25s ease;
+}
+
+.action-link-card:hover {
+  transform: translateY(-2px);
+}
+
+.action-link-icon {
+  font-size: 24px;
+}
+
+.action-link-card h4 {
+  margin: 0 0 6px;
+}
+
+.action-link-card p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* =========================================
+   FOOTNOTE
+========================================= */
+
+.data-note {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 992px) {
+  .summary-grid,
+  .visual-insight-grid,
+  .chart-grid,
+  .benchmark-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .results-container {
+    padding: 28px 18px 60px;
+  }
+
+  .summary-value {
+    font-size: 22px;
+  }
+
+  .chart-wrap {
+    height: 260px;
+  }
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+  margin-bottom: 28px;
+}
+
+.chart-grid > .chart-card,
+.chart-grid > .insight-card {
+  height: 100%;
+  margin: 0;
+}
+
+.chart-side-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.benchmark-card {
+  margin-top: 0;
+}
+
+@media (max-width: 992px) {
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.visual-insight-grid,
+.chart-grid,
+.benchmark-card,
+.action-card {
+  margin-bottom: 28px;
+}
+
+.visual-insight-grid,
+.chart-grid {
+  align-items: stretch;
+}
+
+.visual-insight-grid > *,
+.chart-grid > * {
+  height: 100%;
+}
+/* .pressure-card,
+.chart-card,
+.insight-card,
+.verdict-card {
+  display: flex;
+  flex-direction: column;
+} */

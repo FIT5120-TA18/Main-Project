@@ -72,12 +72,12 @@
       </div>
     </div>
 
-    <div class="verdict-card" id="verdictCard">
+    <!-- <div class="verdict-card" id="verdictCard">
       <div class="verdict-icon" id="verdictIcon">⏳</div>
       <div>
         <h2 id="verdictTitle">Calculating…</h2>
         <p id="verdictBody"></p>
-      </div>
+      </div> -->
     </div>
 
     <section class="visual-insight-grid">
@@ -101,6 +101,13 @@
 
           <div class="pressure-value" id="pressureValue">No rent entered</div>
         </div>
+
+      </div>
+        <div class="verdict-card" id="verdictCard">
+      <div class="verdict-icon" id="verdictIcon">⏳</div>
+      <div>
+        <h2 id="verdictTitle">Calculating…</h2>
+        <p id="verdictBody"></p>
       </div>
 
       <div class="drivers-card">
@@ -110,7 +117,7 @@
       </div>
     </section>
 
-    <section class="scenario-card">
+    <!-- <section class="scenario-card">
       <div class="section-heading-row">
         <div>
           <h3>Independence scenarios</h3>
@@ -137,9 +144,9 @@
           <p>Estimated position if you carry a larger rent cost independently.</p>
         </div>
       </div>
-    </section>
+    </section> -->
 
-    <section class="savings-pathway-card">
+    <!-- <section class="savings-pathway-card">
       <h3>Savings pathway</h3>
       <p>Turn your weekly surplus into practical independence goals.</p>
 
@@ -166,14 +173,14 @@
           <p id="bondNote">Estimated time to build a moving-out buffer.</p>
         </div>
       </div>
-    </section>
+    </section> -->
 
-    <section class="insight-grid">
+    <!-- <section class="insight-grid">
       <div class="insight-card">
         <h3>What this means</h3>
         <p id="positionInsight"></p>
-      </div>
-
+      </div> -->
+<!-- 
       <div class="insight-card">
         <h3>Fastest improvement</h3>
         <p id="fastestImprovement"></p>
@@ -182,21 +189,26 @@
       <div class="insight-card">
         <h3>Move-out readiness</h3>
         <p id="moveOutReadiness"></p>
-      </div>
-    </section>
-
+      </div> -->
+    <!-- </section> -->
     <section class="chart-grid">
-      <div class="chart-card">
-        <h3>Spending breakdown</h3>
-        <p>Blue shows essential spending. Purple shows flexible spending.</p>
-
-        <div class="chart-wrap">
-          <canvas id="spendingDonut"></canvas>
+        <div class="chart-card">
+          <h3>Spending breakdown</h3>
+          <p>Blue shows essential spending. Purple shows flexible spending.</p>
+      
+          <div class="chart-wrap">
+            <canvas id="spendingDonut"></canvas>
+          </div>
+      
+          <div id="spendingLegend" class="chart-legend"></div>
         </div>
-
-        <div id="spendingLegend" class="chart-legend"></div>
-      </div>
-
+      
+        <div class="insight-card chart-side-card">
+          <h3>What this means</h3>
+          <p id="positionInsight"></p>
+        </div>
+      </section>
+<!-- 
       <div class="chart-card">
         <h3>Essential vs flexible spending</h3>
         <p>This helps identify how much of your budget is harder to change.</p>
@@ -222,8 +234,8 @@
             <strong id="stressStatus">--</strong>
           </div>
         </div>
-      </div>
-    </section>
+      </div> -->
+    <!-- </section> -->
 
     <section class="benchmark-card">
       <h3>Your spending pattern compared with Victoria</h3>
