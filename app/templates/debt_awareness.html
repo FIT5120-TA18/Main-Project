@@ -12,7 +12,6 @@
     rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/debt_awareness.css') }}">
-
 </head>
 
 <body>
@@ -82,8 +81,7 @@
         </div>
         <p class="q-label">Question 2 of 2</p>
         <h2 class="q-title">Who usually covers this bill?</h2>
-        <p class="q-sub">Understanding who pays helps us give you more relevant guidance on managing credit and debt.
-        </p>
+        <p class="q-sub">Understanding who pays helps us give you more relevant guidance on managing credit and debt.</p>
         <div class="option-list" id="q2Options">
           <button class="option-btn" data-value="self" onclick="selectOption(this, 'q2')">
             <span class="option-emoji">💪</span> I pay it myself
@@ -97,8 +95,7 @@
         </div>
         <div class="q-actions">
           <button class="q-back-btn" onclick="goBack()">Back</button>
-          <button class="q-next-btn" id="q2NextBtn" disabled onclick="goToProjection()">See how debt could grow
-            →</button>
+          <button class="q-next-btn" id="q2NextBtn" disabled onclick="goToProjection()">See how debt could grow →</button>
         </div>
       </div>
     </div>
@@ -118,61 +115,14 @@
     </div>
   </footer>
 
+  <!-- Data bridge: server-rendered URLs for debt_awareness.js -->
   <script>
-    let q1Answer = null, q2Answer = null;
-
-    function selectOption(btn, question) {
-      const parent = btn.closest(".option-list");
-      parent.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      if (question === "q1") {
-        q1Answer = btn.dataset.value;
-        document.getElementById("q1NextBtn").disabled = false;
-      } else {
-        q2Answer = btn.dataset.value;
-        document.getElementById("q2NextBtn").disabled = false;
-      }
-    }
-
-    function goStep1() {
-      if (!q1Answer) return;
-
-      if (q1Answer === "no") {
-        // Skip projection - go straight to knowledge hub
-        sessionStorage.setItem("debtAwareness", JSON.stringify({ creditType: "none", payer: "none" }));
-        window.location.href = "{{ url_for('main.knowledge_hub') }}";
-        return;
-      }
-
-      if (q1Answer === "considering") {
-        sessionStorage.setItem("debtAwareness", JSON.stringify({ creditType: "considering", payer: "none" }));
-        window.location.href = "{{ url_for('main.debt_projection') }}";
-      }
-
-      // Show Q2
-      document.getElementById("step0").classList.remove("active");
-      document.getElementById("step1").classList.add("active");
-      document.getElementById("dot0").classList.remove("active");
-      document.getElementById("dot0").classList.add("done");
-      document.getElementById("dot1").style.display = "block";
-      document.getElementById("dot1").classList.add("active");
-    }
-
-    function goBack() {
-      document.getElementById("step1").classList.remove("active");
-      document.getElementById("step0").classList.add("active");
-      document.getElementById("dot1").classList.remove("active");
-      document.getElementById("dot1").style.display = "none";
-      document.getElementById("dot0").classList.remove("done");
-      document.getElementById("dot0").classList.add("active");
-    }
-
-    function goToProjection() {
-      if (!q2Answer) return;
-      sessionStorage.setItem("debtAwareness", JSON.stringify({ creditType: q1Answer, payer: q2Answer }));
-      window.location.href = "{{ url_for('main.debt_projection') }}";
-    }
+    window.appUrls = {
+      knowledgeHub:  "{{ url_for('main.knowledge_hub') }}",
+      debtProjection: "{{ url_for('main.debt_projection') }}"
+    };
   </script>
+  <script src="{{ url_for('static', filename='js/debt_awareness.js') }}"></script>
 </body>
 
 </html>
