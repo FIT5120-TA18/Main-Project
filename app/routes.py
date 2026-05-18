@@ -162,7 +162,7 @@ def spending_tracker():
     return render_template("spending_tracker.html", profile_data=profile_data)
 
 
-@main.route("/spending-results")
+@main.route("/spending_results")
 @access_required
 def spending_results():
     spending_data = session.get("spending_data", {})

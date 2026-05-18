@@ -481,8 +481,8 @@ async function handleCheckPosition() {
     window.location.href = window.location.pathname.startsWith(
       "/underdevelopment",
     )
-      ? "/underdevelopment/spending-results"
-      : "/spending-results";
+      ? "/underdevelopment/spending_results"
+      : "/spending_results";
   } catch (error) {
     console.error("Could not save spending data to Flask:", error);
 
@@ -494,8 +494,8 @@ async function handleCheckPosition() {
     window.location.href = window.location.pathname.startsWith(
       "/underdevelopment",
     )
-      ? "/underdevelopment/spending-results"
-      : "/spending-results";
+      ? "/underdevelopment/spending_results"
+      : "/spending_results";
   }
 }
 
