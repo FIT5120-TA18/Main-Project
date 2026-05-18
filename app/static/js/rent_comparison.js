@@ -59,9 +59,9 @@ const quadrantPlugin = {
     // Sweet spot quadrant: lower cost + higher access.
     ctx.fillStyle = "rgba(79, 111, 216, 0.08)";
     ctx.fillRect(
-      chartArea.left,
+      chartArea.right,
       chartArea.top,
-      xMid - chartArea.left,
+      xMid - chartArea.right,
       yMid - chartArea.top,
     );
 
@@ -86,25 +86,25 @@ const quadrantPlugin = {
     ctx.font = "12px Inter, sans-serif";
 
     ctx.fillText(
-      "Lower cost + Higher access",
+      "Higher cost + Higher access",
       chartArea.left + 130,
       chartArea.top + 22,
     );
 
     ctx.fillText(
-      "Higher cost + Higher access",
+      "Lower cost + Higher access",
       chartArea.right - 145,
       chartArea.top + 22,
     );
 
     ctx.fillText(
-      "Lower cost + Lower access",
+      "Higher cost + Lower access",
       chartArea.left + 130,
       chartArea.bottom - 12,
     );
 
     ctx.fillText(
-      "Higher cost + Lower access",
+      "Lower cost + Lower access",
       chartArea.right - 145,
       chartArea.bottom - 12,
     );
