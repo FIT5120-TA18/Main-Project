@@ -40,9 +40,9 @@ class LGABoundaryVIC(db.Model):
 class MedianRentVIC1BR(db.Model):
     __tablename__ = "median_rent_vic_1br"
     __table_args__ = {"schema": "hermap"}
-class MedianRentVIC(db.Model):
-    __tablename__ = "median_rent_vic"
-    __table_args__ = SCHEMA_ARGS
+# class MedianRentVIC(db.Model):
+#     __tablename__ = "median_rent_vic"
+#     __table_args__ = SCHEMA_ARGS
 
     locality = db.Column(db.String(100), primary_key=True)
     postcode = db.Column(db.String(10), primary_key=True)
@@ -75,13 +75,14 @@ class MedianRentVIC(db.Model):
 # class MedianRentVIC1BR(db.Model):
 #     __tablename__ = "median_rent_vic_1br"
 #     __table_args__ = {"schema": "hermap"}
-class MedianRentVIC1BR(db.Model):
-    __tablename__ = "median_rent_vic_1br"
-    __table_args__ = SCHEMA_ARGS
+# class MedianRentVIC1BR(db.Model):
+#     __tablename__ = "median_rent_vic_1br"
+#     __table_args__ = SCHEMA_ARGS
 
-#     locality = db.Column(db.String(100), primary_key=True)
-#     postcode = db.Column(db.String(10), primary_key=True)
-#     lgacode = db.Column(db.String(20), primary_key=True)
+#     id = db.Column(db.String(10), primary_key=True)
+#     locality = db.Column(db.String(100))
+#     postcode = db.Column(db.String(10))
+#     lgacode = db.Column(db.String(20))
 #     rent_09_25 = db.Column("09-25", db.Float)
 
 class SuburbBoundaryVIC(db.Model):
@@ -149,7 +150,7 @@ class OSMPOIVIC(db.Model):
 
 class SpendingCategoriesABS(db.Model):
     __tablename__ = "spending_categories_ABS"
-    __table_args__ = {"schema": "hermap"}
+    __table_args__ = {"schema": "hermap","extend_existing": True}
 
     month = db.Column("Month", db.DateTime, primary_key=True)
 
@@ -220,7 +221,7 @@ class GenderPayGapIndustrySummary(db.Model):
 
 class ABSHouseholdSpending(db.Model):
     __tablename__ = "spending_categories_ABS"
-    __table_args__ = SCHEMA_ARGS
+    __table_args__ = {"schema": "hermap","extend_existing": True}
 
     month = db.Column("Month", db.DateTime, primary_key=True)
 

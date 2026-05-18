@@ -288,7 +288,7 @@ def spending_input():
     profile_data = session.get("profile", {})
     if not profile_data:
         return redirect(url_for("main.quick_profile"))
-    return render_template("spending_input.html", profile_data=profile_data)
+    return render_template("spending_tracker.html", profile_data=profile_data)
 
 # Epic 5 – Spending Results
 @main.route("/spending/result")
@@ -297,7 +297,7 @@ def spending_result():
     profile_data = session.get("profile", {})
     if not profile_data:
         return redirect(url_for("main.quick_profile"))
-    return render_template("spending_result.html", profile_data=profile_data)
+    return render_template("spending_results.html", profile_data=profile_data)
 
 # Epic 6 – Debt Awareness
 @main.route("/debt_awareness")
