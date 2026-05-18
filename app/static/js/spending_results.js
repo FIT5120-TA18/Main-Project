@@ -381,18 +381,40 @@ function renderSavingsPathway(data) {
 
 function renderActionInsights(data) {
   const positionInsight = document.getElementById("positionInsight");
+
+  if (positionInsight) {
+    const aiInsightFromPython = positionInsight.textContent.trim();
+
+    let finalInsight = aiInsightFromPython;
+
+    if (!finalInsight) {
+      if (data.surplus < 0) {
+        finalInsight =
+          "Your spending is currently higher than your income. The main risk is that small weekly gaps can quickly become a larger shortfall.";
+      } else {
+        finalInsight =
+          "Your spending is currently within your income. The next question is whether this surplus is enough to support moving out, saving, or unexpected costs.";
+      }
+    }
+
+    typeWriterText(positionInsight, finalInsight, 22);
+  }
   const fastestImprovement = document.getElementById("fastestImprovement");
   const moveOutReadiness = document.getElementById("moveOutReadiness");
 
   const rentPct = data.income > 0 ? (data.rent / data.income) * 100 : 0;
   const largestFlexible = getLargestNonEssential(data.items);
 
-  if (data.surplus < 0) {
-    positionInsight.textContent =
-      "Your spending is currently higher than your income. The main risk is that small weekly gaps can quickly become a larger shortfall.";
-  } else {
-    positionInsight.textContent =
-      "Your spending is currently within your income. The next question is whether this surplus is enough to support moving out, saving, or unexpected costs.";
+  const existingInsight = positionInsight.textContent.trim();
+
+  if (!existingInsight) {
+    if (data.surplus < 0) {
+      positionInsight.textContent =
+        "Your spending is currently higher than your income. The main risk is that small weekly gaps can quickly become a larger shortfall.";
+    } else {
+      positionInsight.textContent =
+        "Your spending is currently within your income. The next question is whether this surplus is enough to support moving out, saving, or unexpected costs.";
+    }
   }
 
   //   if (largestFlexible) {
@@ -851,4 +873,23 @@ function renderNextSteps(data) {
       )
       .join("");
   }
+}
+
+function typeWriterText(element, text, speed = 22) {
+  if (!element || !text) return;
+
+  element.textContent = "";
+  element.classList.add("typewriter-active");
+
+  let index = 0;
+
+  const typeInterval = setInterval(function () {
+    element.textContent += text.charAt(index);
+    index += 1;
+
+    if (index >= text.length) {
+      clearInterval(typeInterval);
+      element.classList.remove("typewriter-active");
+    }
+  }, speed);
 }
